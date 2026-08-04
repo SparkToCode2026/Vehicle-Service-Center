@@ -24,5 +24,10 @@
         public int VehicleId { get; set; } //foreign key to VehicleModel
         public VehicleModel Vehicle { get; set; } //navigation property to VehicleModel
         */
+
+        /*Many to One relationship with CustomerProfile
+        public int CustomerProfileId { get; set; } //foreign key to CustomerProfile
+        public CustomerProfileModel CustomerProfile { get; set; } //navigation property to CustomerProfileModel
+        */
     }
 }
