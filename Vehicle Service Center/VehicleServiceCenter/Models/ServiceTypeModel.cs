@@ -16,5 +16,14 @@
         public int ServiceTypeId { get; set; } //foreign key to ServiceTypeModel
         public ServiceTypeModel ServiceType { get; set; } //navigation property to ServiceTypeModel
         */
+
+        /*One to Many relationship with ServiceOrderItem
+        public List<ServiceOrderItem> ServiceOrderItems { get; set; } 
+
+        in the ServiceOrderItem class, you would have a foreign key property:
+        [ForeignKey("ServiceType")]
+        public int ServiceTypeId { get; set; } //foreign key to ServiceTypeModel
+        public ServiceTypeModel ServiceType { get; set; } //navigation property to ServiceTypeModel
+        */
     }
 }
