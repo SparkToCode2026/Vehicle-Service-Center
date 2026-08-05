@@ -55,6 +55,8 @@ namespace VehicleServiceCenter.Controllers
             });
         }
         [HttpPost("Login")]
+
+        // Login User
         public IActionResult Login(string email, string password)
         {
             // Find the user by email
@@ -82,5 +84,25 @@ namespace VehicleServiceCenter.Controllers
                 Role = user.Role
             });
         }
+
+        // Get all users
+        [HttpGet("GetAll")]
+        public IActionResult GetAllUsers()
+        {
+            var users = context.Users
+                .Select(u => new
+                {
+                    u.UserId,
+                    u.UserName,
+                    u.Email,
+                    u.Role,
+                    u.PhoneNumber,
+                    u.IsActive,
+                    u.CreatedAt
+                })
+                .ToList();
+            return Ok(users);
+        }
+
     }
 }
