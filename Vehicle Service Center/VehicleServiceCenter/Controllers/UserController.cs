@@ -192,5 +192,23 @@ namespace VehicleServiceCenter.Controllers
             });
         }
 
+        // Delete user by ID
+        [HttpDelete("Delete/{id}")]
+        public IActionResult DeleteUser(int id)
+        {
+            var user = context.Users.Find(id);
+            if (user == null)
+            {
+                return NotFound("User not found");
+            }
+            context.Users.Remove(user);
+            context.SaveChanges();
+            return Ok(new
+            {
+                Message = "User deleted successfully",
+                UserId = user.UserId
+            });
+        }
+
     }
 }
