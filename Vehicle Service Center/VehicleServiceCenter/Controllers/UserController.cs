@@ -173,5 +173,24 @@ namespace VehicleServiceCenter.Controllers
             });
         }
 
+        // Change user status by ID
+        [HttpPatch("ChangeStatus/{id}")]
+        public IActionResult ChangeUserStatus(int id, bool isActive)
+        {
+            var user = context.Users.Find(id);
+            if (user == null)
+            {
+                return NotFound("User not found");
+            }
+            user.IsActive = isActive;
+            context.SaveChanges();
+            return Ok(new
+            {
+                Message = "User status changed successfully",
+                UserId = user.UserId,
+                IsActive = user.IsActive
+            });
+        }
+
     }
 }
