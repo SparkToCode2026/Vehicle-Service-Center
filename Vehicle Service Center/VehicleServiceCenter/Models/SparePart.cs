@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace VehicleServiceCenter.Models;
 
+
 public class SparePart
 {
     [Key]
