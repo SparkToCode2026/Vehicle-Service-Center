@@ -1,6 +1,18 @@
-﻿namespace VehicleServiceCenter.Controllers
+﻿using Microsoft.AspNetCore.Mvc;
+
+namespace VehicleServiceCenter.Controllers
 {
-    public class UserController
+    [ApiController]
+    [Route("User")]
+    public class UserController : ControllerBase
     {
+        private ProjectContext ProjectContext;
+
+        public UserController(ProjectContext projectContext)
+        {
+            ProjectContext = projectContext;
+        }
+
+        
     }
 }
