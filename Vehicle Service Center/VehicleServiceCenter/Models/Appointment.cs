@@ -5,15 +5,13 @@ namespace VehicleServiceCenter.Models;
 
 public class Appointment
 {
-    [Key]
-    public int AppointmentId { get; set; }
+    [Key] public int AppointmentId { get; set; }
 
     public int CustomerProfileId { get; set; }
 
-    [ForeignKey("CustomerProfile")]
-    public CustomerProfile CustomerProfile { get; set; }
+    [ForeignKey("CustomerProfile")] public CustomerProfile? CustomerProfile { get; set; }
 
-    public int VehicleId { get; set; }
+public int VehicleId { get; set; }
 
     [ForeignKey("Vehicle")]
     public Vehicle Vehicle { get; set; }

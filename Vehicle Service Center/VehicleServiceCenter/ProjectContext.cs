@@ -1,6 +1,8 @@
-﻿namespace VehicleServiceCenter
+﻿
+namespace VehicleServiceCenter
 {
-    public class ProjectContext
+    public class ProjectContext 
     {
+        
     }
 }
