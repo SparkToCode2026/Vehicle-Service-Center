@@ -74,5 +74,22 @@ namespace VehicleServiceCenter.Controllers
                 customerProfile.CustomerProfileId
             });
         }
+
+        // Get Customer Profile by ID
+        [HttpGet("GetCustomerProfile")]
+        public IActionResult GetCustomerProfile(int id)
+        {
+            CustomerProfileModel? customerProfile =
+                context.CustomerProfiles.FirstOrDefault(
+                    c => c.CustomerProfileId == id
+                );
+
+            if (customerProfile == null)
+            {
+                return NotFound("Customer profile not found");
+            }
+
+            return Ok(customerProfile);
+        }
     }
 }
