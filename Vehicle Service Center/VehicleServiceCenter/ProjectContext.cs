@@ -11,7 +11,6 @@ namespace VehicleServiceCenter
 
         public ProjectContext(DbContextOptions<ProjectContext> options) : base(options)
         {
-
         }
     }
 }
