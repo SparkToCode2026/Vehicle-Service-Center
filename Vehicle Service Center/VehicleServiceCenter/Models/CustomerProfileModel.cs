@@ -8,7 +8,6 @@ namespace VehicleServiceCenter.Models
     {
         [Key]
         public int CustomerProfileId { get; set; }
-
         [Required]
         public string Address { get; set; } = string.Empty;
 
