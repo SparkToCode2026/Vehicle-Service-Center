@@ -54,5 +54,33 @@ namespace VehicleServiceCenter.Controllers
                 UserId = user.UserId
             });
         }
+        [HttpPost("Login")]
+        public IActionResult Login(string email, string password)
+        {
+            // Find the user by email
+            UserModel user = context.Users
+                .FirstOrDefault(u => u.Email == email);
+            if (user == null)
+            {
+                return Unauthorized("Invalid email or password");
+            }
+            // Verify the password
+            bool isPasswordValid = BCrypt.Net.BCrypt.Verify(password, user.Password);
+            if (!isPasswordValid)
+            {
+                return Unauthorized("Invalid email or password");
+            }
+            // Check if the user is active
+            if (!user.IsActive)
+            {
+                return Unauthorized("User account is inactive");
+            }
+            return Ok(new
+            {
+                Message = "Login successful",
+                UserId = user.UserId,
+                Role = user.Role
+            });
+        }
     }
 }
