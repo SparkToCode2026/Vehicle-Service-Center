@@ -1,6 +1,79 @@
-﻿namespace VehicleServiceCenter.Controllers
+﻿using Microsoft.AspNetCore.Mvc;
+using VehicleServiceCenter.Models;
+
+namespace VehicleServiceCenter.Controllers
 {
-    public class MechanicProfileController
+    [ApiController]
+    [Route("MechanicProfile")]
+    public class MechanicProfileController : ControllerBase
     {
+        private ProjectContext context;
+
+        public MechanicProfileController(ProjectContext projectContext)
+        {
+            context = projectContext;
+        }
+
+        // Add Mechanic Profile
+        [HttpPost("AddMechanicProfile")]
+        public IActionResult AddMechanicProfile(
+            MechanicProfileModel mechanicProfile)
+        {
+            // Check if the user exists
+            UserModel? user = context.Users.FirstOrDefault(
+                u => u.UserId == mechanicProfile.UserId
+            );
+
+            if (user == null)
+            {
+                return NotFound("User not found");
+            }
+
+            // Only users with the Mechanic role can have a mechanic profile
+            if (!user.Role.Equals(
+                "Mechanic",
+                StringComparison.OrdinalIgnoreCase))
+            {
+                return BadRequest(
+                    "The selected user does not have the Mechanic role"
+                );
+            }
+
+            // Check whether this user already has a mechanic profile
+            MechanicProfileModel? existingProfile =
+                context.MechanicProfiles.FirstOrDefault(
+                    m => m.UserId == mechanicProfile.UserId
+                );
+
+            if (existingProfile != null)
+            {
+                return BadRequest(
+                    "This user already has a mechanic profile"
+                );
+            }
+
+            // Check whether the branch exists
+            BranchModel? branch = context.Branches.FirstOrDefault(
+                b => b.BranchId == mechanicProfile.BranchId
+            );
+
+            if (branch == null)
+            {
+                return NotFound("Branch not found");
+            }
+
+            mechanicProfile.MechanicProfileId = 0;
+            mechanicProfile.IsAvailable = true;
+
+            context.MechanicProfiles.Add(mechanicProfile);
+            context.SaveChanges();
+
+            return Ok(new
+            {
+                Message = "Mechanic profile added successfully",
+                mechanicProfile.MechanicProfileId
+            });
+        }
+
     }
 }
