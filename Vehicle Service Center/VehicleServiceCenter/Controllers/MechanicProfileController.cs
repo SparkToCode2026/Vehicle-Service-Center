@@ -92,5 +92,15 @@ namespace VehicleServiceCenter.Controllers
             return Ok(mechanicProfile);
         }
 
+        // Get All Mechanic Profiles
+        [HttpGet("GetAllMechanicProfiles")]
+        public IActionResult GetAllMechanicProfiles()
+        {
+            List<MechanicProfileModel> mechanicProfiles =
+                context.MechanicProfiles.ToList();
+
+            return Ok(mechanicProfiles);
+        }
+
     }
 }
