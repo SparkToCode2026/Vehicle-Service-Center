@@ -176,5 +176,26 @@ namespace VehicleServiceCenter.Controllers
             return Ok("Mechanic profile updated successfully");
         }
 
+        // Update Mechanic Availability
+        [HttpPatch("UpdateAvailability")]
+        public IActionResult UpdateAvailability(
+            int id,
+            bool isAvailable)
+        {
+            MechanicProfileModel? mechanicProfile =
+                context.MechanicProfiles.FirstOrDefault(
+                    m => m.MechanicProfileId == id
+                );
+
+            if (mechanicProfile == null)
+            {
+                return NotFound("Mechanic profile not found");
+            }
+
+            mechanicProfile.IsAvailable = isAvailable;
+            context.SaveChanges();
+
+            return Ok("Mechanic availability updated successfully");
+        }
     }
 }
