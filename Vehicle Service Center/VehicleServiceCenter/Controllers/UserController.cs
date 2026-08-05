@@ -1,4 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
+using VehicleServiceCenter.Models;
 
 namespace VehicleServiceCenter.Controllers
 {
@@ -13,6 +16,43 @@ namespace VehicleServiceCenter.Controllers
             ProjectContext = projectContext;
         }
 
-        
+        // Register User
+        [HttpPost("RegisterUser")]
+        public IActionResult RegisterUser(UserModel user)
+        {
+            // Check whether the email already exists
+            UserModel existingUser = context.Users
+                .FirstOrDefault(u => u.Email == user.Email);
+
+            if (existingUser != null)
+            {
+                return BadRequest("Email is already registered");
+            }
+
+            // Check if the role is valid
+            if (user.Role != "Customer" &&
+                user.Role != "Mechanic" &&
+                user.Role != "Admin")
+            {
+                return BadRequest(
+                    "Role must be Customer, Mechanic, or Admin"
+                );
+            }
+
+            // Hash the password
+            user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
+
+            user.IsActive = true;
+            user.CreatedAt = DateTime.Now;
+
+            context.Users.Add(user);
+            context.SaveChanges();
+
+            return Ok(new
+            {
+                Message = "User registered successfully",
+                UserId = user.UserId
+            });
+        }
     }
 }
