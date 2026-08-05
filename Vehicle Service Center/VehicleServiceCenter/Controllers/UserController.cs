@@ -89,8 +89,7 @@ namespace VehicleServiceCenter.Controllers
         [HttpGet("GetAll")]
         public IActionResult GetAllUsers()
         {
-            var users = context.Users
-                .Select(u => new
+            var users = context.Users.Select(u => new
                 {
                     u.UserId,
                     u.UserName,
@@ -102,6 +101,28 @@ namespace VehicleServiceCenter.Controllers
                 })
                 .ToList();
             return Ok(users);
+        }
+
+        // Get user by ID
+        [HttpGet("GetById/{id}")]
+        public IActionResult GetUserById(int id)
+        {
+            var user = context.Users.Where(u => u.UserId == id).Select(u => new
+                {
+                    u.UserId,
+                    u.UserName,
+                    u.Email,
+                    u.Role,
+                    u.PhoneNumber,
+                    u.IsActive,
+                    u.CreatedAt
+                })
+                .FirstOrDefault();
+            if (user == null)
+            {
+                return NotFound("User not found");
+            }
+            return Ok(user);
         }
 
     }
