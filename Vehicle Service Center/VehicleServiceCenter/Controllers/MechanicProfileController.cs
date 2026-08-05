@@ -102,5 +102,22 @@ namespace VehicleServiceCenter.Controllers
             return Ok(mechanicProfiles);
         }
 
+        // Get Mechanic Profile by User ID
+        [HttpGet("GetByUserId")]
+        public IActionResult GetByUserId(int userId)
+        {
+            MechanicProfileModel? mechanicProfile =
+                context.MechanicProfiles.FirstOrDefault(
+                    m => m.UserId == userId
+                );
+
+            if (mechanicProfile == null)
+            {
+                return NotFound("Mechanic profile not found");
+            }
+
+            return Ok(mechanicProfile);
+        }
+
     }
 }
