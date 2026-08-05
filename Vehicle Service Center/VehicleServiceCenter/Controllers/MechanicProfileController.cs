@@ -197,5 +197,25 @@ namespace VehicleServiceCenter.Controllers
 
             return Ok("Mechanic availability updated successfully");
         }
+
+        // Delete Mechanic Profile
+        [HttpDelete("RemoveMechanicProfile")]
+        public IActionResult RemoveMechanicProfile(int id)
+        {
+            MechanicProfileModel? mechanicProfile =
+                context.MechanicProfiles.FirstOrDefault(
+                    m => m.MechanicProfileId == id
+                );
+
+            if (mechanicProfile == null)
+            {
+                return NotFound("Mechanic profile not found");
+            }
+
+            context.MechanicProfiles.Remove(mechanicProfile);
+            context.SaveChanges();
+
+            return Ok("Mechanic profile removed successfully");
+        }
     }
 }
