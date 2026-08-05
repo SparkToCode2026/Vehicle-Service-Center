@@ -119,5 +119,39 @@ namespace VehicleServiceCenter.Controllers
             return Ok(customerProfiles);
         }
 
+        // Update Customer Profile
+        [HttpPut("UpdateCustomerProfile")]
+        public IActionResult UpdateCustomerProfile(
+            int id,
+            CustomerProfileModel newCustomerProfile)
+        {
+            CustomerProfileModel? customerProfile =
+                context.CustomerProfiles.FirstOrDefault(
+                    c => c.CustomerProfileId == id
+                );
+
+            if (customerProfile == null)
+            {
+                return NotFound("Customer profile not found");
+            }
+
+            DateOnly today = DateOnly.FromDateTime(DateTime.Today);
+
+            if (newCustomerProfile.DateOfBirth > today)
+            {
+                return BadRequest(
+                    "Date of birth cannot be in the future"
+                );
+            }
+
+            customerProfile.Address = newCustomerProfile.Address;
+            customerProfile.DateOfBirth =
+                newCustomerProfile.DateOfBirth;
+
+            context.SaveChanges();
+
+            return Ok("Customer profile updated successfully");
+        }
+
     }
 }
