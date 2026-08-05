@@ -153,5 +153,32 @@ namespace VehicleServiceCenter.Controllers
             return Ok("Customer profile updated successfully");
         }
 
+        // Update Customer Address
+        [HttpPatch("UpdateAddress")]
+        public IActionResult UpdateAddress(
+            int id,
+            string newAddress)
+        {
+            CustomerProfileModel? customerProfile =
+                context.CustomerProfiles.FirstOrDefault(
+                    c => c.CustomerProfileId == id
+                );
+
+            if (customerProfile == null)
+            {
+                return NotFound("Customer profile not found");
+            }
+
+            if (string.IsNullOrWhiteSpace(newAddress))
+            {
+                return BadRequest("Address cannot be empty");
+            }
+
+            customerProfile.Address = newAddress;
+            context.SaveChanges();
+
+            return Ok("Customer address updated successfully");
+        }
+
     }
 }
