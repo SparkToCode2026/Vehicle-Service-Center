@@ -180,5 +180,25 @@ namespace VehicleServiceCenter.Controllers
             return Ok("Customer address updated successfully");
         }
 
+        // Delete Customer Profile
+        [HttpDelete("RemoveCustomerProfile")]
+        public IActionResult RemoveCustomerProfile(int id)
+        {
+            CustomerProfileModel? customerProfile =
+                context.CustomerProfiles.FirstOrDefault(
+                    c => c.CustomerProfileId == id
+                );
+
+            if (customerProfile == null)
+            {
+                return NotFound("Customer profile not found");
+            }
+
+            context.CustomerProfiles.Remove(customerProfile);
+            context.SaveChanges();
+
+            return Ok("Customer profile removed successfully");
+        }
+
     }
 }
