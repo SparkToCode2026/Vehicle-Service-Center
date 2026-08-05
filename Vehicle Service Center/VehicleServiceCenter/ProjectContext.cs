@@ -1,3 +1,9 @@
+﻿
+namespace VehicleServiceCenter
+{
+    public class ProjectContext 
+    {
+        
 ﻿using Microsoft.EntityFrameworkCore;
 using VehicleServiceCenter.Models;
 
