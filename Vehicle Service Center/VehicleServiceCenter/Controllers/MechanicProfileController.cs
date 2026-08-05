@@ -131,5 +131,50 @@ namespace VehicleServiceCenter.Controllers
             return Ok(mechanicProfiles);
         }
 
+        // Update Mechanic Profile
+        [HttpPut("UpdateMechanicProfile")]
+        public IActionResult UpdateMechanicProfile(
+            int id,
+            MechanicProfileModel newMechanicProfile)
+        {
+            MechanicProfileModel? mechanicProfile =
+                context.MechanicProfiles.FirstOrDefault(
+                    m => m.MechanicProfileId == id
+                );
+
+            if (mechanicProfile == null)
+            {
+                return NotFound("Mechanic profile not found");
+            }
+
+            BranchModel? branch = context.Branches.FirstOrDefault(
+                b => b.BranchId == newMechanicProfile.BranchId
+            );
+
+            if (branch == null)
+            {
+                return NotFound("Branch not found");
+            }
+
+            mechanicProfile.Specialization =
+                newMechanicProfile.Specialization;
+
+            mechanicProfile.ExperienceYears =
+                newMechanicProfile.ExperienceYears;
+
+            mechanicProfile.HireDate =
+                newMechanicProfile.HireDate;
+
+            mechanicProfile.IsAvailable =
+                newMechanicProfile.IsAvailable;
+
+            mechanicProfile.BranchId =
+                newMechanicProfile.BranchId;
+
+            context.SaveChanges();
+
+            return Ok("Mechanic profile updated successfully");
+        }
+
     }
 }
