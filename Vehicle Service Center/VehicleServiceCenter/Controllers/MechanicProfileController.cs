@@ -119,5 +119,17 @@ namespace VehicleServiceCenter.Controllers
             return Ok(mechanicProfile);
         }
 
+        // Get Mechanics by Branch ID
+        [HttpGet("GetByBranchId")]
+        public IActionResult GetByBranchId(int branchId)
+        {
+            List<MechanicProfileModel> mechanicProfiles =
+                context.MechanicProfiles
+                    .Where(m => m.BranchId == branchId)
+                    .ToList();
+
+            return Ok(mechanicProfiles);
+        }
+
     }
 }
