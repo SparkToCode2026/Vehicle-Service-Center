@@ -148,5 +148,30 @@ namespace VehicleServiceCenter.Controllers
             });
         }
 
+        // Change password for user by ID
+        [HttpPut("ChangePassword/{id}")]
+        public IActionResult ChangePassword(int id,string currentPassword,string newPassword)
+        {
+            var user = context.Users.Find(id);
+            if (user == null)
+            {
+                return NotFound("User not found");
+            }
+            // Verify the current password
+            bool isCurrentPasswordValid = BCrypt.Net.BCrypt.Verify(currentPassword, user.Password);
+            if (!isCurrentPasswordValid)
+            {
+                return Unauthorized("Current password is incorrect");
+            }
+            // Hash the new password
+            user.Password = BCrypt.Net.BCrypt.HashPassword(newPassword);
+            context.SaveChanges();
+            return Ok(new
+            {
+                Message = "Password changed successfully",
+                UserId = user.UserId
+            });
+        }
+
     }
 }
