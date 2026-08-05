@@ -125,5 +125,28 @@ namespace VehicleServiceCenter.Controllers
             return Ok(user);
         }
 
+        // Update user by ID
+        [HttpPut("Update/{id}")]
+        public IActionResult UpdateUser(int id, UserModel updatedUser)
+        {
+            var user = context.Users.Find(id);
+            if (user == null)
+            {
+                return NotFound("User not found");
+            }
+
+            user.UserName = updatedUser.UserName;
+            user.Email = updatedUser.Email;
+            user.Role = updatedUser.Role;
+            user.PhoneNumber = updatedUser.PhoneNumber;
+            user.IsActive = updatedUser.IsActive;
+            context.SaveChanges();
+            return Ok(new
+            {
+                Message = "User updated successfully",
+                UserId = user.UserId
+            });
+        }
+
     }
 }
