@@ -108,5 +108,16 @@ namespace VehicleServiceCenter.Controllers
 
             return Ok(customerProfile);
         }
+
+        // Get All Customer Profiles
+        [HttpGet("GetAllCustomerProfiles")]
+        public IActionResult GetAllCustomerProfiles()
+        {
+            List<CustomerProfileModel> customerProfiles =
+                context.CustomerProfiles.ToList();
+
+            return Ok(customerProfiles);
+        }
+
     }
 }
