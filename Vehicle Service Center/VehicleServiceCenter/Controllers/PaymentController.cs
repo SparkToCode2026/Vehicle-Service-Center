@@ -65,6 +65,54 @@ namespace VehicleServiceCenter.Controllers;
         Message = "Payment added successfully",
         PaymentId = payment.PaymentId
     });
+    
+    // Get all payments
+    [HttpGet("GetAll")]
+    public IActionResult GetAllPayments()
+    {
+        var payments = ProjectContext.Payments
+            .Select(p => new
+            {
+                p.PaymentId,
+                p.InvoiceId,
+                p.Amount,
+                p.PaymentDate,
+                p.PaymentMethod,
+                p.TransactionReference,
+                p.Status,
+                p.Notes
+            })
+            .ToList();
+
+        return Ok(payments);
+    }
+
+    // Get payment by ID
+    [HttpGet("GetById/{id}")]
+    public IActionResult GetPaymentById(int id)
+    {
+        var payment = ProjectContext.Payments
+            .Where(p => p.PaymentId == id)
+            .Select(p => new
+            {
+                p.PaymentId,
+                p.InvoiceId,
+                p.Amount,
+                p.PaymentDate,
+                p.PaymentMethod,
+                p.TransactionReference,
+                p.Status,
+                p.Notes
+            })
+            .FirstOrDefault();
+
+        if (payment == null)
+        {
+            return NotFound("Payment not found");
+        }
+
+        return Ok(payment);
+    }
 }
     
     
