@@ -255,5 +255,39 @@ namespace VehicleServiceCenter.Controllers
             invoice.TotalAmount = totalAmount;
             invoice.Status = updatedInvoice.Status;
             invoice.Notes = updatedInvoice.Notes;
+            ProjectContext.SaveChanges();
+
+            return Ok(new
+            {
+                Message = "Invoice updated successfully",
+                InvoiceId = invoice.InvoiceId,
+                TotalAmount = invoice.TotalAmount
+            });
+        }
+        // Change invoice status
+        [HttpPatch("ChangeStatus/{id}")]
+        public IActionResult ChangeInvoiceStatus(
+            int id,
+            string status
+        )
+        {
+            InvoiceModel invoice =
+                ProjectContext.Invoices.Find(id);
+
+            if (invoice == null)
+            {
+                return NotFound("Invoice not found");
+            }
+
+            invoice.Status = status;
+            ProjectContext.SaveChanges();
+
+            return Ok(new
+            {
+                Message = "Invoice status changed successfully",
+                InvoiceId = invoice.InvoiceId,
+                Status = invoice.Status
+            });
+        }
 
 
