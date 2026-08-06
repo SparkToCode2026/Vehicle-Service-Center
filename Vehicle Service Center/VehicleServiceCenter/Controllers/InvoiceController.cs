@@ -140,3 +140,39 @@ namespace VehicleServiceCenter.Controllers
 
             return Ok(invoice);
         }
+        // Get invoice by service order ID
+        [HttpGet("GetByServiceOrderId/{serviceOrderId}")]
+        public IActionResult GetInvoiceByServiceOrderId(
+            int serviceOrderId
+        )
+        {
+            var invoice = ProjectContext.Invoices
+                .Where(i =>
+                    i.ServiceOrderId == serviceOrderId
+                )
+                .Select(i => new
+                {
+                    i.InvoiceId,
+                    i.ServiceOrderId,
+                    i.InvoiceNumber,
+                    i.IssueDate,
+                    i.DueDate,
+                    i.Subtotal,
+                    i.TaxAmount,
+                    i.DiscountAmount,
+                    i.TotalAmount,
+                    i.Status,
+                    i.Notes
+                })
+                .FirstOrDefault();
+
+            if (invoice == null)
+            {
+                return NotFound(
+                    "Invoice not found for this service order"
+                );
+            }
+
+            return Ok(invoice);
+        }
+
