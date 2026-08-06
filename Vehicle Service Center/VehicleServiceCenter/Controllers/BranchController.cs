@@ -12,15 +12,22 @@ public class BranchController : ControllerBase
     {
         ProjectContext = projectContext;
     }
-    
-    // GET All Branches
-    [HttpGet]
-    public async Task<IActionResult> GetAllBranches()
-    {
-        var branches = await context.Branches
-            .ToListAsync();
 
-        return Ok(branches);
+    // Add branch
+    [HttpPost("AddBranch")]
+    public IActionResult AddBranch(BranchModel branch)
+    {
+        // Check whether branch name already exists
+        BranchModel existingBranch =
+            ProjectContext.Branches.FirstOrDefault(b =>
+                b.BranchName == branch.BranchName
+            );
+
+        if (existingBranch != null)
+        {
+            return BadRequest(
+                "Branch name already exists"
+            );
+        }
     }
-    
 }
