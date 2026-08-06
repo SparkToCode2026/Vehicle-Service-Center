@@ -289,5 +289,38 @@ namespace VehicleServiceCenter.Controllers
                 Status = invoice.Status
             });
         }
+        // Delete invoice by ID
+        [HttpDelete("Delete/{id}")]
+        public IActionResult DeleteInvoice(int id)
+        {
+            InvoiceModel invoice =
+                ProjectContext.Invoices.Find(id);
+
+            if (invoice == null)
+            {
+                return NotFound("Invoice not found");
+            }
+
+            bool hasPayments = ProjectContext.Payments
+                .Any(p => p.InvoiceId == id);
+
+            if (hasPayments)
+            {
+                return BadRequest(
+                    "Invoice cannot be deleted because it has payments"
+                );
+            }
+
+            ProjectContext.Invoices.Remove(invoice);
+            ProjectContext.SaveChanges();
+
+            return Ok(new
+            {
+                Message = "Invoice deleted successfully",
+                InvoiceId = invoice.InvoiceId
+            });
+        }
+    }
+}
 
 
