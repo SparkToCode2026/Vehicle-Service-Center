@@ -231,5 +231,51 @@ public class BranchController : ControllerBase
                 IsActive = branch.IsActive
             });
         }
+        // Delete branch by ID
+        [HttpDelete("Delete/{id}")]
+        public IActionResult DeleteBranch(int id)
+        {
+            BranchModel branch =
+                ProjectContext.Branches.Find(id);
 
+            if (branch == null)
+            {
+                return NotFound("Branch not found");
+            }
+
+            bool hasMechanics =
+                ProjectContext.MechanicProfiles
+                    .Any(m => m.BranchId == id);
+
+            bool hasAppointments =
+                ProjectContext.Appointments
+                    .Any(a => a.BranchId == id);
+
+            bool hasServiceOrders =
+                ProjectContext.ServiceOrders
+                    .Any(s => s.BranchId == id);
+
+            bool hasSpareParts =
+                ProjectContext.SpareParts
+                    .Any(s => s.BranchId == id);
+
+            if (hasMechanics ||
+                hasAppointments ||
+                hasServiceOrders ||
+                hasSpareParts)
+            {
+                return BadRequest(
+                    "Branch cannot be deleted because it has related records. Change its status to inactive instead"
+                );
+            }
+
+            ProjectContext.Branches.Remove(branch);
+            ProjectContext.SaveChanges();
+
+            return Ok(new
+            {
+                Message = "Branch deleted successfully",
+                BranchId = branch.BranchId
+            });
+        }
 }
