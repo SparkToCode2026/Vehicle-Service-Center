@@ -1,8 +1,9 @@
-
-namespace VehicleServiceCenter.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VehicleServiceCenter.Models;
+using VehicleServiceCenter.Data;
+
+namespace VehicleServiceCenter.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
