@@ -82,4 +82,26 @@ public class BranchController : ControllerBase
 
         return Ok(branches);
     }
+    
+    // Get all active branches
+    [HttpGet("GetActive")]
+    public IActionResult GetActiveBranches()
+    {
+        var branches = ProjectContext.Branches
+            .Where(b => b.IsActive == true)
+            .Select(b => new
+            {
+                b.BranchId,
+                b.BranchName,
+                b.Address,
+                b.PhoneNumber,
+                b.Email,
+                b.OpeningTime,
+                b.ClosingTime,
+                b.IsActive
+            })
+            .ToList();
+
+        return Ok(branches);
+    }
 }
