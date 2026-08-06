@@ -1,6 +1,6 @@
 ﻿namespace VehicleServiceCenter.Controllers
 {
-    public class ServiceType
+    public class ServiceTypeController
     {
     }
 }
