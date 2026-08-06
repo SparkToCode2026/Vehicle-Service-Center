@@ -131,4 +131,79 @@ public class BranchController : ControllerBase
 
         return Ok(branch);
     }
+    
+    // Update branch by ID
+        [HttpPut("Update/{id}")]
+        public IActionResult UpdateBranch(
+            int id,
+            BranchModel updatedBranch
+        )
+        {
+            BranchModel branch =
+                ProjectContext.Branches.Find(id);
+
+            if (branch == null)
+            {
+                return NotFound("Branch not found");
+            }
+
+            BranchModel existingBranchName =
+                ProjectContext.Branches.FirstOrDefault(b =>
+                    b.BranchName ==
+                        updatedBranch.BranchName &&
+                    b.BranchId != id
+                );
+
+            if (existingBranchName != null)
+            {
+                return BadRequest(
+                    "Branch name already exists"
+                );
+            }
+
+            BranchModel existingEmail =
+                ProjectContext.Branches.FirstOrDefault(b =>
+                    b.Email == updatedBranch.Email &&
+                    b.BranchId != id
+                );
+
+            if (existingEmail != null)
+            {
+                return BadRequest(
+                    "Branch email already exists"
+                );
+            }
+
+            if (updatedBranch.OpeningTime >=
+                updatedBranch.ClosingTime)
+            {
+                return BadRequest(
+                    "Opening time must be before closing time"
+                );
+            }
+
+            branch.BranchName =
+                updatedBranch.BranchName;
+            branch.Address =
+                updatedBranch.Address;
+            branch.PhoneNumber =
+                updatedBranch.PhoneNumber;
+            branch.Email =
+                updatedBranch.Email;
+            branch.OpeningTime =
+                updatedBranch.OpeningTime;
+            branch.ClosingTime =
+                updatedBranch.ClosingTime;
+            branch.IsActive =
+                updatedBranch.IsActive;
+
+            ProjectContext.SaveChanges();
+
+            return Ok(new
+            {
+                Message = "Branch updated successfully",
+                BranchId = branch.BranchId
+            });
+        }
+
 }
