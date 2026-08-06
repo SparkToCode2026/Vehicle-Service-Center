@@ -25,6 +25,10 @@ namespace VehicleServiceCenter
             
             public DbSet<ServiceOrderModel> ServiceOrders { get; set; }
             public DbSet<ServiceOrderItemModel> ServiceOrderItems { get; set; }
+            
+            public DbSet<InvoiceModel> Invoices { get; set; }
+            public DbSet<PaymentModel> Payments { get; set; }
+            public DbSet<BranchModel> Branches { get; set; }
 
             public ProjectContext(DbContextOptions<ProjectContext> options) : base(options)
             {
