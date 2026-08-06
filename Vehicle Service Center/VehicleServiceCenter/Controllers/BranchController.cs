@@ -104,4 +104,31 @@ public class BranchController : ControllerBase
 
         return Ok(branches);
     }
+    
+    // Get branch by ID
+    [HttpGet("GetById/{id}")]
+    public IActionResult GetBranchById(int id)
+    {
+        var branch = ProjectContext.Branches
+            .Where(b => b.BranchId == id)
+            .Select(b => new
+            {
+                b.BranchId,
+                b.BranchName,
+                b.Address,
+                b.PhoneNumber,
+                b.Email,
+                b.OpeningTime,
+                b.ClosingTime,
+                b.IsActive
+            })
+            .FirstOrDefault();
+
+        if (branch == null)
+        {
+            return NotFound("Branch not found");
+        }
+
+        return Ok(branch);
+    }
 }
