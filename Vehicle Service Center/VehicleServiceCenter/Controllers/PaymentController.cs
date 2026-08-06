@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VehicleServiceCenter.Models;
 
-
 namespace VehicleServiceCenter.Controllers;
 {
     [ApiController]
@@ -39,4 +38,34 @@ namespace VehicleServiceCenter.Controllers;
         }
 
     }
+    // Check whether transaction reference already exists
+    if (!string.IsNullOrEmpty(payment.TransactionReference))
+    {
+        PaymentModel existingPayment =
+            ProjectContext.Payments.FirstOrDefault(p =>
+                p.TransactionReference ==
+                payment.TransactionReference
+            );
+
+        if (existingPayment != null)
+        {
+            return BadRequest(
+                "Transaction reference already exists"
+            );
+        }
+    }
+
+    payment.PaymentDate = DateTime.Now;
+
+    ProjectContext.Payments.Add(payment);
+    ProjectContext.SaveChanges();
+
+    return Ok(new
+    {
+        Message = "Payment added successfully",
+        PaymentId = payment.PaymentId
+    });
 }
+    
+    
+
