@@ -29,5 +29,36 @@ public class BranchController : ControllerBase
                 "Branch name already exists"
             );
         }
+
+        // Check whether branch email already exists
+        BranchModel existingEmail =
+            ProjectContext.Branches.FirstOrDefault(b =>
+                b.Email == branch.Email
+            );
+
+        if (existingEmail != null)
+        {
+            return BadRequest(
+                "Branch email already exists"
+            );
+        }
+
+        if (branch.OpeningTime >= branch.ClosingTime)
+        {
+            return BadRequest(
+                "Opening time must be before closing time"
+            );
+        }
+
+        branch.IsActive = true;
+
+        ProjectContext.Branches.Add(branch);
+        ProjectContext.SaveChanges();
+
+        return Ok(new
+        {
+            Message = "Branch added successfully",
+            BranchId = branch.BranchId
+        });
     }
 }
