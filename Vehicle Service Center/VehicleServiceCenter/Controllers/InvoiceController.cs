@@ -175,4 +175,85 @@ namespace VehicleServiceCenter.Controllers
 
             return Ok(invoice);
         }
+        // Update invoice by ID
+        [HttpPut("Update/{id}")]
+        public IActionResult UpdateInvoice(
+            int id,
+            InvoiceModel updatedInvoice
+        )
+        {
+            InvoiceModel invoice =
+                ProjectContext.Invoices.Find(id);
+
+            if (invoice == null)
+            {
+                return NotFound("Invoice not found");
+            }
+
+            ServiceOrderModel serviceOrder =
+                ProjectContext.ServiceOrders.FirstOrDefault(s =>
+                    s.ServiceOrderId ==
+                    updatedInvoice.ServiceOrderId
+                );
+
+            if (serviceOrder == null)
+            {
+                return BadRequest(
+                    "Service order does not exist"
+                );
+            }
+
+            InvoiceModel existingInvoice =
+                ProjectContext.Invoices.FirstOrDefault(i =>
+                    i.InvoiceNumber ==
+                        updatedInvoice.InvoiceNumber &&
+                    i.InvoiceId != id
+                );
+
+            if (existingInvoice != null)
+            {
+                return BadRequest(
+                    "Invoice number already exists"
+                );
+            }
+
+            if (updatedInvoice.Subtotal < 0 ||
+                updatedInvoice.TaxAmount < 0 ||
+                updatedInvoice.DiscountAmount < 0)
+            {
+                return BadRequest(
+                    "Invoice amounts cannot be negative"
+                );
+            }
+
+            decimal totalAmount =
+                updatedInvoice.Subtotal +
+                updatedInvoice.TaxAmount -
+                updatedInvoice.DiscountAmount;
+
+            if (totalAmount < 0)
+            {
+                return BadRequest(
+                    "Total amount cannot be negative"
+                );
+            }
+
+            invoice.ServiceOrderId =
+                updatedInvoice.ServiceOrderId;
+            invoice.InvoiceNumber =
+                updatedInvoice.InvoiceNumber;
+            invoice.IssueDate =
+                updatedInvoice.IssueDate;
+            invoice.DueDate =
+                updatedInvoice.DueDate;
+            invoice.Subtotal =
+                updatedInvoice.Subtotal;
+            invoice.TaxAmount =
+                updatedInvoice.TaxAmount;
+            invoice.DiscountAmount =
+                updatedInvoice.DiscountAmount;
+            invoice.TotalAmount = totalAmount;
+            invoice.Status = updatedInvoice.Status;
+            invoice.Notes = updatedInvoice.Notes;
+
 
