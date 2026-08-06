@@ -1,12 +1,18 @@
-﻿namespace VehicleServiceCenter.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace VehicleServiceCenter.Models
 {
     public class ServiceTypeModel
     {
+        [Key]
         public int ServiceTypeId { get; set; }
-        public string SName { get; set; }
+        public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
-        public string Model { get; set; } = string.Empty;
-        public double SPrice { get; set; }
+        public double BasePrice { get; set; }
+        public int EstimatedDurationMinutes { get; set; } 
+        public bool IsActive { get; set; } = true;
+
+
 
         /*One to Many relationship with Appointment
         public List<Appointment> Appointments { get; set; } 
