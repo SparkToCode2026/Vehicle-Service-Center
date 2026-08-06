@@ -61,4 +61,25 @@ public class BranchController : ControllerBase
             BranchId = branch.BranchId
         });
     }
+    
+    // Get all branches
+    [HttpGet("GetAll")]
+    public IActionResult GetAllBranches()
+    {
+        var branches = ProjectContext.Branches
+            .Select(b => new
+            {
+                b.BranchId,
+                b.BranchName,
+                b.Address,
+                b.PhoneNumber,
+                b.Email,
+                b.OpeningTime,
+                b.ClosingTime,
+                b.IsActive
+            })
+            .ToList();
+
+        return Ok(branches);
+    }
 }
