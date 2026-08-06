@@ -205,5 +205,31 @@ public class BranchController : ControllerBase
                 BranchId = branch.BranchId
             });
         }
+        
+        // Change branch status
+        [HttpPatch("ChangeStatus/{id}")]
+        public IActionResult ChangeBranchStatus(
+            int id,
+            bool isActive
+        )
+        {
+            BranchModel branch =
+                ProjectContext.Branches.Find(id);
+
+            if (branch == null)
+            {
+                return NotFound("Branch not found");
+            }
+
+            branch.IsActive = isActive;
+            ProjectContext.SaveChanges();
+
+            return Ok(new
+            {
+                Message = "Branch status changed successfully",
+                BranchId = branch.BranchId,
+                IsActive = branch.IsActive
+            });
+        }
 
 }
