@@ -111,3 +111,32 @@ namespace VehicleServiceCenter.Controllers
 
             return Ok(invoices);
         }
+        // Get invoice by ID
+        [HttpGet("GetById/{id}")]
+        public IActionResult GetInvoiceById(int id)
+        {
+            var invoice = ProjectContext.Invoices
+                .Where(i => i.InvoiceId == id)
+                .Select(i => new
+                {
+                    i.InvoiceId,
+                    i.ServiceOrderId,
+                    i.InvoiceNumber,
+                    i.IssueDate,
+                    i.DueDate,
+                    i.Subtotal,
+                    i.TaxAmount,
+                    i.DiscountAmount,
+                    i.TotalAmount,
+                    i.Status,
+                    i.Notes
+                })
+                .FirstOrDefault();
+
+            if (invoice == null)
+            {
+                return NotFound("Invoice not found");
+            }
+
+            return Ok(invoice);
+        }
