@@ -17,12 +17,12 @@ public class AppointmentController : Controller
         
     }
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Appointment>>> GetAppointments()
+    public async Task<ActionResult<IEnumerable<AppointmentModel>>> GetAppointments()
     {
         return await _context.Appointments.ToListAsync();
     }
     [HttpGet("{id}")]
-    public async Task<ActionResult<Appointment>> GetAppointment(int id)
+    public async Task<ActionResult<AppointmentModel>> GetAppointment(int id)
     {
         var appointment = await _context.Appointments.FindAsync(id);
 
@@ -32,22 +32,22 @@ public class AppointmentController : Controller
         return appointment;
     }
     [HttpPost]
-    public async Task<ActionResult<Appointment>> CreateAppointment(Appointment appointment)
+    public async Task<ActionResult<AppointmentModel>> CreateAppointment(AppointmentModel appointmentModel)
     {
-        _context.Appointments.Add(appointment);
+        _context.Appointments.Add(appointmentModel);
 
         await _context.SaveChangesAsync();
 
         return CreatedAtAction(nameof(GetAppointment),
-            new { id = appointment.AppointmentId }, appointment);
+            new { id = appointmentModel.AppointmentId }, appointmentModel);
     }
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateAppointment(int id, Appointment appointment)
+    public async Task<IActionResult> UpdateAppointment(int id, AppointmentModel appointmentModel)
     {
-        if (id != appointment.AppointmentId)
+        if (id != appointmentModel.AppointmentId)
             return BadRequest();
 
-        _context.Entry(appointment).State = EntityState.Modified;
+        _context.Entry(appointmentModel).State = EntityState.Modified;
 
         await _context.SaveChangesAsync();
 

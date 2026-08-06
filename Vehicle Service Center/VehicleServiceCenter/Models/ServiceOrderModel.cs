@@ -12,7 +12,7 @@ namespace VehicleServiceCenter.Models
 
         
         public int? AppointmentId { get; set; }
-        public Appointment? Appointment { get; set; }
+        public AppointmentModel? Appointment { get; set; }
        
         [Required]
         public int CustomerProfileId { get; set; }

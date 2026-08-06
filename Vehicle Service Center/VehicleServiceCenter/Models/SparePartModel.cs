@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace VehicleServiceCenter.Models;
 
 
-public class SparePart
+public class SparePartModel
 {
     [Key]
     public int SparePartId { get; set; }

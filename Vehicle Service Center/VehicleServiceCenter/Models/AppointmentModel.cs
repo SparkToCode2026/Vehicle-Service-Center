@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace VehicleServiceCenter.Models;
 
-public class Appointment
+public class AppointmentModel
 {
     [Key] public int AppointmentId { get; set; }
 

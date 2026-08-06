@@ -18,7 +18,7 @@ public class SparePartController : ControllerBase
 
     // GET: api/SparePart
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<SparePart>>> GetSpareParts()
+    public async Task<ActionResult<IEnumerable<SparePartModel>>> GetSpareParts()
     {
         var spareParts = await _context.SpareParts
             .Include(s => s.Branch)
@@ -30,7 +30,7 @@ public class SparePartController : ControllerBase
 
     // GET: api/SparePart/5
     [HttpGet("{id}")]
-    public async Task<ActionResult<SparePart>> GetSparePart(int id)
+    public async Task<ActionResult<SparePartModel>> GetSparePart(int id)
     {
         var sparePart = await _context.SpareParts
             .Include(s => s.Branch)
@@ -47,30 +47,30 @@ public class SparePartController : ControllerBase
 
     // POST: api/SparePart
     [HttpPost]
-    public async Task<ActionResult<SparePart>> CreateSparePart(SparePart sparePart)
+    public async Task<ActionResult<SparePartModel>> CreateSparePart(SparePartModel sparePartModel)
     {
-        _context.SpareParts.Add(sparePart);
+        _context.SpareParts.Add(sparePartModel);
 
         await _context.SaveChangesAsync();
 
         return CreatedAtAction(
             nameof(GetSparePart),
-            new { id = sparePart.SparePartId },
-            sparePart
+            new { id = sparePartModel.SparePartId },
+            sparePartModel
         );
     }
 
 
     // PUT: api/SparePart/5
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateSparePart(int id, SparePart sparePart)
+    public async Task<IActionResult> UpdateSparePart(int id, SparePartModel sparePartModel)
     {
-        if (id != sparePart.SparePartId)
+        if (id != sparePartModel.SparePartId)
         {
             return BadRequest();
         }
 
-        _context.Entry(sparePart).State = EntityState.Modified;
+        _context.Entry(sparePartModel).State = EntityState.Modified;
 
         await _context.SaveChangesAsync();
 

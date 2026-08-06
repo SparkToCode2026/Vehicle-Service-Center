@@ -17,7 +17,7 @@ namespace VehicleServiceCenter.Models
         public ServiceTypeModel? ServiceType { get; set; }
 
         public int? SparePartId { get; set; }
-        public SparePart? SparePart { get; set; }
+        public SparePartModel? SparePart { get; set; }
 
         [Required]
         [MaxLength(20)]

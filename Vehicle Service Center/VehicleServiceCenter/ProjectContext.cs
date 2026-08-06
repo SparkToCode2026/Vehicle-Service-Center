@@ -20,8 +20,11 @@ namespace VehicleServiceCenter
 
             public DbSet<ServiceTypeModel> ServiceTypes { get; set; } = null!;
             
-            public DbSet<Appointment> Appointments { get; set; }
-            public DbSet<SparePart> SpareParts { get; set; }
+            public DbSet<AppointmentModel> Appointments { get; set; }
+            public DbSet<SparePartModel> SpareParts { get; set; }
+            
+            public DbSet<ServiceOrderModel> ServiceOrders { get; set; }
+            public DbSet<ServiceOrderItemModel> ServiceOrderItems { get; set; }
 
             public ProjectContext(DbContextOptions<ProjectContext> options) : base(options)
             {
