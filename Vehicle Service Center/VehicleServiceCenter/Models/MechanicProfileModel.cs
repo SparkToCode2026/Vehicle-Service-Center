@@ -1,15 +1,20 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
+using Microsoft.EntityFrameworkCore;
 
 namespace VehicleServiceCenter.Models
 {
+    [Index(nameof(UserId), IsUnique = true)]
     public class MechanicProfileModel
     {
         [Key]
         public int MechanicProfileId { get; set; }
 
-        [Required]
+        public int UserId { get; set; }
+
+        public int BranchId { get; set; }
+
+        [Required, MaxLength(100)]
         public string Specialization { get; set; } = string.Empty;
 
         public int ExperienceYears { get; set; }
@@ -18,18 +23,16 @@ namespace VehicleServiceCenter.Models
 
         public bool IsAvailable { get; set; } = true;
 
-        // One-to-one relationship with User
-        [ForeignKey(nameof(User))]
-        public int UserId { get; set; }
-
         [JsonIgnore]
         public UserModel? User { get; set; }
 
-        // One Branch has many mechanics
-        [ForeignKey(nameof(Branch))]
-        public int BranchId { get; set; }
-
         [JsonIgnore]
         public BranchModel? Branch { get; set; }
+
+        [JsonIgnore]
+        public List<AppointmentModel> Appointments { get; set; } = new();
+
+        [JsonIgnore]
+        public List<ServiceOrderModel> ServiceOrders { get; set; } = new();
     }
 }
