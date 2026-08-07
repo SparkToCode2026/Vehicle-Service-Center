@@ -9,25 +9,25 @@ namespace VehicleServiceCenter.Controllers;
 [Route("[controller]")]
 public class SparePartController : ControllerBase
 {
-    private readonly ProjectContext _context;
+    private ProjectContext context;
 
     public SparePartController(ProjectContext context)
     {
-        _context = context;
+        context = context;
     }
 
     // GET: api/SparePart
     [HttpGet]
     public IActionResult GetSpareParts()
     {
-        return Ok(_context.SpareParts.ToList());
+        return Ok(context.SpareParts.ToList());
     }
 
     // GET: api/SparePart/5
     [HttpGet("{id}")]
     public IActionResult GetSparePart(int id)
     {
-        var sparePart = _context.SpareParts.Find(id);
+        var sparePart = context.SpareParts.Find(id);
 
         if (sparePart == null)
             return NotFound();
@@ -39,8 +39,8 @@ public class SparePartController : ControllerBase
     [HttpPost]
     public IActionResult CreateSparePart(SparePartModel sparePart)
     {
-        _context.SpareParts.Add(sparePart);
-        _context.SaveChanges();
+        context.SpareParts.Add(sparePart);
+        context.SaveChanges();
 
         return CreatedAtAction(nameof(GetSparePart),
             new { id = sparePart.SparePartId }, sparePart);
@@ -53,8 +53,8 @@ public class SparePartController : ControllerBase
         if (id != sparePart.SparePartId)
             return BadRequest();
 
-        _context.Entry(sparePart).State = EntityState.Modified;
-        _context.SaveChanges();
+        context.Entry(sparePart).State = EntityState.Modified;
+        context.SaveChanges();
 
         return NoContent();
     }
@@ -63,13 +63,13 @@ public class SparePartController : ControllerBase
     [HttpDelete("{id}")]
     public IActionResult DeleteSparePart(int id)
     {
-        var sparePart = _context.SpareParts.Find(id);
+        var sparePart = context.SpareParts.Find(id);
 
         if (sparePart == null)
             return NotFound();
 
-        _context.SpareParts.Remove(sparePart);
-        _context.SaveChanges();
+        context.SpareParts.Remove(sparePart);
+        context.SaveChanges();
 
         return NoContent();
     }

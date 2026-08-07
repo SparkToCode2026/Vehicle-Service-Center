@@ -1,35 +1,33 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
+using Microsoft.EntityFrameworkCore;
 
 namespace VehicleServiceCenter.Models
 {
+    [Index(nameof(Name), IsUnique = true)]
     public class ServiceTypeModel
     {
         [Key]
         public int ServiceTypeId { get; set; }
+
+        [Required, MaxLength(100)]
         public string Name { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
-        public double BasePrice { get; set; }
-        public int EstimatedDurationMinutes { get; set; } 
+
+        [MaxLength(500)]
+        public string? Description { get; set; }
+
+        [Column(TypeName = "decimal(10,2)")]
+        public decimal BasePrice { get; set; }
+
+        public int EstimatedDurationMinutes { get; set; }
+
         public bool IsActive { get; set; } = true;
 
+        [JsonIgnore]
+        public List<AppointmentModel> Appointments { get; set; } = new();
 
-
-        /*One to Many relationship with Appointment
-        public List<Appointment> Appointments { get; set; } 
-
-        in the Appointment class, you would have a foreign key property:
-        [ForeignKey("ServiceType")]
-        public int ServiceTypeId { get; set; } //foreign key to ServiceTypeModel
-        public ServiceTypeModel ServiceType { get; set; } //navigation property to ServiceTypeModel
-        */
-
-        /*One to Many relationship with ServiceOrderItem
-        public List<ServiceOrderItem> ServiceOrderItems { get; set; } 
-
-        in the ServiceOrderItem class, you would have a foreign key property:
-        [ForeignKey("ServiceType")]
-        public int ServiceTypeId { get; set; } //foreign key to ServiceTypeModel
-        public ServiceTypeModel ServiceType { get; set; } //navigation property to ServiceTypeModel
-        */
+        [JsonIgnore]
+        public List<ServiceOrderItemModel> ServiceOrderItems { get; set; } = new();
     }
 }

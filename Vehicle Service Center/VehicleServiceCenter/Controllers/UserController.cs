@@ -9,11 +9,11 @@ namespace VehicleServiceCenter.Controllers
     [Route("User")]
     public class UserController : ControllerBase
     {
-        private ProjectContext ProjectContext;
+        private ProjectContext context;
 
-        public UserController(ProjectContext projectContext)
+        public UserController(ProjectContext context)
         {
-            ProjectContext = projectContext;
+            context = context;
         }
 
         // Register User

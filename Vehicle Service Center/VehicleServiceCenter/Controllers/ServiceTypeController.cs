@@ -8,11 +8,11 @@ namespace VehicleServiceCenter.Controllers
     [Route("ServiceType")]
     public class ServiceTypeController : ControllerBase
     {
-        private readonly ProjectContext context;
+        private ProjectContext context;
 
         public ServiceTypeController(ProjectContext context)
         {
-            this.context = context;
+            context = context;
         }
 
         // Register a new service type

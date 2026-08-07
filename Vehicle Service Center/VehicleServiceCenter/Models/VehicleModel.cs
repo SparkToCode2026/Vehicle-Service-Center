@@ -1,41 +1,47 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
+using Microsoft.EntityFrameworkCore;
 
 namespace VehicleServiceCenter.Models
 {
+    [Index(nameof(PlateNumber), IsUnique = true)]
+    [Index(nameof(VIN), IsUnique = true)]
     public class VehicleModel
     {
         [Key]
         public int VehicleId { get; set; }
-        public string Make { get; set; } = string.Empty;
-        public string Model { get; set; } = string.Empty;
-        public int Year { get; set; }
-        public string VIN { get; set; } = string.Empty;
+
+        public int CustomerProfileId { get; set; }
+
+        [Required, MaxLength(30)]
         public string PlateNumber { get; set; } = string.Empty;
-        public string Color { get; set; } = string.Empty;
-        public double Mileage { get; set; }
+
+        [MaxLength(50)]
+        public string? VIN { get; set; }
+
+        [Required, MaxLength(50)]
+        public string Make { get; set; } = string.Empty;
+
+        [Required, MaxLength(50)]
+        public string Model { get; set; } = string.Empty;
+
+        public int Year { get; set; }
+
+        [MaxLength(30)]
+        public string? Color { get; set; }
+
+        [Column(TypeName = "decimal(10,2)")]
+        public decimal? Mileage { get; set; }
+
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 
-        /*One to Many relationship with Appointment
-        public List<Appointment> Appointments { get; set; } 
+        public CustomerProfileModel CustomerProfile { get; set; } = null!;
 
-        in the Appointment class, you would have a foreign key property:
-        [ForeignKey("Vehicle")]
-        public int VehicleId { get; set; } //foreign key to VehicleModel
-        public VehicleModel Vehicle { get; set; } //navigation property to VehicleModel
-        */
+        [JsonIgnore]
+        public List<AppointmentModel> Appointments { get; set; } = new();
 
-        /*One to Many relationship with ServiceOrder
-        public List<ServiceOrder> ServiceOrders { get; set; } 
-
-        in the ServiceOrder class, you would have a foreign key property:
-        [ForeignKey("Vehicle")]
-        public int VehicleId { get; set; } //foreign key to VehicleModel
-        public VehicleModel Vehicle { get; set; } //navigation property to VehicleModel
-        */
-
-        /*Many to One relationship with CustomerProfile
-        public int CustomerProfileId { get; set; } //foreign key to CustomerProfile
-        public CustomerProfileModel CustomerProfile { get; set; } //navigation property to CustomerProfileModel
-        */
+        [JsonIgnore]
+        public List<ServiceOrderModel> ServiceOrders { get; set; } = new();
     }
 }

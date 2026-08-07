@@ -1,42 +1,46 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
+using Microsoft.EntityFrameworkCore;
 
 namespace VehicleServiceCenter.Models;
 
+[Index(nameof(ServiceOrderId), IsUnique = true)]
+[Index(nameof(InvoiceNumber), IsUnique = true)]
 public class InvoiceModel
 {
-    [Key] public int InvoiceId { get; set; }
+    [Key]
+    public int InvoiceId { get; set; }
 
     public int ServiceOrderId { get; set; }
 
-    [ForeignKey("ServiceOrder")]
-    public ServiceOrderModel? ServiceOrder { get; set; }
+    [JsonIgnore]
+    public ServiceOrderModel ServiceOrder { get; set; } = null!;
 
     [Required, MaxLength(50)]
-    public string InvoiceNumber { get; set; }
+    public string InvoiceNumber { get; set; } = string.Empty;
 
-    [Required]
     public DateTime IssueDate { get; set; }
 
     public DateTime? DueDate { get; set; }
 
-    [Required, Column(TypeName = "decimal(10,2)")]
+    [Column(TypeName = "decimal(10,2)")]
     public decimal Subtotal { get; set; }
 
-    [Required, Column(TypeName = "decimal(10,2)")]
+    [Column(TypeName = "decimal(10,2)")]
     public decimal TaxAmount { get; set; }
 
-    [Required, Column(TypeName = "decimal(10,2)")]
+    [Column(TypeName = "decimal(10,2)")]
     public decimal DiscountAmount { get; set; }
 
-    [Required, Column(TypeName = "decimal(10,2)")]
+    [Column(TypeName = "decimal(10,2)")]
     public decimal TotalAmount { get; set; }
 
     [Required, MaxLength(30)]
-    public string Status { get; set; }
+    public string Status { get; set; } = string.Empty;
 
     [MaxLength(500)]
     public string? Notes { get; set; }
 
-    public ICollection<PaymentModel> Payments { get; set; } = new List<PaymentModel>();
+    public List<PaymentModel> Payments { get; set; } = new();
 }

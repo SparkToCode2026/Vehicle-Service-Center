@@ -7,11 +7,11 @@ namespace VehicleServiceCenter.Controllers
     [Route("Invoice")]
     public class InvoiceController : ControllerBase
     {
-        private ProjectContext ProjectContext;
+        private ProjectContext context;
 
-        public InvoiceController(ProjectContext projectContext)
+        public InvoiceController(ProjectContext context)
         {
-            ProjectContext = projectContext;
+            context = context;
         }
 
         // Add invoice
@@ -20,7 +20,7 @@ namespace VehicleServiceCenter.Controllers
         {
             // Check whether the service order exists
             ServiceOrderModel serviceOrder =
-                ProjectContext.ServiceOrders.FirstOrDefault(s =>
+                context.ServiceOrders.FirstOrDefault(s =>
                     s.ServiceOrderId == invoice.ServiceOrderId
                 );
 
@@ -32,7 +32,7 @@ namespace VehicleServiceCenter.Controllers
             }
             // Check whether invoice number already exists
             InvoiceModel existingInvoice =
-                ProjectContext.Invoices.FirstOrDefault(i =>
+                context.Invoices.FirstOrDefault(i =>
                     i.InvoiceNumber == invoice.InvoiceNumber
                 );
 
@@ -78,8 +78,8 @@ namespace VehicleServiceCenter.Controllers
 
             invoice.IssueDate = DateTime.Now;
 
-            ProjectContext.Invoices.Add(invoice);
-            ProjectContext.SaveChanges();
+            context.Invoices.Add(invoice);
+            context.SaveChanges();
 
             return Ok(new
             {
@@ -92,7 +92,7 @@ namespace VehicleServiceCenter.Controllers
         [HttpGet("GetAll")]
         public IActionResult GetAllInvoices()
         {
-            var invoices = ProjectContext.Invoices
+            var invoices = context.Invoices
                 .Select(i => new
                 {
                     i.InvoiceId,
@@ -115,7 +115,7 @@ namespace VehicleServiceCenter.Controllers
         [HttpGet("GetById/{id}")]
         public IActionResult GetInvoiceById(int id)
         {
-            var invoice = ProjectContext.Invoices
+            var invoice = context.Invoices
                 .Where(i => i.InvoiceId == id)
                 .Select(i => new
                 {
@@ -146,7 +146,7 @@ namespace VehicleServiceCenter.Controllers
             int serviceOrderId
         )
         {
-            var invoice = ProjectContext.Invoices
+            var invoice = context.Invoices
                 .Where(i =>
                     i.ServiceOrderId == serviceOrderId
                 )
@@ -183,7 +183,7 @@ namespace VehicleServiceCenter.Controllers
         )
         {
             InvoiceModel invoice =
-                ProjectContext.Invoices.Find(id);
+                context.Invoices.Find(id);
 
             if (invoice == null)
             {
@@ -191,7 +191,7 @@ namespace VehicleServiceCenter.Controllers
             }
 
             ServiceOrderModel serviceOrder =
-                ProjectContext.ServiceOrders.FirstOrDefault(s =>
+                context.ServiceOrders.FirstOrDefault(s =>
                     s.ServiceOrderId ==
                     updatedInvoice.ServiceOrderId
                 );
@@ -204,7 +204,7 @@ namespace VehicleServiceCenter.Controllers
             }
 
             InvoiceModel existingInvoice =
-                ProjectContext.Invoices.FirstOrDefault(i =>
+                context.Invoices.FirstOrDefault(i =>
                     i.InvoiceNumber ==
                         updatedInvoice.InvoiceNumber &&
                     i.InvoiceId != id
@@ -255,7 +255,7 @@ namespace VehicleServiceCenter.Controllers
             invoice.TotalAmount = totalAmount;
             invoice.Status = updatedInvoice.Status;
             invoice.Notes = updatedInvoice.Notes;
-            ProjectContext.SaveChanges();
+            context.SaveChanges();
 
             return Ok(new
             {
@@ -272,7 +272,7 @@ namespace VehicleServiceCenter.Controllers
         )
         {
             InvoiceModel invoice =
-                ProjectContext.Invoices.Find(id);
+                context.Invoices.Find(id);
 
             if (invoice == null)
             {
@@ -280,7 +280,7 @@ namespace VehicleServiceCenter.Controllers
             }
 
             invoice.Status = status;
-            ProjectContext.SaveChanges();
+            context.SaveChanges();
 
             return Ok(new
             {
@@ -294,14 +294,14 @@ namespace VehicleServiceCenter.Controllers
         public IActionResult DeleteInvoice(int id)
         {
             InvoiceModel invoice =
-                ProjectContext.Invoices.Find(id);
+                context.Invoices.Find(id);
 
             if (invoice == null)
             {
                 return NotFound("Invoice not found");
             }
 
-            bool hasPayments = ProjectContext.Payments
+            bool hasPayments = context.Payments
                 .Any(p => p.InvoiceId == id);
 
             if (hasPayments)
@@ -311,8 +311,8 @@ namespace VehicleServiceCenter.Controllers
                 );
             }
 
-            ProjectContext.Invoices.Remove(invoice);
-            ProjectContext.SaveChanges();
+            context.Invoices.Remove(invoice);
+            context.SaveChanges();
 
             return Ok(new
             {

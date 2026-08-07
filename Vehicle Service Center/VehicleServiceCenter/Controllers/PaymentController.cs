@@ -1,27 +1,27 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using VehicleServiceCenter.Models;
 
 namespace VehicleServiceCenter.Controllers
 {
     [ApiController]
-    [Route("Payment")]  
+    [Route("Payment")]
     public class PaymentController : ControllerBase
     {
-        private ProjectContext ProjectContext;
+        private ProjectContext context;
 
-        public PaymentController(ProjectContext projectContext)
+        public PaymentController(ProjectContext context)
         {
-            ProjectContext = projectContext;
+            context = context;
         }
 
         // Add payment
         [HttpPost("AddPayment")]
         public IActionResult AddPayment(PaymentModel payment)
         {
-            // Check whether the invoice exists
-            InvoiceModel invoice = ProjectContext.Invoices
-                .FirstOrDefault(i => i.InvoiceId == payment.InvoiceId);
+            InvoiceModel? invoice = context.Invoices
+                .FirstOrDefault(i =>
+                    i.InvoiceId == payment.InvoiceId
+                );
 
             if (invoice == null)
             {
@@ -33,102 +33,100 @@ namespace VehicleServiceCenter.Controllers
                 return BadRequest(
                     "Payment amount must be greater than zero"
                 );
-
             }
-        }
 
-    }
-    // Check whether transaction reference already exists
-    if (!string.IsNullOrEmpty(payment.TransactionReference))
-    {
-        PaymentModel existingPayment =
-            ProjectContext.Payments.FirstOrDefault(p =>
-                p.TransactionReference ==
-                payment.TransactionReference
-            );
-
-        if (existingPayment != null)
-        {
-            return BadRequest(
-                "Transaction reference already exists"
-            );
-        }
-    }
-
-    payment.PaymentDate = DateTime.Now;
-
-    ProjectContext.Payments.Add(payment);
-    ProjectContext.SaveChanges();
-
-    return Ok(new
-    {
-        Message = "Payment added successfully",
-        PaymentId = payment.PaymentId
-    });
-    
-    // Get all payments
-    [HttpGet("GetAll")]
-    public IActionResult GetAllPayments()
-    {
-        var payments = ProjectContext.Payments
-            .Select(p => new
+            if (!string.IsNullOrEmpty(payment.TransactionReference))
             {
-                p.PaymentId,
-                p.InvoiceId,
-                p.Amount,
-                p.PaymentDate,
-                p.PaymentMethod,
-                p.TransactionReference,
-                p.Status,
-                p.Notes
-            })
-            .ToList();
+                PaymentModel? existingPayment =
+                    context.Payments.FirstOrDefault(p =>
+                        p.TransactionReference ==
+                        payment.TransactionReference
+                    );
 
-        return Ok(payments);
-    }
+                if (existingPayment != null)
+                {
+                    return BadRequest(
+                        "Transaction reference already exists"
+                    );
+                }
+            }
 
-    // Get payment by ID
-    [HttpGet("GetById/{id}")]
-    public IActionResult GetPaymentById(int id)
-    {
-        var payment = ProjectContext.Payments
-            .Where(p => p.PaymentId == id)
-            .Select(p => new
+            payment.PaymentDate = DateTime.Now;
+
+            context.Payments.Add(payment);
+            context.SaveChanges();
+
+            return Ok(new
             {
-                p.PaymentId,
-                p.InvoiceId,
-                p.Amount,
-                p.PaymentDate,
-                p.PaymentMethod,
-                p.TransactionReference,
-                p.Status,
-                p.Notes
-            })
-            .FirstOrDefault();
-
-        if (payment == null)
-        {
-            return NotFound("Payment not found");
+                Message = "Payment added successfully",
+                PaymentId = payment.PaymentId
+            });
         }
 
-        return Ok(payment);
-    }
-      // Update payment by ID
-        [HttpPut("Update/{id}")]
-        public IActionResult UpdatePayment(
-            int id,
-            PaymentModel updatedPayment
-        )
+        // Get all payments
+        [HttpGet("GetAll")]
+        public IActionResult GetAllPayments()
         {
-            PaymentModel payment =
-                ProjectContext.Payments.Find(id);
+            var payments = context.Payments
+                .Select(p => new
+                {
+                    p.PaymentId,
+                    p.InvoiceId,
+                    p.Amount,
+                    p.PaymentDate,
+                    p.PaymentMethod,
+                    p.TransactionReference,
+                    p.Status,
+                    p.Notes
+                })
+                .ToList();
+
+            return Ok(payments);
+        }
+
+        // Get payment by ID
+        [HttpGet("GetById/{id}")]
+        public IActionResult GetPaymentById(int id)
+        {
+            var payment = context.Payments
+                .Where(p => p.PaymentId == id)
+                .Select(p => new
+                {
+                    p.PaymentId,
+                    p.InvoiceId,
+                    p.Amount,
+                    p.PaymentDate,
+                    p.PaymentMethod,
+                    p.TransactionReference,
+                    p.Status,
+                    p.Notes
+                })
+                .FirstOrDefault();
 
             if (payment == null)
             {
                 return NotFound("Payment not found");
             }
 
-            InvoiceModel invoice = ProjectContext.Invoices
+            return Ok(payment);
+        }
+
+        // Update payment by ID
+        [HttpPut("Update/{id}")]
+        public IActionResult UpdatePayment(
+            int id,
+            PaymentModel updatedPayment
+        )
+        {
+            PaymentModel? payment =
+                context.Payments.Find(id);
+
+            if (payment == null)
+            {
+                return NotFound("Payment not found");
+            }
+
+            InvoiceModel? invoice = context.Invoices
                 .FirstOrDefault(i =>
                     i.InvoiceId == updatedPayment.InvoiceId
                 );
@@ -145,31 +143,35 @@ namespace VehicleServiceCenter.Controllers
                 );
             }
 
-            PaymentModel existingTransaction =
-                ProjectContext.Payments.FirstOrDefault(p =>
-                    p.TransactionReference ==
-                        updatedPayment.TransactionReference &&
-                    p.PaymentId != id
-                );
-
-            if (existingTransaction != null)
+            if (!string.IsNullOrEmpty(
+                    updatedPayment.TransactionReference
+                ))
             {
-                return BadRequest(
-                    "Transaction reference already exists"
-                );
+                PaymentModel? existingTransaction =
+                    context.Payments.FirstOrDefault(p =>
+                        p.TransactionReference ==
+                            updatedPayment.TransactionReference &&
+                        p.PaymentId != id
+                    );
+
+                if (existingTransaction != null)
+                {
+                    return BadRequest(
+                        "Transaction reference already exists"
+                    );
+                }
             }
 
             payment.InvoiceId = updatedPayment.InvoiceId;
             payment.Amount = updatedPayment.Amount;
             payment.PaymentDate = updatedPayment.PaymentDate;
-            payment.PaymentMethod =
-                updatedPayment.PaymentMethod;
+            payment.PaymentMethod = updatedPayment.PaymentMethod;
             payment.TransactionReference =
                 updatedPayment.TransactionReference;
             payment.Status = updatedPayment.Status;
             payment.Notes = updatedPayment.Notes;
 
-            ProjectContext.SaveChanges();
+            context.SaveChanges();
 
             return Ok(new
             {
@@ -185,8 +187,8 @@ namespace VehicleServiceCenter.Controllers
             string status
         )
         {
-            PaymentModel payment =
-                ProjectContext.Payments.Find(id);
+            PaymentModel? payment =
+                context.Payments.Find(id);
 
             if (payment == null)
             {
@@ -194,7 +196,7 @@ namespace VehicleServiceCenter.Controllers
             }
 
             payment.Status = status;
-            ProjectContext.SaveChanges();
+            context.SaveChanges();
 
             return Ok(new
             {
@@ -208,16 +210,16 @@ namespace VehicleServiceCenter.Controllers
         [HttpDelete("Delete/{id}")]
         public IActionResult DeletePayment(int id)
         {
-            PaymentModel payment =
-                ProjectContext.Payments.Find(id);
+            PaymentModel? payment =
+                context.Payments.Find(id);
 
             if (payment == null)
             {
                 return NotFound("Payment not found");
             }
 
-            ProjectContext.Payments.Remove(payment);
-            ProjectContext.SaveChanges();
+            context.Payments.Remove(payment);
+            context.SaveChanges();
 
             return Ok(new
             {
@@ -226,8 +228,4 @@ namespace VehicleServiceCenter.Controllers
             });
         }
     }
-
-
-    
-    
-
+}
