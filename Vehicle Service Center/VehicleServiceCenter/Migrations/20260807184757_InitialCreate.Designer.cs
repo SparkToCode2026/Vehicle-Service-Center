@@ -12,7 +12,7 @@ using VehicleServiceCenter;
 namespace VehicleServiceCenter.Migrations
 {
     [DbContext(typeof(ProjectContext))]
-    [Migration("20260807184036_InitialCreate")]
+    [Migration("20260807184757_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />

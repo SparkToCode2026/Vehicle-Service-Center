@@ -218,7 +218,7 @@ namespace VehicleServiceCenter.Migrations
                         column: x => x.VehicleId,
                         principalTable: "Vehicles",
                         principalColumn: "VehicleId",
-                        onUpdate: ReferentialAction.NoAction,
+                        onUpdate: ReferentialAction.NoAction, 
                         onDelete: ReferentialAction.NoAction);
                 });
 
