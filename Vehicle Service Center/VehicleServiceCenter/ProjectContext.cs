@@ -1,18 +1,16 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using VehicleServiceCenter.Models;
 
 namespace VehicleServiceCenter
 {
-    public class ProjectContext
-    {
-    }
-
-
-    namespace VehicleServiceCenter
-    {
+    
         public class ProjectContext : DbContext
         {
-            
+            public ProjectContext(DbContextOptions<ProjectContext> options) : base(options)
+            {
+            }
             public DbSet<UserModel> Users { get; set; }
             public DbSet<CustomerProfileModel> CustomerProfiles { get; set; }
             public DbSet<MechanicProfileModel> MechanicProfiles { get; set; }
@@ -30,11 +28,9 @@ namespace VehicleServiceCenter
             public DbSet<PaymentModel> Payments { get; set; }
             public DbSet<BranchModel> Branches { get; set; }
 
-            public ProjectContext(DbContextOptions<ProjectContext> options) : base(options)
-            {
-            }
+            
         }
-    }
+    
 }
 
 
