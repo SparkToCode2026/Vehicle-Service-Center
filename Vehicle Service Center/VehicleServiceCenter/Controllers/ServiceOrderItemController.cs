@@ -8,8 +8,11 @@ namespace VehicleServiceCenter.Controllers
     [ApiController]
     public class ServiceOrderItemController: ControllerBase
     {
-        private readonly ProjectContext _context;
-        public ServiceOrderItemController(ProjectContext context) => _context = context;
+        private ProjectContext _context;
+        public ServiceOrderItemController(ProjectContext context)
+        {
+           context = context;
+        }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ServiceOrderItemModel>>> GetAll()

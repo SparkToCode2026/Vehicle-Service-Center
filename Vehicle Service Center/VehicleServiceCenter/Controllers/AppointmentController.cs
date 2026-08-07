@@ -12,35 +12,35 @@ namespace VehicleServiceCenter.Controllers;
 [Route("[controller]")]
 public class AppointmentController : Controller
 {
-    private readonly ProjectContext _context;
+    private ProjectContext context;
 
     public AppointmentController(ProjectContext context)
     {
-        _context = context;
+        context = context;
         
     }
     [HttpGet]
     public IActionResult GetAppointments()
     {
-        return  Ok(_context.Appointments.ToList());
+        return  Ok(context.Appointments.ToList());
     }
     [HttpGet("{id}")]
     public IActionResult GetAppointment(int id)
     {
-        var IsAppointmentFound =  _context.Appointments.Equals(id);
+        var IsAppointmentFound =  context.Appointments.Equals(id);
 
         if (!IsAppointmentFound)
             return NotFound();
 
-        var appointmen = _context.Appointments.Find(id);
+        var appointmen = context.Appointments.Find(id);
         return Ok(appointmen);
     }
     [HttpPost]
     public async Task<ActionResult<AppointmentModel>> CreateAppointment(AppointmentModel appointmentModel)
     {
-        _context.Appointments.Add(appointmentModel);
+        context.Appointments.Add(appointmentModel);
 
-        await _context.SaveChangesAsync();
+        await context.SaveChangesAsync();
 
         return CreatedAtAction(nameof(GetAppointment),
             new { id = appointmentModel.AppointmentId }, appointmentModel);
@@ -51,9 +51,9 @@ public class AppointmentController : Controller
         if (id != appointmentModel.AppointmentId)
             return BadRequest();
 
-        _context.Entry(appointmentModel).State = EntityState.Modified;
+        context.Entry(appointmentModel).State = EntityState.Modified;
 
-        _context.SaveChanges();
+        context.SaveChanges();
 
         return NoContent();
     }
@@ -61,16 +61,16 @@ public class AppointmentController : Controller
     public IActionResult DeleteAppointment(int id)
     {
         // check if it is exits 1
-        AppointmentModel appointment=  _context.Appointments.Find(id);
+        AppointmentModel appointment=  context.Appointments.Find(id);
 
         if (appointment == null )
             return NotFound();
         
         // delete  3
-        _context.Appointments.Remove(appointment);
+        context.Appointments.Remove(appointment);
         
         // save 4
-        _context.SaveChanges();
+        context.SaveChanges();
 
         return NoContent();
     }

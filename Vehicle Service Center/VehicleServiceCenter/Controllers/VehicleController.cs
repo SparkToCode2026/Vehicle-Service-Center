@@ -8,11 +8,11 @@ namespace VehicleServiceCenter.Controllers
     [Route("Vehicle")]
     public class VehicleController : ControllerBase
     {
-        private readonly ProjectContext context;
+        private ProjectContext context;
 
         public VehicleController(ProjectContext context)
         {
-            this.context = context;
+            context = context;
         }
 
         // Register a new vehicle

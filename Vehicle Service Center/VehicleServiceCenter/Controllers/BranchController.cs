@@ -7,11 +7,11 @@ namespace VehicleServiceCenter.Controllers;
 [Route("Branch")]
 public class BranchController : ControllerBase
 {
-    private ProjectContext ProjectContext;
+    private ProjectContext context;
 
     public BranchController(ProjectContext projectContext)
     {
-        ProjectContext = projectContext;
+        context = projectContext;
     }
 
     // Add branch
@@ -20,7 +20,7 @@ public class BranchController : ControllerBase
     {
         // Check whether branch name already exists
         BranchModel existingBranch =
-            ProjectContext.Branches.FirstOrDefault(b =>
+            context.Branches.FirstOrDefault(b =>
                 b.BranchName == branch.BranchName
             );
 
@@ -33,7 +33,7 @@ public class BranchController : ControllerBase
 
         // Check whether branch email already exists
         BranchModel existingEmail =
-            ProjectContext.Branches.FirstOrDefault(b =>
+            context.Branches.FirstOrDefault(b =>
                 b.Email == branch.Email
             );
 
@@ -53,8 +53,8 @@ public class BranchController : ControllerBase
 
         branch.IsActive = true;
 
-        ProjectContext.Branches.Add(branch);
-        ProjectContext.SaveChanges();
+        context.Branches.Add(branch);
+        context.SaveChanges();
 
         return Ok(new
         {
@@ -67,7 +67,7 @@ public class BranchController : ControllerBase
     [HttpGet("GetAll")]
     public IActionResult GetAllBranches()
     {
-        var branches = ProjectContext.Branches
+        var branches = context.Branches
             .Select(b => new
             {
                 b.BranchId,
@@ -88,7 +88,7 @@ public class BranchController : ControllerBase
     [HttpGet("GetActive")]
     public IActionResult GetActiveBranches()
     {
-        var branches = ProjectContext.Branches
+        var branches = context.Branches
             .Where(b => b.IsActive == true)
             .Select(b => new
             {
@@ -110,7 +110,7 @@ public class BranchController : ControllerBase
     [HttpGet("GetById/{id}")]
     public IActionResult GetBranchById(int id)
     {
-        var branch = ProjectContext.Branches
+        var branch = context.Branches
             .Where(b => b.BranchId == id)
             .Select(b => new
             {
@@ -141,7 +141,7 @@ public class BranchController : ControllerBase
         )
         {
             BranchModel branch =
-                ProjectContext.Branches.Find(id);
+                context.Branches.Find(id);
 
             if (branch == null)
             {
@@ -149,7 +149,7 @@ public class BranchController : ControllerBase
             }
 
             BranchModel existingBranchName =
-                ProjectContext.Branches.FirstOrDefault(b =>
+                context.Branches.FirstOrDefault(b =>
                     b.BranchName ==
                         updatedBranch.BranchName &&
                     b.BranchId != id
@@ -163,7 +163,7 @@ public class BranchController : ControllerBase
             }
 
             BranchModel existingEmail =
-                ProjectContext.Branches.FirstOrDefault(b =>
+                context.Branches.FirstOrDefault(b =>
                     b.Email == updatedBranch.Email &&
                     b.BranchId != id
                 );
@@ -198,7 +198,7 @@ public class BranchController : ControllerBase
             branch.IsActive =
                 updatedBranch.IsActive;
 
-            ProjectContext.SaveChanges();
+        context.SaveChanges();
 
             return Ok(new
             {
@@ -215,7 +215,7 @@ public class BranchController : ControllerBase
         )
         {
             BranchModel branch =
-                ProjectContext.Branches.Find(id);
+                context.Branches.Find(id);
 
             if (branch == null)
             {
@@ -223,7 +223,7 @@ public class BranchController : ControllerBase
             }
 
             branch.IsActive = isActive;
-            ProjectContext.SaveChanges();
+            context.SaveChanges();
 
             return Ok(new
             {
@@ -237,7 +237,7 @@ public class BranchController : ControllerBase
         public IActionResult DeleteBranch(int id)
         {
             BranchModel branch =
-                ProjectContext.Branches.Find(id);
+                context.Branches.Find(id);
 
             if (branch == null)
             {
@@ -245,19 +245,19 @@ public class BranchController : ControllerBase
             }
 
             bool hasMechanics =
-                ProjectContext.MechanicProfiles
+                context.MechanicProfiles
                     .Any(m => m.BranchId == id);
 
             bool hasAppointments =
-                ProjectContext.Appointments
+                context.Appointments
                     .Any(a => a.BranchId == id);
 
             bool hasServiceOrders =
-                ProjectContext.ServiceOrders
+                context.ServiceOrders
                     .Any(s => s.BranchId == id);
 
             bool hasSpareParts =
-                ProjectContext.SpareParts
+                context.SpareParts
                     .Any(s => s.BranchId == id);
 
             if (hasMechanics ||
@@ -270,8 +270,8 @@ public class BranchController : ControllerBase
                 );
             }
 
-            ProjectContext.Branches.Remove(branch);
-            ProjectContext.SaveChanges();
+            context.Branches.Remove(branch);
+            context.SaveChanges();
 
             return Ok(new
             {

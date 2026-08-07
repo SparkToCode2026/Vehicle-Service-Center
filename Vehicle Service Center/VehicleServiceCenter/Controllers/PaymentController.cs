@@ -7,18 +7,18 @@ namespace VehicleServiceCenter.Controllers
     [Route("Payment")]
     public class PaymentController : ControllerBase
     {
-        private readonly ProjectContext ProjectContext;
+        private ProjectContext context;
 
-        public PaymentController(ProjectContext projectContext)
+        public PaymentController(ProjectContext context)
         {
-            ProjectContext = projectContext;
+            context = context;
         }
 
         // Add payment
         [HttpPost("AddPayment")]
         public IActionResult AddPayment(PaymentModel payment)
         {
-            InvoiceModel? invoice = ProjectContext.Invoices
+            InvoiceModel? invoice = context.Invoices
                 .FirstOrDefault(i =>
                     i.InvoiceId == payment.InvoiceId
                 );
@@ -38,7 +38,7 @@ namespace VehicleServiceCenter.Controllers
             if (!string.IsNullOrEmpty(payment.TransactionReference))
             {
                 PaymentModel? existingPayment =
-                    ProjectContext.Payments.FirstOrDefault(p =>
+                    context.Payments.FirstOrDefault(p =>
                         p.TransactionReference ==
                         payment.TransactionReference
                     );
@@ -53,8 +53,8 @@ namespace VehicleServiceCenter.Controllers
 
             payment.PaymentDate = DateTime.Now;
 
-            ProjectContext.Payments.Add(payment);
-            ProjectContext.SaveChanges();
+            context.Payments.Add(payment);
+            context.SaveChanges();
 
             return Ok(new
             {
@@ -67,7 +67,7 @@ namespace VehicleServiceCenter.Controllers
         [HttpGet("GetAll")]
         public IActionResult GetAllPayments()
         {
-            var payments = ProjectContext.Payments
+            var payments = context.Payments
                 .Select(p => new
                 {
                     p.PaymentId,
@@ -88,7 +88,7 @@ namespace VehicleServiceCenter.Controllers
         [HttpGet("GetById/{id}")]
         public IActionResult GetPaymentById(int id)
         {
-            var payment = ProjectContext.Payments
+            var payment = context.Payments
                 .Where(p => p.PaymentId == id)
                 .Select(p => new
                 {
@@ -119,14 +119,14 @@ namespace VehicleServiceCenter.Controllers
         )
         {
             PaymentModel? payment =
-                ProjectContext.Payments.Find(id);
+                context.Payments.Find(id);
 
             if (payment == null)
             {
                 return NotFound("Payment not found");
             }
 
-            InvoiceModel? invoice = ProjectContext.Invoices
+            InvoiceModel? invoice = context.Invoices
                 .FirstOrDefault(i =>
                     i.InvoiceId == updatedPayment.InvoiceId
                 );
@@ -148,7 +148,7 @@ namespace VehicleServiceCenter.Controllers
                 ))
             {
                 PaymentModel? existingTransaction =
-                    ProjectContext.Payments.FirstOrDefault(p =>
+                    context.Payments.FirstOrDefault(p =>
                         p.TransactionReference ==
                             updatedPayment.TransactionReference &&
                         p.PaymentId != id
@@ -171,7 +171,7 @@ namespace VehicleServiceCenter.Controllers
             payment.Status = updatedPayment.Status;
             payment.Notes = updatedPayment.Notes;
 
-            ProjectContext.SaveChanges();
+            context.SaveChanges();
 
             return Ok(new
             {
@@ -188,7 +188,7 @@ namespace VehicleServiceCenter.Controllers
         )
         {
             PaymentModel? payment =
-                ProjectContext.Payments.Find(id);
+                context.Payments.Find(id);
 
             if (payment == null)
             {
@@ -196,7 +196,7 @@ namespace VehicleServiceCenter.Controllers
             }
 
             payment.Status = status;
-            ProjectContext.SaveChanges();
+            context.SaveChanges();
 
             return Ok(new
             {
@@ -211,15 +211,15 @@ namespace VehicleServiceCenter.Controllers
         public IActionResult DeletePayment(int id)
         {
             PaymentModel? payment =
-                ProjectContext.Payments.Find(id);
+                context.Payments.Find(id);
 
             if (payment == null)
             {
                 return NotFound("Payment not found");
             }
 
-            ProjectContext.Payments.Remove(payment);
-            ProjectContext.SaveChanges();
+            context.Payments.Remove(payment);
+            context.SaveChanges();
 
             return Ok(new
             {

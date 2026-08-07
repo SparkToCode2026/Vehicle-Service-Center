@@ -8,13 +8,16 @@ namespace VehicleServiceCenter.Controllers
     [ApiController]
     public class ServiceOrderController: ControllerBase
     {
-        private readonly ProjectContext _context;
-        public ServiceOrderController(ProjectContext context) => _context = context;
+        private ProjectContext context;
+        public ServiceOrderController(ProjectContext context)
+        {
+            context = context;
+        }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ServiceOrderModel>>> GetAll()
         {
-            return await _context.ServiceOrders
+            return await context.ServiceOrders
                 .Include(so => so.Vehicle)
                 .Include(so => so.ServiceOrderItems)
                 .ToListAsync();
@@ -23,7 +26,7 @@ namespace VehicleServiceCenter.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<ServiceOrderModel>> GetById(int id)
         {
-            var order = await _context.ServiceOrders
+            var order = await context.ServiceOrders
                 .Include(so => so.Vehicle)
                 .Include(so => so.ServiceOrderItems)
                 .FirstOrDefaultAsync(so => so.ServiceOrderId == id);
@@ -37,15 +40,15 @@ namespace VehicleServiceCenter.Controllers
         {
             order.CreatedAt = DateTime.UtcNow;
             order.OrderDate = DateTime.UtcNow;
-            _context.ServiceOrders.Add(order);
-            await _context.SaveChangesAsync();
+            context.ServiceOrders.Add(order);
+            await context.SaveChangesAsync();
             return CreatedAtAction(nameof(GetById), new { id = order.ServiceOrderId }, order);
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, ServiceOrderModel updated)
         {
-            var order = await _context.ServiceOrders.FindAsync(id);
+            var order = await context.ServiceOrders.FindAsync(id);
             if (order == null) return NotFound();
 
             order.MechanicProfileId = updated.MechanicProfileId;
@@ -54,18 +57,18 @@ namespace VehicleServiceCenter.Controllers
             order.TotalAmount = updated.TotalAmount;
             order.CompletionDate = updated.CompletionDate;
 
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync();
             return NoContent();
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var order = await _context.ServiceOrders.FindAsync(id);
+            var order = await context.ServiceOrders.FindAsync(id);
             if (order == null) return NotFound();
 
-            _context.ServiceOrders.Remove(order);
-            await _context.SaveChangesAsync();
+            context.ServiceOrders.Remove(order);
+            await context.SaveChangesAsync();
             return NoContent();
         }
     }
