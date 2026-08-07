@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -9,27 +10,28 @@ public class AppointmentModel
 
     public int CustomerProfileId { get; set; }
 
-    [ForeignKey("CustomerProfile")] public CustomerProfile? CustomerProfile { get; set; }
+    [ForeignKey("CustomerProfile")] public CustomerProfileModel? CustomerProfile { get; set; }
 
 public int VehicleId { get; set; }
 
     [ForeignKey("Vehicle")]
-    public Vehicle Vehicle { get; set; }
+    public VehicleModel Vehicle { get; set; }
 
     public int ServiceTypeId { get; set; }
 
     [ForeignKey("ServiceType")]
-    public ServiceType ServiceType { get; set; }
+    public ServiceTypeModel ServiceType { get; set; }
 
     public int MechanicProfileId { get; set; }
 
     [ForeignKey("MechanicProfile")]
-    public MechanicProfile MechanicProfile { get; set; }
+    public MechanicProfileModel MechanicProfile { get; set; }
 
+    
+
+    [ForeignKey("Branch")] 
     public int BranchId { get; set; }
-
-    [ForeignKey("Branch")]
-    public Branch Branch { get; set; }
+    public BranchModel Branch { get; set; }
 
     public DateTime AppointmentDate { get; set; }
 

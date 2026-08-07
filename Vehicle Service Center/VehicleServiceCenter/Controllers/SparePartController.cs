@@ -1,96 +1,75 @@
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using VehicleServiceCenter.Data;
 using VehicleServiceCenter.Models;
 
 namespace VehicleServiceCenter.Controllers;
-[Route("api/[controller]")]
+
 [ApiController]
+[Route("[controller]")]
 public class SparePartController : ControllerBase
 {
-    private readonly ApplicationDbContext _context;
+    private readonly ProjectContext _context;
 
-    public SparePartController(ApplicationDbContext context)
+    public SparePartController(ProjectContext context)
     {
         _context = context;
     }
 
-
     // GET: api/SparePart
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<SparePartModel>>> GetSpareParts()
+    public IActionResult GetSpareParts()
     {
-        var spareParts = await _context.SpareParts
-            .Include(s => s.Branch)
-            .ToListAsync();
-
-        return Ok(spareParts);
+        return Ok(_context.SpareParts.ToList());
     }
-
 
     // GET: api/SparePart/5
     [HttpGet("{id}")]
-    public async Task<ActionResult<SparePartModel>> GetSparePart(int id)
+    public IActionResult GetSparePart(int id)
     {
-        var sparePart = await _context.SpareParts
-            .Include(s => s.Branch)
-            .FirstOrDefaultAsync(s => s.SparePartId == id);
+        var sparePart = _context.SpareParts.Find(id);
 
         if (sparePart == null)
-        {
             return NotFound();
-        }
 
         return Ok(sparePart);
     }
 
-
     // POST: api/SparePart
     [HttpPost]
-    public async Task<ActionResult<SparePartModel>> CreateSparePart(SparePartModel sparePartModel)
+    public IActionResult CreateSparePart(SparePartModel sparePart)
     {
-        _context.SpareParts.Add(sparePartModel);
+        _context.SpareParts.Add(sparePart);
+        _context.SaveChanges();
 
-        await _context.SaveChangesAsync();
-
-        return CreatedAtAction(
-            nameof(GetSparePart),
-            new { id = sparePartModel.SparePartId },
-            sparePartModel
-        );
+        return CreatedAtAction(nameof(GetSparePart),
+            new { id = sparePart.SparePartId }, sparePart);
     }
-
 
     // PUT: api/SparePart/5
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateSparePart(int id, SparePartModel sparePartModel)
+    public IActionResult UpdateSparePart(int id, SparePartModel sparePart)
     {
-        if (id != sparePartModel.SparePartId)
-        {
+        if (id != sparePart.SparePartId)
             return BadRequest();
-        }
 
-        _context.Entry(sparePartModel).State = EntityState.Modified;
-
-        await _context.SaveChangesAsync();
+        _context.Entry(sparePart).State = EntityState.Modified;
+        _context.SaveChanges();
 
         return NoContent();
     }
+
     // DELETE: api/SparePart/5
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteSparePart(int id)
+    public IActionResult DeleteSparePart(int id)
     {
-        var sparePart = await _context.SpareParts
-            .FindAsync(id);
+        var sparePart = _context.SpareParts.Find(id);
 
         if (sparePart == null)
-        {
             return NotFound();
-        }
 
         _context.SpareParts.Remove(sparePart);
-
-        await _context.SaveChangesAsync();
+        _context.SaveChanges();
 
         return NoContent();
     }

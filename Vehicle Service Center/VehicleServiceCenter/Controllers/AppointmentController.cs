@@ -1,12 +1,15 @@
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VehicleServiceCenter.Models;
-using VehicleServiceCenter.Data;
+using VehicleServiceCenter;
 
 namespace VehicleServiceCenter.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("[controller]")]
 public class AppointmentController : Controller
 {
     private readonly ProjectContext _context;
@@ -17,19 +20,20 @@ public class AppointmentController : Controller
         
     }
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<AppointmentModel>>> GetAppointments()
+    public IActionResult GetAppointments()
     {
-        return await _context.Appointments.ToListAsync();
+        return  Ok(_context.Appointments.ToList());
     }
     [HttpGet("{id}")]
-    public async Task<ActionResult<AppointmentModel>> GetAppointment(int id)
+    public IActionResult GetAppointment(int id)
     {
-        var appointment = await _context.Appointments.FindAsync(id);
+        var IsAppointmentFound =  _context.Appointments.Equals(id);
 
-        if (appointment == null)
+        if (!IsAppointmentFound)
             return NotFound();
 
-        return appointment;
+        var appointmen = _context.Appointments.Find(id);
+        return Ok(appointmen);
     }
     [HttpPost]
     public async Task<ActionResult<AppointmentModel>> CreateAppointment(AppointmentModel appointmentModel)
@@ -49,21 +53,24 @@ public class AppointmentController : Controller
 
         _context.Entry(appointmentModel).State = EntityState.Modified;
 
-        await _context.SaveChangesAsync();
+        _context.SaveChanges();
 
         return NoContent();
     }
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteAppointment(int id)
+    public IActionResult DeleteAppointment(int id)
     {
-        var appointment = await _context.Appointments.FindAsync(id);
+        // check if it is exits 1
+        AppointmentModel appointment=  _context.Appointments.Find(id);
 
-        if (appointment == null)
+        if (appointment == null )
             return NotFound();
-
+        
+        // delete  3
         _context.Appointments.Remove(appointment);
-
-        await _context.SaveChangesAsync();
+        
+        // save 4
+        _context.SaveChanges();
 
         return NoContent();
     }

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -9,10 +10,9 @@ public class SparePartModel
     [Key]
     public int SparePartId { get; set; }
 
-    public int BranchId { get; set; }
-
     [ForeignKey("Branch")]
-    public Branch Branch { get; set; }
+    public int BranchId { get; set; }
+    public BranchModel Branch { get; set; }
 
     public string PartName { get; set; }
 
@@ -28,5 +28,5 @@ public class SparePartModel
 
     public bool IsAvailable { get; set; }
 
-    public List<ServiceOrderItem> ServiceOrderItems { get; set; }
+    public List<ServiceOrderItemModel> ServiceOrderItems { get; set; }
 }

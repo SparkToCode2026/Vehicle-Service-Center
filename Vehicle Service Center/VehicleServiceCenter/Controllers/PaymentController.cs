@@ -2,10 +2,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VehicleServiceCenter.Models;
 
-namespace VehicleServiceCenter.Controllers;
+namespace VehicleServiceCenter.Controllers
 {
     [ApiController]
-    [Route("Payment")]
+    [Route("Payment")]  
     public class PaymentController : ControllerBase
     {
         private ProjectContext ProjectContext;
