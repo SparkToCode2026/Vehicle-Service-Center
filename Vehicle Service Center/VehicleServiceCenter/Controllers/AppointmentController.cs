@@ -1,81 +1,151 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VehicleServiceCenter.Models;
-using VehicleServiceCenter;
 
 namespace VehicleServiceCenter.Controllers;
-
+[Authorize]
 [ApiController]
 [Route("[controller]")]
-public class AppointmentController : Controller
+public class AppointmentController : ControllerBase
 {
-    private ProjectContext context;
+    private readonly ProjectContext context;
 
     public AppointmentController(ProjectContext context)
     {
         this.context = context;
-        
     }
-    [HttpGet]
-    public IActionResult GetAppointments()
+
+    // 1. POST - Create a new appointment
+    [HttpPost]
+    public IActionResult CreateAppointment(AppointmentModel appointment)
     {
-        return  Ok(context.Appointments.ToList());
+        appointment.CreatedAt = DateTime.Now;
+
+        context.Appointments.Add(appointment);
+        context.SaveChanges();
+
+        return CreatedAtAction(
+            nameof(GetAppointment),
+            new { id = appointment.AppointmentId },
+            appointment
+        );
     }
-    [HttpGet("{id}")]
-    public IActionResult GetAppointment(int id)
+
+    // 2. PUT - Update appointment details
+    [HttpPut("{id}")]
+    public IActionResult UpdateAppointment(int id, AppointmentModel appointment)
+    {
+        var existingAppointment = context.Appointments.Find(id);
+
+        if (existingAppointment == null)
+            return NotFound();
+
+        existingAppointment.CustomerProfileId = appointment.CustomerProfileId;
+        existingAppointment.VehicleId = appointment.VehicleId;
+        existingAppointment.ServiceTypeId = appointment.ServiceTypeId;
+        existingAppointment.MechanicProfileId = appointment.MechanicProfileId;
+        existingAppointment.BranchId = appointment.BranchId;
+        existingAppointment.AppointmentDate = appointment.AppointmentDate;
+        existingAppointment.Status = appointment.Status;
+        existingAppointment.Notes = appointment.Notes;
+
+        context.SaveChanges();
+
+        return NoContent();
+    }
+
+    // 3. PATCH - Change appointment status
+    [HttpPatch("{id}/status")]
+    public IActionResult ChangeAppointmentStatus(int id, string status)
     {
         var appointment = context.Appointments.Find(id);
 
         if (appointment == null)
             return NotFound();
 
-        return Ok(appointment);
-
-        // var appointmen = context.Appointments.Find(id);
-        // return Ok(appointmen);
-    }
-    [HttpPost]
-    public async Task<ActionResult<AppointmentModel>> CreateAppointment(AppointmentModel appointmentModel)
-    {
-        context.Appointments.Add(appointmentModel);
-
-        await context.SaveChangesAsync();
-
-        return CreatedAtAction(nameof(GetAppointment),
-            new { id = appointmentModel.AppointmentId }, appointmentModel);
-    }
-    [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateAppointment(int id, AppointmentModel appointmentModel)
-    {
-        if (id != appointmentModel.AppointmentId)
-            return BadRequest();
-
-        context.Entry(appointmentModel).State = EntityState.Modified;
+        appointment.Status = status;
 
         context.SaveChanges();
 
-        return NoContent();
+        return Ok(appointment);
     }
+
+    // 4. DELETE - Delete an appointment
     [HttpDelete("{id}")]
     public IActionResult DeleteAppointment(int id)
     {
-        // check if it is exits 1
-        AppointmentModel appointment=  context.Appointments.Find(id);
+        var appointment = context.Appointments.Find(id);
 
-        if (appointment == null )
+        if (appointment == null)
             return NotFound();
-        
-        // delete  3
+
         context.Appointments.Remove(appointment);
-        
-        // save 4
         context.SaveChanges();
 
         return NoContent();
     }
-    
-    
+
+    // 5. GET - Get all appointments with related entities
+    [HttpGet]
+    public IActionResult GetAppointments()
+    {
+        var appointments = context.Appointments
+            .Include(a => a.CustomerProfile)
+            .Include(a => a.Vehicle)
+            .Include(a => a.ServiceType)
+            .Include(a => a.MechanicProfile)
+            .Include(a => a.Branch)
+            .ToList();
+
+        return Ok(appointments);
+    }
+
+    // 6. GET - Get appointment by ID
+    [HttpGet("{id}")]
+    public IActionResult GetAppointment(int id)
+    {
+        var appointment = context.Appointments
+            .Include(a => a.CustomerProfile)
+            .Include(a => a.Vehicle)
+            .Include(a => a.ServiceType)
+            .Include(a => a.MechanicProfile)
+            .Include(a => a.Branch)
+            .FirstOrDefault(a => a.AppointmentId == id);
+
+        if (appointment == null)
+            return NotFound();
+
+        return Ok(appointment);
+    }
+
+    // 7. GET - Filter appointments by status
+    [HttpGet("filter")]
+    public IActionResult GetAppointmentsByStatus(string status)
+    {
+        var appointments = context.Appointments
+            .Where(a => a.Status == status)
+            .Include(a => a.CustomerProfile)
+            .Include(a => a.Vehicle)
+            .Include(a => a.ServiceType)
+            .ToList();
+
+        return Ok(appointments);
+    }
+
+    // 8. GET - Sort appointments by date
+    [HttpGet("sort")]
+    public IActionResult GetAppointmentsSorted()
+    {
+        var appointments = context.Appointments
+            .OrderBy(a => a.AppointmentDate)
+            .Include(a => a.CustomerProfile)
+            .Include(a => a.Vehicle)
+            .Include(a => a.ServiceType)
+            .ToList();
+
+        return Ok(appointments);
+    }
 }
+
+//
