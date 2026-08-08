@@ -13,7 +13,7 @@ namespace VehicleServiceCenter.Controllers
 
         public UserController(ProjectContext context)
         {
-            context = context;
+            this.context = context;
         }
 
         // Register User
