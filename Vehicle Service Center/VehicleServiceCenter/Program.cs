@@ -6,7 +6,7 @@ using Microsoft.OpenApi.Models;
 using VehicleServiceCenter;
 using VehicleServiceCenter.Services;
 
-namespace WebAPIProject
+namespace VehicleServiceCenter
 {
     public class Program
     {
