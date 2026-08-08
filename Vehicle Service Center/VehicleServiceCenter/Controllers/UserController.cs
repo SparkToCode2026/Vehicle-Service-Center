@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
 using VehicleServiceCenter.DTOs;
 using VehicleServiceCenter.Models;
 using VehicleServiceCenter.Services;
@@ -88,7 +89,13 @@ namespace VehicleServiceCenter.Controllers
         [HttpGet("GetAll")]
         public IActionResult GetAllUsers()
         {
-            var users = context.Users.Select(u => new
+            var usersWithProfiles = context.Users
+                .AsNoTracking()
+                .Include(u => u.CustomerProfile)
+                .Include(u => u.MechanicProfile)
+                .ToList();
+
+            var users = usersWithProfiles.Select(u => new
                 {
                     u.UserId,
                     u.UserName,
@@ -96,7 +103,25 @@ namespace VehicleServiceCenter.Controllers
                     u.Role,
                     u.PhoneNumber,
                     u.IsActive,
-                    u.CreatedAt
+                    u.CreatedAt,
+                    CustomerProfile = u.CustomerProfile == null
+                        ? null
+                        : new
+                        {
+                            u.CustomerProfile.CustomerProfileId,
+                            u.CustomerProfile.Address,
+                            u.CustomerProfile.DateOfBirth
+                        },
+                    MechanicProfile = u.MechanicProfile == null
+                        ? null
+                        : new
+                        {
+                            u.MechanicProfile.MechanicProfileId,
+                            u.MechanicProfile.BranchId,
+                            u.MechanicProfile.Specialization,
+                            u.MechanicProfile.ExperienceYears,
+                            u.MechanicProfile.IsAvailable
+                        }
                 })
                 .ToList();
             return Ok(users);
@@ -193,8 +218,66 @@ namespace VehicleServiceCenter.Controllers
             });
         }
 
-        // Delete user by ID
+        // Filter users by role and optional active status
         [Authorize(Roles = "Admin")]
+        [HttpGet("FilterByRole")]
+        public IActionResult FilterByRole(string role, bool? isActive)
+        {
+            if (string.IsNullOrWhiteSpace(role))
+            {
+                return BadRequest("Role is required");
+            }
+
+            var query = context.Users
+                .AsNoTracking()
+                .Where(u => u.Role == role);
+
+            if (isActive.HasValue)
+            {
+                query = query.Where(u => u.IsActive == isActive.Value);
+            }
+
+            var users = query
+                .OrderBy(u => u.UserName)
+                .Select(u => new
+                {
+                    u.UserId,
+                    u.UserName,
+                    u.Email,
+                    u.Role,
+                    u.PhoneNumber,
+                    u.IsActive,
+                    u.CreatedAt
+                })
+                .ToList();
+
+            return Ok(users);
+        }
+
+        // Aggregate users by role
+        [Authorize(Roles = "Admin")]
+        [HttpGet("GetRoleSummary")]
+        public IActionResult GetRoleSummary()
+        {
+            var roleSummary = context.Users
+                .AsNoTracking()
+                .GroupBy(u => u.Role)
+                .Select(group => new
+                {
+                    Role = group.Key,
+                    TotalUsers = group.Count(),
+                    ActiveUsers = group.Count(u => u.IsActive),
+                    InactiveUsers = group.Count(u => !u.IsActive)
+                })
+                .OrderByDescending(group => group.TotalUsers)
+                .ThenBy(group => group.Role)
+                .ToList();
+
+            return Ok(roleSummary);
+        }
+
+        // Delete user by ID
+        //[Authorize(Roles = "Admin")]
         [HttpDelete("Delete/{id}")]
         public IActionResult DeleteUser(int id)
         {

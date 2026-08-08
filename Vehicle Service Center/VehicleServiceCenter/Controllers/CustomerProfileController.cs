@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using VehicleServiceCenter.Models;
 
 namespace VehicleServiceCenter.Controllers
@@ -11,7 +12,7 @@ namespace VehicleServiceCenter.Controllers
 
         public CustomerProfileController(ProjectContext context)
         {
-            context = context;
+            this.context = context;
         }
 
         // Add Customer Profile
@@ -113,10 +114,128 @@ namespace VehicleServiceCenter.Controllers
         [HttpGet("GetAllCustomerProfiles")]
         public IActionResult GetAllCustomerProfiles()
         {
-            List<CustomerProfileModel> customerProfiles =
-                context.CustomerProfiles.ToList();
+            List<CustomerProfileModel> customerProfilesWithUsers =
+                context.CustomerProfiles
+                    .AsNoTracking()
+                    .Include(c => c.User)
+                    .ToList();
+
+            var customerProfiles = customerProfilesWithUsers
+                .Select(c => new
+                {
+                    c.CustomerProfileId,
+                    c.UserId,
+                    c.Address,
+                    c.DateOfBirth,
+                    c.CreatedAt,
+                    User = c.User == null
+                        ? null
+                        : new
+                        {
+                            c.User.UserName,
+                            c.User.Email,
+                            c.User.PhoneNumber,
+                            c.User.IsActive
+                        }
+                })
+                .ToList();
 
             return Ok(customerProfiles);
+        }
+
+        // Filter Customer Profiles
+        [HttpGet("Filter")]
+        public IActionResult FilterCustomerProfiles(
+            string? address,
+            DateOnly? bornFrom,
+            DateOnly? bornTo)
+        {
+            if (string.IsNullOrWhiteSpace(address) &&
+                !bornFrom.HasValue &&
+                !bornTo.HasValue)
+            {
+                return BadRequest(
+                    "Provide an address or a date-of-birth range"
+                );
+            }
+
+            if (bornFrom.HasValue &&
+                bornTo.HasValue &&
+                bornFrom.Value > bornTo.Value)
+            {
+                return BadRequest(
+                    "The start date cannot be after the end date"
+                );
+            }
+
+            IQueryable<CustomerProfileModel> query =
+                context.CustomerProfiles
+                    .AsNoTracking()
+                    .Include(c => c.User);
+
+            if (!string.IsNullOrWhiteSpace(address))
+            {
+                query = query.Where(c =>
+                    c.Address != null && c.Address.Contains(address));
+            }
+
+            if (bornFrom.HasValue)
+            {
+                query = query.Where(c =>
+                    c.DateOfBirth >= bornFrom.Value);
+            }
+
+            if (bornTo.HasValue)
+            {
+                query = query.Where(c =>
+                    c.DateOfBirth <= bornTo.Value);
+            }
+
+            List<CustomerProfileModel> filteredProfiles =
+                query.ToList();
+
+            var result = filteredProfiles.Select(c => new
+                {
+                    c.CustomerProfileId,
+                    c.UserId,
+                    c.Address,
+                    c.DateOfBirth,
+                    c.CreatedAt,
+                    UserName = c.User?.UserName
+                })
+                .ToList();
+
+            return Ok(result);
+        }
+
+        // Get Customer Profiles sorted by creation date
+        [HttpGet("GetSortedByCreatedAt")]
+        public IActionResult GetSortedByCreatedAt(
+            bool descending = true)
+        {
+            IQueryable<CustomerProfileModel> query =
+                context.CustomerProfiles
+                    .AsNoTracking()
+                    .Include(c => c.User);
+
+            query = descending
+                ? query.OrderByDescending(c => c.CreatedAt)
+                : query.OrderBy(c => c.CreatedAt);
+
+            List<CustomerProfileModel> sortedProfiles = query.ToList();
+
+            var result = sortedProfiles.Select(c => new
+                {
+                    c.CustomerProfileId,
+                    c.UserId,
+                    c.Address,
+                    c.DateOfBirth,
+                    c.CreatedAt,
+                    UserName = c.User?.UserName
+                })
+                .ToList();
+
+            return Ok(result);
         }
 
         // Update Customer Profile
