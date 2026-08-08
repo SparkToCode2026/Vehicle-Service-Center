@@ -2,9 +2,9 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.IdentityModel.Tokens.Experimental;
 using Microsoft.OpenApi.Models;
 using VehicleServiceCenter;
+using VehicleServiceCenter.Services;
 
 namespace WebAPIProject
 {
@@ -70,12 +70,20 @@ namespace WebAPIProject
                 {
                     ValidIssuer = builder.Configuration["Jwt:Issuer"],
                     ValidAudience = builder.Configuration["Jwt:Audience"],
-                    IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
+                    IssuerSigningKey = new SymmetricSecurityKey(
+                        System.Text.Encoding.UTF8.GetBytes(
+                            builder.Configuration["Jwt:Key"]
+                            ?? throw new InvalidOperationException("JWT signing key is missing."))),
                     ValidateIssuer = true,
                     ValidateAudience = true,
+                    ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
+                    ClockSkew = TimeSpan.Zero
                 };
             });
+
+            builder.Services.AddAuthorization();
+            builder.Services.AddScoped<JwtTokenService>();
 
 
             var app = builder.Build();
@@ -89,6 +97,7 @@ namespace WebAPIProject
 
             app.UseHttpsRedirection();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
 
