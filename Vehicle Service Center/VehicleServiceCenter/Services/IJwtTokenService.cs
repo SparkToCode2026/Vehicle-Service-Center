@@ -3,7 +3,7 @@ using VehicleServiceCenter.Models;
 
 namespace VehicleServiceCenter.Services
 {
-    public class IJwtTokenService
+    public interface IJwtTokenService
     {
         LoginResponse CreateToken(UserModel user);
     }
