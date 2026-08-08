@@ -16,7 +16,7 @@ public class AppointmentController : Controller
 
     public AppointmentController(ProjectContext context)
     {
-        context = context;
+        this.context = context;
         
     }
     [HttpGet]
@@ -27,13 +27,15 @@ public class AppointmentController : Controller
     [HttpGet("{id}")]
     public IActionResult GetAppointment(int id)
     {
-        var IsAppointmentFound =  context.Appointments.Equals(id);
+        var appointment = context.Appointments.Find(id);
 
-        if (!IsAppointmentFound)
+        if (appointment == null)
             return NotFound();
 
-        var appointmen = context.Appointments.Find(id);
-        return Ok(appointmen);
+        return Ok(appointment);
+
+        // var appointmen = context.Appointments.Find(id);
+        // return Ok(appointmen);
     }
     [HttpPost]
     public async Task<ActionResult<AppointmentModel>> CreateAppointment(AppointmentModel appointmentModel)

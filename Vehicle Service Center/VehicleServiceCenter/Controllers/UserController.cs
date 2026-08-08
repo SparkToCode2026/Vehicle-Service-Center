@@ -6,7 +6,7 @@ using VehicleServiceCenter.Services;
 
 namespace VehicleServiceCenter.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [ApiController]
     [Route("User")]
     public class UserController : ControllerBase
