@@ -1,9 +1,10 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VehicleServiceCenter.Models;
 
 namespace VehicleServiceCenter.Controllers;
-
+[Authorize]
 [ApiController]
 [Route("[controller]")]
 public class AppointmentController : ControllerBase
