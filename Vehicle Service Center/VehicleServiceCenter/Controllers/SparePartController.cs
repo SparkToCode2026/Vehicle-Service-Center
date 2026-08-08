@@ -1,4 +1,5 @@
 using System.Linq;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VehicleServiceCenter.Models;
@@ -11,9 +12,9 @@ public class SparePartController : ControllerBase
 {
     private ProjectContext context;
 
-    public SparePartController(ProjectContext context)
+    public SparePartController(ProjectContext _context)
     {
-        context = context;
+        context = _context;
     }
 
     // GET: api/SparePart
@@ -47,13 +48,34 @@ public class SparePartController : ControllerBase
     }
 
     // PUT: api/SparePart/5
+    // [HttpPut("{id}")]
+    // public IActionResult UpdateSparePart(int id, SparePartModel sparePart)
+    // {
+    //     if (id != sparePart.SparePartId)
+    //         return BadRequest();
+    //
+    //     context.Entry(sparePart).State = EntityState.Modified;
+    //     context.SaveChanges();
+    //
+    //     return NoContent();
+    // }
     [HttpPut("{id}")]
     public IActionResult UpdateSparePart(int id, SparePartModel sparePart)
     {
-        if (id != sparePart.SparePartId)
-            return BadRequest();
+        var existingSparePart = context.SpareParts.Find(id);
 
-        context.Entry(sparePart).State = EntityState.Modified;
+        if (existingSparePart == null)
+            return NotFound();
+
+        existingSparePart.BranchId = sparePart.BranchId;
+        existingSparePart.PartName = sparePart.PartName;
+        existingSparePart.PartNumber = sparePart.PartNumber;
+        existingSparePart.Description = sparePart.Description;
+        existingSparePart.UnitPrice = sparePart.UnitPrice;
+        existingSparePart.StockQuantity = sparePart.StockQuantity;
+        existingSparePart.ReorderLevel = sparePart.ReorderLevel;
+        existingSparePart.IsAvailable = sparePart.IsAvailable;
+
         context.SaveChanges();
 
         return NoContent();
