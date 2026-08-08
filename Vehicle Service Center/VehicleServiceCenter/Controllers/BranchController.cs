@@ -1,8 +1,9 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VehicleServiceCenter.Models;
 
 namespace VehicleServiceCenter.Controllers;
-
+[Authorize]
 [ApiController]
 [Route("Branch")]
 public class BranchController : ControllerBase
