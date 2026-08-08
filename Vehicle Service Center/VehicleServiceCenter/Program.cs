@@ -1,9 +1,12 @@
 
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using VehicleServiceCenter;
+using VehicleServiceCenter.Services;
 
-namespace WebAPIProject
+namespace VehicleServiceCenter
 {
     public class Program
     {
@@ -54,6 +57,35 @@ namespace WebAPIProject
     });
             });
 
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(options =>
+            {
+                options.RequireHttpsMetadata = false;
+                options.SaveToken = true;
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidIssuer = builder.Configuration["Jwt:Issuer"],
+                    ValidAudience = builder.Configuration["Jwt:Audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(
+                        System.Text.Encoding.UTF8.GetBytes(
+                            builder.Configuration["Jwt:Key"]
+                            ?? throw new InvalidOperationException("JWT signing key is missing."))),
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ClockSkew = TimeSpan.Zero
+                };
+            });
+
+            builder.Services.AddAuthorization();
+            builder.Services.AddScoped<JwtTokenService>();
+
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -65,6 +97,7 @@ namespace WebAPIProject
 
             app.UseHttpsRedirection();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
 

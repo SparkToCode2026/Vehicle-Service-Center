@@ -1,27 +1,34 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Authorization;
+using VehicleServiceCenter.DTOs;
 using VehicleServiceCenter.Models;
+using VehicleServiceCenter.Services;
 
 namespace VehicleServiceCenter.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("User")]
     public class UserController : ControllerBase
     {
-        private ProjectContext context;
+        private readonly ProjectContext context;
+        private readonly JwtTokenService jwtTokenService;
 
-        public UserController(ProjectContext context)
+        public UserController(
+            ProjectContext context,
+            JwtTokenService jwtTokenService)
         {
-            context = context;
+            this.context = context;
+            this.jwtTokenService = jwtTokenService;
         }
 
         // Register User
+        [AllowAnonymous]
         [HttpPost("RegisterUser")]
         public IActionResult RegisterUser(UserModel user)
         {
             // Check whether the email already exists
-            UserModel existingUser = context.Users
+            UserModel? existingUser = context.Users
                 .FirstOrDefault(u => u.Email == user.Email);
 
             if (existingUser != null)
@@ -29,15 +36,8 @@ namespace VehicleServiceCenter.Controllers
                 return BadRequest("Email is already registered");
             }
 
-            // Check if the role is valid
-            if (user.Role != "Customer" &&
-                user.Role != "Mechanic" &&
-                user.Role != "Admin")
-            {
-                return BadRequest(
-                    "Role must be Customer, Mechanic, or Admin"
-                );
-            }
+            // Public registration must not allow role escalation.
+            user.Role = "Customer";
 
             // Hash the password
             user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
@@ -54,20 +54,22 @@ namespace VehicleServiceCenter.Controllers
                 UserId = user.UserId
             });
         }
-        [HttpPost("Login")]
-
         // Login User
-        public IActionResult Login(string email, string password)
+        [AllowAnonymous]
+        [HttpPost("Login")]
+        public IActionResult Login([FromBody] LoginRequest request)
         {
             // Find the user by email
-            UserModel user = context.Users
-                .FirstOrDefault(u => u.Email == email);
+            UserModel? user = context.Users
+                .FirstOrDefault(u => u.Email == request.Email);
             if (user == null)
             {
                 return Unauthorized("Invalid email or password");
             }
             // Verify the password
-            bool isPasswordValid = BCrypt.Net.BCrypt.Verify(password, user.Password);
+            bool isPasswordValid = BCrypt.Net.BCrypt.Verify(
+                request.Password,
+                user.Password);
             if (!isPasswordValid)
             {
                 return Unauthorized("Invalid email or password");
@@ -77,15 +79,12 @@ namespace VehicleServiceCenter.Controllers
             {
                 return Unauthorized("User account is inactive");
             }
-            return Ok(new
-            {
-                Message = "Login successful",
-                UserId = user.UserId,
-                Role = user.Role
-            });
+            LoginResponse response = jwtTokenService.CreateToken(user);
+            return Ok(response);
         }
 
         // Get all users
+        [Authorize(Roles = "Admin")]
         [HttpGet("GetAll")]
         public IActionResult GetAllUsers()
         {
@@ -126,6 +125,7 @@ namespace VehicleServiceCenter.Controllers
         }
 
         // Update user by ID
+        [Authorize(Roles = "Admin")]
         [HttpPut("Update/{id}")]
         public IActionResult UpdateUser(int id, UserModel updatedUser)
         {
@@ -174,6 +174,7 @@ namespace VehicleServiceCenter.Controllers
         }
 
         // Change user status by ID
+        [Authorize(Roles = "Admin")]
         [HttpPatch("ChangeStatus/{id}")]
         public IActionResult ChangeUserStatus(int id, bool isActive)
         {
@@ -193,6 +194,7 @@ namespace VehicleServiceCenter.Controllers
         }
 
         // Delete user by ID
+        [Authorize(Roles = "Admin")]
         [HttpDelete("Delete/{id}")]
         public IActionResult DeleteUser(int id)
         {
