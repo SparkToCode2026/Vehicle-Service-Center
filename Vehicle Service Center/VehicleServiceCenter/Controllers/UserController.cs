@@ -194,7 +194,7 @@ namespace VehicleServiceCenter.Controllers
         }
 
         // Delete user by ID
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         [HttpDelete("Delete/{id}")]
         public IActionResult DeleteUser(int id)
         {
