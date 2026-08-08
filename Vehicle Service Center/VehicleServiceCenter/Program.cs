@@ -3,8 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using VehicleServiceCenter;
 
-namespace WebAPIProject
-{
+namespace VehicleServiceCenter;
+
     public class Program
     {
         public static void Main(string[] args)
@@ -73,4 +73,3 @@ namespace WebAPIProject
             app.Run();
         }
     }
-}
