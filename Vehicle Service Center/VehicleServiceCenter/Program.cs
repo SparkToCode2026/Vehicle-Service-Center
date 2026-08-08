@@ -14,6 +14,45 @@ namespace VehicleServiceCenter
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            string envFilePath = Path.Combine(
+                builder.Environment.ContentRootPath,
+                ".env");
+
+            if (File.Exists(envFilePath))
+            {
+                foreach (string line in File.ReadAllLines(envFilePath))
+                {
+                    string trimmedLine = line.Trim();
+
+                    if (string.IsNullOrWhiteSpace(trimmedLine) ||
+                        trimmedLine.StartsWith('#'))
+                    {
+                        continue;
+                    }
+
+                    int separatorIndex = trimmedLine.IndexOf('=');
+
+                    if (separatorIndex <= 0)
+                    {
+                        continue;
+                    }
+
+                    string variableName =
+                        trimmedLine[..separatorIndex].Trim();
+                    string variableValue =
+                        trimmedLine[(separatorIndex + 1)..].Trim().Trim('"');
+
+                    if (Environment.GetEnvironmentVariable(variableName) == null)
+                    {
+                        Environment.SetEnvironmentVariable(
+                            variableName,
+                            variableValue);
+                    }
+                }
+
+                builder.Configuration.AddEnvironmentVariables();
+            }
+
             // Add services to the container.
             //DbContext
             builder.Services.AddDbContext<ProjectContext>(options =>
