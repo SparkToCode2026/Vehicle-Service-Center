@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using VehicleServiceCenter.Models;
 
 namespace VehicleServiceCenter.Controllers
@@ -96,8 +97,42 @@ namespace VehicleServiceCenter.Controllers
         [HttpGet("GetAllMechanicProfiles")]
         public IActionResult GetAllMechanicProfiles()
         {
-            List<MechanicProfileModel> mechanicProfiles =
-                context.MechanicProfiles.ToList();
+            List<MechanicProfileModel> mechanicProfilesWithRelations =
+                context.MechanicProfiles
+                    .AsNoTracking()
+                    .Include(m => m.User)
+                    .Include(m => m.Branch)
+                    .ToList();
+
+            var mechanicProfiles = mechanicProfilesWithRelations
+                .Select(m => new
+                {
+                    m.MechanicProfileId,
+                    m.UserId,
+                    m.BranchId,
+                    m.Specialization,
+                    m.ExperienceYears,
+                    m.HireDate,
+                    m.IsAvailable,
+                    User = m.User == null
+                        ? null
+                        : new
+                        {
+                            m.User.UserName,
+                            m.User.Email,
+                            m.User.PhoneNumber,
+                            m.User.IsActive
+                        },
+                    Branch = m.Branch == null
+                        ? null
+                        : new
+                        {
+                            m.Branch.BranchName,
+                            m.Branch.Address,
+                            m.Branch.IsActive
+                        }
+                })
+                .ToList();
 
             return Ok(mechanicProfiles);
         }
@@ -123,12 +158,65 @@ namespace VehicleServiceCenter.Controllers
         [HttpGet("GetByBranchId")]
         public IActionResult GetByBranchId(int branchId)
         {
-            List<MechanicProfileModel> mechanicProfiles =
+            List<MechanicProfileModel> mechanicProfilesWithUsers =
                 context.MechanicProfiles
+                    .AsNoTracking()
+                    .Include(m => m.User)
                     .Where(m => m.BranchId == branchId)
                     .ToList();
 
+            var mechanicProfiles = mechanicProfilesWithUsers
+                .Select(m => new
+                {
+                    m.MechanicProfileId,
+                    m.UserId,
+                    m.BranchId,
+                    m.Specialization,
+                    m.ExperienceYears,
+                    m.HireDate,
+                    m.IsAvailable,
+                    UserName = m.User?.UserName
+                })
+                .ToList();
+
             return Ok(mechanicProfiles);
+        }
+
+        // Get Mechanic Profiles sorted by experience
+        [HttpGet("GetSortedByExperience")]
+        public IActionResult GetSortedByExperience(
+            bool descending = true)
+        {
+            IQueryable<MechanicProfileModel> query =
+                context.MechanicProfiles
+                    .AsNoTracking()
+                    .Include(m => m.User)
+                    .Include(m => m.Branch);
+
+            query = descending
+                ? query.OrderByDescending(m => m.ExperienceYears)
+                    .ThenBy(m => m.MechanicProfileId)
+                : query.OrderBy(m => m.ExperienceYears)
+                    .ThenBy(m => m.MechanicProfileId);
+
+            List<MechanicProfileModel> sortedMechanics =
+                query.ToList();
+
+            var result = sortedMechanics.Select(m => new
+                {
+                    m.MechanicProfileId,
+                    m.UserId,
+                    m.BranchId,
+                    m.Specialization,
+                    m.ExperienceYears,
+                    m.HireDate,
+                    m.IsAvailable,
+                    UserName = m.User?.UserName,
+                    BranchName = m.Branch?.BranchName
+                })
+                .ToList();
+
+            return Ok(result);
         }
 
         // Update Mechanic Profile
