@@ -1,5 +1,3 @@
-using System.Linq;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VehicleServiceCenter.Models;
@@ -10,25 +8,31 @@ namespace VehicleServiceCenter.Controllers;
 [Route("[controller]")]
 public class SparePartController : ControllerBase
 {
-    private ProjectContext context;
+    private readonly ProjectContext context;
 
-    public SparePartController(ProjectContext _context)
+    public SparePartController(ProjectContext context)
     {
-        context = _context;
+        this.context = context;
     }
 
-    // GET: api/SparePart
+    // 1. GET - Get all spare parts with Branch
     [HttpGet]
-    public IActionResult GetSpareParts()
+    public async Task<IActionResult> GetSpareParts()
     {
-        return Ok(context.SpareParts.ToList());
+        var spareParts = await context.SpareParts
+            .Include(s => s.Branch)
+            .ToListAsync();
+
+        return Ok(spareParts);
     }
 
-    // GET: api/SparePart/5
+    // 2. GET - Get spare part by ID
     [HttpGet("{id}")]
-    public IActionResult GetSparePart(int id)
+    public async Task<IActionResult> GetSparePart(int id)
     {
-        var sparePart = context.SpareParts.Find(id);
+        var sparePart = await context.SpareParts
+            .Include(s => s.Branch)
+            .FirstOrDefaultAsync(s => s.SparePartId == id);
 
         if (sparePart == null)
             return NotFound();
@@ -36,33 +40,28 @@ public class SparePartController : ControllerBase
         return Ok(sparePart);
     }
 
-    // POST: api/SparePart
+    // 3. POST - Create spare part
     [HttpPost]
-    public IActionResult CreateSparePart(SparePartModel sparePart)
+    public async Task<ActionResult<SparePartModel>> CreateSparePart(
+        SparePartModel sparePart)
     {
         context.SpareParts.Add(sparePart);
-        context.SaveChanges();
 
-        return CreatedAtAction(nameof(GetSparePart),
-            new { id = sparePart.SparePartId }, sparePart);
+        await context.SaveChangesAsync();
+
+        return CreatedAtAction(
+            nameof(GetSparePart),
+            new { id = sparePart.SparePartId },
+            sparePart);
     }
 
-    // PUT: api/SparePart/5
-    // [HttpPut("{id}")]
-    // public IActionResult UpdateSparePart(int id, SparePartModel sparePart)
-    // {
-    //     if (id != sparePart.SparePartId)
-    //         return BadRequest();
-    //
-    //     context.Entry(sparePart).State = EntityState.Modified;
-    //     context.SaveChanges();
-    //
-    //     return NoContent();
-    // }
+    // 4. PUT - Update spare part
     [HttpPut("{id}")]
-    public IActionResult UpdateSparePart(int id, SparePartModel sparePart)
+    public async Task<IActionResult> UpdateSparePart(
+        int id,
+        SparePartModel sparePart)
     {
-        var existingSparePart = context.SpareParts.Find(id);
+        var existingSparePart = await context.SpareParts.FindAsync(id);
 
         if (existingSparePart == null)
             return NotFound();
@@ -76,23 +75,71 @@ public class SparePartController : ControllerBase
         existingSparePart.ReorderLevel = sparePart.ReorderLevel;
         existingSparePart.IsAvailable = sparePart.IsAvailable;
 
-        context.SaveChanges();
+        await context.SaveChangesAsync();
 
         return NoContent();
     }
 
-    // DELETE: api/SparePart/5
+    // 5. DELETE - Delete spare part
     [HttpDelete("{id}")]
-    public IActionResult DeleteSparePart(int id)
+    public async Task<IActionResult> DeleteSparePart(int id)
     {
-        var sparePart = context.SpareParts.Find(id);
+        var sparePart = await context.SpareParts.FindAsync(id);
 
         if (sparePart == null)
             return NotFound();
 
         context.SpareParts.Remove(sparePart);
-        context.SaveChanges();
+
+        await context.SaveChangesAsync();
 
         return NoContent();
+    }
+
+    // 6. GET - Filter spare parts by availability
+    [HttpGet("filter/available")]
+    public async Task<IActionResult> GetAvailableSpareParts()
+    {
+        var spareParts = await context.SpareParts
+            .Include(s => s.Branch)
+            .Where(s => s.IsAvailable && s.StockQuantity > 0)
+            .ToListAsync();
+
+        return Ok(spareParts);
+    }
+
+    // 7. GET - Sort spare parts by price
+    [HttpGet("sorted")]
+    public async Task<IActionResult> GetSparePartsSortedByPrice()
+    {
+        var spareParts = await context.SpareParts
+            .Include(s => s.Branch)
+            .OrderBy(s => s.UnitPrice)
+            .ToListAsync();
+
+        return Ok(spareParts);
+    }
+
+    // 8. PATCH - Change stock quantity
+    [HttpPatch("{id}/stock")]
+    public async Task<IActionResult> UpdateStockQuantity(
+        int id,
+        [FromBody] int quantity)
+    {
+        var sparePart = await context.SpareParts.FindAsync(id);
+
+        if (sparePart == null)
+            return NotFound();
+
+        if (quantity < 0)
+            return BadRequest("Stock quantity cannot be negative.");
+
+        sparePart.StockQuantity = quantity;
+
+        sparePart.IsAvailable = quantity > 0;
+
+        await context.SaveChangesAsync();
+
+        return Ok(sparePart);
     }
 }
