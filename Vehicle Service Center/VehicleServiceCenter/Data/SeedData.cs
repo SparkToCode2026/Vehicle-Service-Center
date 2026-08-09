@@ -437,6 +437,85 @@ public static class SeedData
         );
         
         
+        // Service Order Items
+
+    modelBuilder.Entity<ServiceOrderItemModel>().HasData(
+        // Order 1 - Oil Change Service
+        new ServiceOrderItemModel
+        {
+            ServiceOrderItemId = 1,
+            ServiceOrderId = 1,
+            ServiceTypeId = 1,
+            SparePartId = null,
+            ItemType = "Service",
+            Description = "Oil change service",
+            Quantity = 1,
+            UnitPrice = 25.000m,
+            LaborHours = 0.75m,
+            Subtotal = 25.000m
+        },
+
+        // Order 1 - Oil Filter
+        new ServiceOrderItemModel
+        {
+            ServiceOrderItemId = 2,
+            ServiceOrderId = 1,
+            ServiceTypeId = null,
+            SparePartId = 1,
+            ItemType = "Part",
+            Description = "Oil filter replacement",
+            Quantity = 1,
+            UnitPrice = 8.500m,
+            LaborHours = null,
+            Subtotal = 8.500m
+        },
+
+        // Order 2 - Brake Inspection
+        new ServiceOrderItemModel
+        {
+            ServiceOrderItemId = 3,
+            ServiceOrderId = 2,
+            ServiceTypeId = 2,
+            SparePartId = null,
+            ItemType = "Service",
+            Description = "Brake inspection service",
+            Quantity = 1,
+            UnitPrice = 30.000m,
+            LaborHours = 1.00m,
+            Subtotal = 30.000m
+        },
+
+        // Order 2 - Brake Pads
+        new ServiceOrderItemModel
+        {
+            ServiceOrderItemId = 4,
+            ServiceOrderId = 2,
+            ServiceTypeId = null,
+            SparePartId = 2,
+            ItemType = "Part",
+            Description = "Front brake pads",
+            Quantity = 1,
+            UnitPrice = 35.000m,
+            LaborHours = null,
+            Subtotal = 35.000m
+        },
+
+        // Order 3 - Engine Diagnostic
+        new ServiceOrderItemModel
+        {
+            ServiceOrderItemId = 5,
+            ServiceOrderId = 3,
+            ServiceTypeId = 3,
+            SparePartId = null,
+            ItemType = "Service",
+            Description = "Engine diagnostic service",
+            Quantity = 1,
+            UnitPrice = 40.000m,
+            LaborHours = 1.00m,
+            Subtotal = 40.000m
+        }
+    );
+        
         
     }
 }
