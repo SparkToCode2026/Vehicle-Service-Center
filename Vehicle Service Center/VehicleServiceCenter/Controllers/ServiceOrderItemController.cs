@@ -11,7 +11,7 @@ namespace VehicleServiceCenter.Controllers
         private ProjectContext _context;
         public ServiceOrderItemController(ProjectContext context)
         {
-           context = context;
+           _context = context;
         }
 
         [HttpGet]
