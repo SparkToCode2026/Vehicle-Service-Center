@@ -279,6 +279,63 @@ public static class SeedData
         );
         
         
+        // Spare Parts
+
+        modelBuilder.Entity<SparePartModel>().HasData(
+            new SparePartModel
+            {
+                SparePartId = 1,
+                BranchId = 1,
+                PartName = "Oil Filter",
+                PartNumber = "OF-001",
+                Description = "Standard engine oil filter",
+                UnitPrice = 8.500m,
+                StockQuantity = 50,
+                ReorderLevel = 10,
+                IsAvailable = true
+            },
+
+            new SparePartModel
+            {
+                SparePartId = 2,
+                BranchId = 1,
+                PartName = "Brake Pads",
+                PartNumber = "BP-001",
+                Description = "Front brake pads",
+                UnitPrice = 35.000m,
+                StockQuantity = 20,
+                ReorderLevel = 5,
+                IsAvailable = true
+            },
+
+            new SparePartModel
+            {
+                SparePartId = 3,
+                BranchId = 2,
+                PartName = "Car Battery",
+                PartNumber = "BAT-001",
+                Description = "12V vehicle battery",
+                UnitPrice = 45.000m,
+                StockQuantity = 15,
+                ReorderLevel = 3,
+                IsAvailable = true
+            },
+
+            new SparePartModel
+            {
+                SparePartId = 4,
+                BranchId = 2,
+                PartName = "Air Filter",
+                PartNumber = "AF-001",
+                Description = "Engine air filter",
+                UnitPrice = 12.000m,
+                StockQuantity = 30,
+                ReorderLevel = 5,
+                IsAvailable = true
+            }
+        );
+        
+        
         
     }
 }
