@@ -335,6 +335,52 @@ public static class SeedData
             }
         );
         
+        // Appointments
+
+        modelBuilder.Entity<AppointmentModel>().HasData(
+            new AppointmentModel
+            {
+                AppointmentId = 1,
+                CustomerProfileId = 1,
+                VehicleId = 1,
+                ServiceTypeId = 1,
+                MechanicProfileId = 1,
+                BranchId = 1,
+                AppointmentDate = new DateTime(2026, 8, 10, 10, 0, 0),
+                Status = "Confirmed",
+                Notes = "Regular maintenance and oil change",
+                CreatedAt = new DateTime(2026, 8, 8, 10, 0, 0)
+            },
+
+            new AppointmentModel
+            {
+                AppointmentId = 2,
+                CustomerProfileId = 2,
+                VehicleId = 2,
+                ServiceTypeId = 2,
+                MechanicProfileId = 1,
+                BranchId = 1,
+                AppointmentDate = new DateTime(2026, 8, 11, 11, 0, 0),
+                Status = "Pending",
+                Notes = "Brake inspection",
+                CreatedAt = new DateTime(2026, 8, 8, 11, 0, 0)
+            },
+
+            new AppointmentModel
+            {
+                AppointmentId = 3,
+                CustomerProfileId = 3,
+                VehicleId = 3,
+                ServiceTypeId = 3,
+                MechanicProfileId = 2,
+                BranchId = 2,
+                AppointmentDate = new DateTime(2026, 8, 12, 9, 0, 0),
+                Status = "Confirmed",
+                Notes = "Check engine warning light",
+                CreatedAt = new DateTime(2026, 8, 8, 12, 0, 0)
+            }
+        );
+        
         
         
     }
