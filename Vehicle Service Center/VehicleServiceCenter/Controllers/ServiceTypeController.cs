@@ -98,5 +98,30 @@ public class ServiceTypeController : ControllerBase
         return Ok(serviceTypes);
     }
 
+    // 6. GET - Get service type by ID
+    [HttpGet("{id}")]
+    public IActionResult GetServiceType(int id)
+    {
+        var serviceType = context.ServiceTypes
+            .Include(s => s.ServiceOrderItems)
+            .FirstOrDefault(s => s.ServiceTypeId == id);
+
+        if (serviceType == null)
+            return NotFound();
+
+        return Ok(serviceType);
+    }
+
+    // 7. GET - Filter service types by active status
+    [HttpGet("filter")]
+    public IActionResult GetActiveServiceTypes(bool isActive)
+    {
+        var serviceTypes = context.ServiceTypes
+            .Where(s => s.IsActive == isActive)
+            .ToList();
+
+        return Ok(serviceTypes);
+    }
+
     
 }
