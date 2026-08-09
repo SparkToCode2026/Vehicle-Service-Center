@@ -62,4 +62,30 @@ public class ServiceTypeController : ControllerBase
 
         return Ok(serviceType);
     }
+
+    // 4. DELETE - Delete a service type (or soft-delete if it's still referenced)
+    [HttpDelete("{id}")]
+    public IActionResult DeleteServiceType(int id)
+    {
+        var serviceType = context.ServiceTypes.Find(id);
+
+        if (serviceType == null)
+            return NotFound();
+
+        var isReferenced = context.ServiceOrderItems.Any(i => i.ServiceTypeId == id);
+
+        if (isReferenced)
+        {
+            serviceType.IsActive = false;
+            context.SaveChanges();
+            return Ok("Service type is referenced by existing orders, so it was deactivated instead of deleted.");
+        }
+
+        context.ServiceTypes.Remove(serviceType);
+        context.SaveChanges();
+
+        return NoContent();
+    }
+
+    
 }
