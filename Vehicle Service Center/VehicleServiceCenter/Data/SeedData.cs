@@ -515,6 +515,59 @@ public static class SeedData
             Subtotal = 40.000m
         }
     );
+    
+    // Invoices
+
+    modelBuilder.Entity<InvoiceModel>().HasData(
+        // Invoice for completed order
+        new InvoiceModel
+        {
+            InvoiceId = 1,
+            ServiceOrderId = 1,
+            InvoiceNumber = "INV-2026-0001",
+            IssueDate = new DateTime(2026, 8, 10),
+            DueDate = new DateTime(2026, 8, 10),
+            Subtotal = 33.500m,
+            TaxAmount = 0.000m,
+            DiscountAmount = 0.000m,
+            TotalAmount = 33.500m,
+            Status = "Paid",
+            Notes = "Paid in full"
+        },
+
+        // Invoice for in-progress order
+        new InvoiceModel
+        {
+            InvoiceId = 2,
+            ServiceOrderId = 2,
+            InvoiceNumber = "INV-2026-0002",
+            IssueDate = new DateTime(2026, 8, 11),
+            DueDate = new DateTime(2026, 8, 18),
+            Subtotal = 65.000m,
+            TaxAmount = 0.000m,
+            DiscountAmount = 0.000m,
+            TotalAmount = 65.000m,
+            Status = "Unpaid",
+            Notes = "Payment pending"
+        },
+
+        // Invoice for pending order
+        new InvoiceModel
+        {
+            InvoiceId = 3,
+            ServiceOrderId = 3,
+            InvoiceNumber = "INV-2026-0003",
+            IssueDate = new DateTime(2026, 8, 12),
+            DueDate = new DateTime(2026, 8, 19),
+            Subtotal = 40.000m,
+            TaxAmount = 0.000m,
+            DiscountAmount = 0.000m,
+            TotalAmount = 40.000m,
+            Status = "Unpaid",
+            Notes = "Payment pending"
+        }
+    );
+    
         
         
     }
