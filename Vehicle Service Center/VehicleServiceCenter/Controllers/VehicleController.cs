@@ -93,6 +93,21 @@ namespace VehicleServiceCenter.Controllers
             return NoContent();
         }
 
+        // Second, distinct update: reassign vehicle to a different customer (FK change)
+        [HttpPatch("{id}/reassign")]
+        public async Task<IActionResult> ReassignVehicle(int id, VehicleReassignDto dto)
+        {
+            var vehicle = await _context.Vehicles.FindAsync(id);
+            if (vehicle == null) return NotFound();
+
+            var customerExists = await _context.CustomerProfiles.AnyAsync(c => c.CustomerProfileId == dto.NewCustomerProfileId);
+            if (!customerExists) return BadRequest("NewCustomerProfileId does not exist.");
+
+            vehicle.CustomerProfileId = dto.NewCustomerProfileId;
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+
         // Get all vehicles
         [HttpGet("GetAll")]
         public IActionResult GetAllVehicles()
