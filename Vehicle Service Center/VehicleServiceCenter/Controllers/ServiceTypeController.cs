@@ -87,5 +87,16 @@ public class ServiceTypeController : ControllerBase
         return NoContent();
     }
 
+    // 5. GET - Get all service types with ServiceOrderItems
+    [HttpGet]
+    public IActionResult GetServiceTypes()
+    {
+        var serviceTypes = context.ServiceTypes
+            .Include(s => s.ServiceOrderItems)
+            .ToList();
+
+        return Ok(serviceTypes);
+    }
+
     
 }
