@@ -103,6 +103,37 @@ public static class SeedData
                 IsActive = true
             }
         );
+        
+        // Customer Profiles
+
+        modelBuilder.Entity<CustomerProfileModel>().HasData(
+            new CustomerProfileModel
+            {
+                CustomerProfileId = 1,
+                UserId = 3,
+                Address = "Barka, Oman",
+                DateOfBirth = new DateOnly(2001, 5, 10),
+                CreatedAt = new DateTime(2026, 1, 3)
+            },
+
+            new CustomerProfileModel
+            {
+                CustomerProfileId = 2,
+                UserId = 4,
+                Address = "Muscat, Oman",
+                DateOfBirth = new DateOnly(2000, 8, 15),
+                CreatedAt = new DateTime(2026, 1, 4)
+            },
+
+            new CustomerProfileModel
+            {
+                CustomerProfileId = 3,
+                UserId = 5,
+                Address = "Barka, Oman",
+                DateOfBirth = new DateOnly(1999, 3, 20),
+                CreatedAt = new DateTime(2026, 1, 5)
+            }
+        );
     }
 }
 
