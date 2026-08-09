@@ -1,176 +1,142 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
-using VehicleServiceCenter.DTOs;
 using VehicleServiceCenter.Models;
 
-namespace VehicleServiceCenter.Controllers
+namespace VehicleServiceCenter.Controllers;
+
+[ApiController]
+[Route("[controller]")]
+public class VehicleController : ControllerBase
 {
-    [ApiController]
-    [Route("Vehicle")]
-    public class VehicleController : ControllerBase
+    private readonly ProjectContext context;
+
+    public VehicleController(ProjectContext context)
     {
-        private ProjectContext context;
+        this.context = context;
+    }
 
-        public VehicleController(ProjectContext context)
-        {
-            context = context;
-        }
+    // 1. POST - Create a new vehicle
+    [HttpPost]
+    public IActionResult CreateVehicle(VehicleModel vehicle)
+    {
+        context.Vehicles.Add(vehicle);
+        context.SaveChanges();
 
-        // Register a new vehicle
-        [HttpPost("RegisterVehicle")]
-        public IActionResult RegisterVehicle(VehicleModel vehicle)
-        {
-            // Check whether the plate number already exists
-            VehicleModel existingPlate = context.Vehicles
-                .FirstOrDefault(v => v.PlateNumber == vehicle.PlateNumber);
+        return CreatedAtAction(
+            nameof(GetVehicle),
+            new { id = vehicle.VehicleId },
+            vehicle
+        );
+    }
 
-            if (existingPlate != null)
-            {
-                return BadRequest("Plate number is already registered");
-            }
+    // 2. PUT - Update vehicle details
+    [HttpPut("{id}")]
+    public IActionResult UpdateVehicle(int id, VehicleModel vehicle)
+    {
+        var existingVehicle = context.Vehicles.Find(id);
 
-            // Check whether the VIN already exists (VIN is optional)
-            if (!string.IsNullOrEmpty(vehicle.VIN))
-            {
-                VehicleModel existingVin = context.Vehicles
-                    .FirstOrDefault(v => v.VIN == vehicle.VIN);
+        if (existingVehicle == null)
+            return NotFound();
 
-                if (existingVin != null)
-                {
-                    return BadRequest("VIN is already registered");
-                }
-            }
+        existingVehicle.Make = vehicle.Make;
+        existingVehicle.Model = vehicle.Model;
+        existingVehicle.Year = vehicle.Year;
+        existingVehicle.PlateNumber = vehicle.PlateNumber;
+        existingVehicle.VIN = vehicle.VIN;
 
-            vehicle.CreatedAt = DateTime.Now;
+        context.SaveChanges();
 
-            context.Vehicles.Add(vehicle);
-            context.SaveChanges();
+        return NoContent();
+    }
 
-            return Ok(new
-            {
-                Message = "Vehicle registered successfully",
-                VehicleId = vehicle.VehicleId
-            });
-        }
+    // 3. PATCH - Reassign vehicle to a different customer (FK change)
+    [HttpPatch("{id}/reassign")]
+    public IActionResult ReassignVehicle(int id, int customerProfileId)
+    {
+        var vehicle = context.Vehicles.Find(id);
 
-        // Create a new vehicle
-        [HttpPost]
-        public async Task<ActionResult<Vehicle>> CreateVehicle(VehicleCreateDto dto)
-        {
-            var customerExists = await _context.CustomerProfiles.AnyAsync(c => c.CustomerProfileId == dto.CustomerProfileId);
-            if (!customerExists) return BadRequest("CustomerProfileId does not exist.");
+        if (vehicle == null)
+            return NotFound();
 
-            var vehicle = new Vehicle
-            {
-                CustomerProfileId = dto.CustomerProfileId,
-                Make = dto.Make,
-                Model = dto.Model,
-                Year = dto.Year,
-                PlateNumber = dto.PlateNumber,
-                VIN = dto.VIN
-            };
+        var customerExists = context.CustomerProfiles.Any(c => c.CustomerProfileId == customerProfileId);
 
-            _context.Vehicles.Add(vehicle);
-            await _context.SaveChangesAsync();
+        if (!customerExists)
+            return BadRequest("CustomerProfileId does not exist.");
 
-            return CreatedAtAction(nameof(GetVehicleById), new { id = vehicle.VehicleId }, vehicle);
-        }
+        vehicle.CustomerProfileId = customerProfileId;
+        context.SaveChanges();
 
-        // Full update of a vehicle's details
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateVehicle(int id, VehicleUpdateDto dto)
-        {
-            var vehicle = await _context.Vehicles.FindAsync(id);
-            if (vehicle == null) return NotFound();
+        return Ok(vehicle);
+    }
 
-            vehicle.Make = dto.Make;
-            vehicle.Model = dto.Model;
-            vehicle.Year = dto.Year;
-            vehicle.PlateNumber = dto.PlateNumber;
-            vehicle.VIN = dto.VIN;
+    // 4. DELETE - Delete a vehicle
+    [HttpDelete("{id}")]
+    public IActionResult DeleteVehicle(int id)
+    {
+        var vehicle = context.Vehicles.Find(id);
 
-            await _context.SaveChangesAsync();
-            return NoContent();
-        }
+        if (vehicle == null)
+            return NotFound();
 
-        // Second, distinct update: reassign vehicle to a different customer (FK change)
-        [HttpPatch("{id}/reassign")]
-        public async Task<IActionResult> ReassignVehicle(int id, VehicleReassignDto dto)
-        {
-            var vehicle = await _context.Vehicles.FindAsync(id);
-            if (vehicle == null) return NotFound();
+        var hasServiceOrders = context.ServiceOrders.Any(s => s.VehicleId == id);
 
-            var customerExists = await _context.CustomerProfiles.AnyAsync(c => c.CustomerProfileId == dto.NewCustomerProfileId);
-            if (!customerExists) return BadRequest("NewCustomerProfileId does not exist.");
+        if (hasServiceOrders)
+            return Conflict("Cannot delete this vehicle: it has existing service orders.");
 
-            vehicle.CustomerProfileId = dto.NewCustomerProfileId;
-            await _context.SaveChangesAsync();
-            return NoContent();
-        }
+        context.Vehicles.Remove(vehicle);
+        context.SaveChanges();
 
-        // Delete a vehicle
-        [HttpDelete("Delete/{id}")]
-        public IActionResult DeleteVehicle(int id)
-        {
-            var vehicle = context.Vehicles.Find(id);
-            if (vehicle == null)
-            {
-                return NotFound("Vehicle not found");
-            }
+        return NoContent();
+    }
 
-            context.Vehicles.Remove(vehicle);
-            context.SaveChanges();
+    // 5. GET - Get all vehicles with CustomerProfile
+    [HttpGet]
+    public IActionResult GetVehicles()
+    {
+        var vehicles = context.Vehicles
+            .Include(v => v.CustomerProfile)
+            .ToList();
 
-            return Ok(new
-            {
-                Message = "Vehicle deleted successfully",
-                VehicleId = vehicle.VehicleId
-            });
+        return Ok(vehicles);
+    }
 
-            // Get all vehicles
-            [HttpGet("GetAll")]
-            public IActionResult GetAllVehicles()
-            {
-                var vehicles = context.Vehicles.ToList();
-                return Ok(vehicles);
-            }
+    // 6. GET - Get vehicle by ID
+    [HttpGet("{id}")]
+    public IActionResult GetVehicle(int id)
+    {
+        var vehicle = context.Vehicles
+            .Include(v => v.CustomerProfile)
+            .Include(v => v.ServiceOrders)
+            .FirstOrDefault(v => v.VehicleId == id);
 
-            // Get vehicle by ID
-            [HttpGet("GetById/{id}")]
-            public IActionResult GetVehicleById(int id)
-            {
-                var vehicle = context.Vehicles.Find(id);
-                if (vehicle == null)
-                {
-                    return NotFound("Vehicle not found");
-                }
-                return Ok(vehicle);
-            }
+        if (vehicle == null)
+            return NotFound();
 
-            // Get all vehicles belonging to a specific customer
-            [HttpGet("GetByCustomer/{customerProfileId}")]
-            public IActionResult GetVehiclesByCustomer(int customerProfileId)
-            {
-                var vehicles = context.Vehicles
-                    .Where(v => v.CustomerProfileId == customerProfileId)
-                    .ToList();
+        return Ok(vehicle);
+    }
 
-                return Ok(vehicles);
-            }
+    // 7. GET - Filter vehicles by make
+    [HttpGet("filter")]
+    public IActionResult GetVehiclesByMake(string make)
+    {
+        var vehicles = context.Vehicles
+            .Where(v => v.Make.ToLower() == make.ToLower())
+            .Include(v => v.CustomerProfile)
+            .ToList();
 
-            // Vehicles grouped/counted by make, ordered by count desc
-            [HttpGet("by-make-summary")]
-            public async Task<ActionResult<IEnumerable<object>>> GetVehicleCountByMake()
-            {
-                var summary = await _context.Vehicles
-                    .GroupBy(v => v.Make)
-                    .Select(g => new { Make = g.Key, Count = g.Count() })
-                    .OrderByDescending(g => g.Count)
-                    .ToListAsync();
+        return Ok(vehicles);
+    }
 
-                return Ok(summary);
-            }
-        }
+    // 8. GET - Count vehicles grouped by make (aggregate)
+    [HttpGet("summary")]
+    public IActionResult GetVehicleCountByMake()
+    {
+        var summary = context.Vehicles
+            .GroupBy(v => v.Make)
+            .Select(g => new { Make = g.Key, Count = g.Count() })
+            .OrderByDescending(g => g.Count)
+            .ToList();
+
+        return Ok(summary);
     }
 }
