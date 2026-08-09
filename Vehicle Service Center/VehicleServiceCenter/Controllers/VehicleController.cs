@@ -108,6 +108,24 @@ namespace VehicleServiceCenter.Controllers
             return NoContent();
         }
 
+        // Remove a vehicle
+        /* Vehicle is the "parent" of ServiceOrder — a parent with existing children cannot be deleted, so we block it explicitly instead
+        of relying on (or crashing from) an FK constraint at the DB layer. */
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> DeleteVehicle(int id)
+        {
+            var vehicle = await _context.Vehicles.FindAsync(id);
+            if (vehicle == null) return NotFound();
+
+            var hasServiceOrders = await _context.ServiceOrders.AnyAsync(so => so.VehicleId == id);
+            if (hasServiceOrders)
+                return Conflict("Cannot delete this vehicle: it has existing service orders. Remove or reassign those first.");
+
+            _context.Vehicles.Remove(vehicle);
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+
         // Get all vehicles
         [HttpGet("GetAll")]
         public IActionResult GetAllVehicles()
