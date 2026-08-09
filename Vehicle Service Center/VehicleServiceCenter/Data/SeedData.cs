@@ -381,6 +381,61 @@ public static class SeedData
             }
         );
         
+        // Service Orders
+
+        modelBuilder.Entity<ServiceOrderModel>().HasData(
+            new ServiceOrderModel
+            {
+                ServiceOrderId = 1,
+                AppointmentId = 1,
+                CustomerProfileId = 1,
+                VehicleId = 1,
+                MechanicProfileId = 1,
+                BranchId = 1,
+                OrderDate = new DateTime(2026, 8, 10, 10, 0, 0),
+                CompletionDate = new DateTime(2026, 8, 10, 12, 0, 0),
+                Status = "Completed",
+                CustomerComplaint = "Vehicle needs regular maintenance",
+                Diagnosis = "Oil and filter replacement required",
+                TotalAmount = 33.500m,
+                CreatedAt = new DateTime(2026, 8, 10, 10, 0, 0)
+            },
+
+            new ServiceOrderModel
+            {
+                ServiceOrderId = 2,
+                AppointmentId = 2,
+                CustomerProfileId = 2,
+                VehicleId = 2,
+                MechanicProfileId = 1,
+                BranchId = 1,
+                OrderDate = new DateTime(2026, 8, 11, 11, 0, 0),
+                CompletionDate = null,
+                Status = "In Progress",
+                CustomerComplaint = "Customer requested brake inspection",
+                Diagnosis = "Brake system inspection in progress",
+                TotalAmount = 65.000m,
+                CreatedAt = new DateTime(2026, 8, 11, 11, 0, 0)
+            },
+
+            new ServiceOrderModel
+            {
+                ServiceOrderId = 3,
+                AppointmentId = 3,
+                CustomerProfileId = 3,
+                VehicleId = 3,
+                MechanicProfileId = 2,
+                BranchId = 2,
+                OrderDate = new DateTime(2026, 8, 12, 9, 0, 0),
+                CompletionDate = null,
+                Status = "Pending",
+                CustomerComplaint = "Engine warning light is on",
+                Diagnosis = "Diagnostic inspection required",
+                TotalAmount = 40.000m,
+                CreatedAt = new DateTime(2026, 8, 12, 9, 0, 0)
+            }
+        );
+        
         
         
     }
