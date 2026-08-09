@@ -17,7 +17,7 @@ namespace VehicleServiceCenter.Models
 
         public DateOnly? DateOfBirth { get; set; }
 
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public DateTime CreatedAt { get; set; }
 
         [JsonIgnore]
         public UserModel? User { get; set; }

@@ -30,7 +30,7 @@ namespace VehicleServiceCenter.Models
 
         public bool IsActive { get; set; } = true;
 
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public DateTime CreatedAt { get; set; }
 
         public CustomerProfileModel? CustomerProfile { get; set; }
         public MechanicProfileModel? MechanicProfile { get; set; }

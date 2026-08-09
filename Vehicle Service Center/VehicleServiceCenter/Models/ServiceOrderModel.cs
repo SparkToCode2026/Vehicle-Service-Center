@@ -26,7 +26,7 @@ namespace VehicleServiceCenter.Models
         public int BranchId { get; set; }
         public BranchModel Branch { get; set; } = null!;
 
-        public DateTime OrderDate { get; set; } = DateTime.UtcNow;
+        public DateTime OrderDate { get; set; }
 
         public DateTime? CompletionDate { get; set; }
 
@@ -42,7 +42,7 @@ namespace VehicleServiceCenter.Models
         [Column(TypeName = "decimal(10,2)")]
         public decimal TotalAmount { get; set; }
 
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; }
 
         public List<ServiceOrderItemModel> ServiceOrderItems { get; set; } = new();
 

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using VehicleServiceCenter;
 
@@ -11,9 +12,11 @@ using VehicleServiceCenter;
 namespace VehicleServiceCenter.Migrations
 {
     [DbContext(typeof(ProjectContext))]
-    partial class ProjectContextModelSnapshot : ModelSnapshot
+    [Migration("20260809174130_SeedDataUpdate")]
+    partial class SeedDataUpdate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -909,7 +912,7 @@ namespace VehicleServiceCenter.Migrations
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "hawa@example.com",
                             IsActive = true,
-                            Password = "$2a$11$ddvzOew6X6eRPWFL05eUHepg3eEwIUcR3PRS0QE64qxIgGaecTkZS",
+                            Password = "Admin@123",
                             PhoneNumber = "99990000",
                             Role = "Admin",
                             UserName = "Hawa"
@@ -920,7 +923,7 @@ namespace VehicleServiceCenter.Migrations
                             CreatedAt = new DateTime(2026, 1, 2, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "mohammed@example.com",
                             IsActive = true,
-                            Password = "$2a$11$njiRWwm346PHbIdUUNQ9q.zTnQ60S7s81iFMnb.i0oY/MUWj2UOCe",
+                            Password = "Admin@123",
                             PhoneNumber = "99999900",
                             Role = "Admin",
                             UserName = "Mohammed"

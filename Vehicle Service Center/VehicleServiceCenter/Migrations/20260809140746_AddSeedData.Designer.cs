@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using VehicleServiceCenter;
 
@@ -11,9 +12,11 @@ using VehicleServiceCenter;
 namespace VehicleServiceCenter.Migrations
 {
     [DbContext(typeof(ProjectContext))]
-    partial class ProjectContextModelSnapshot : ModelSnapshot
+    [Migration("20260809140746_AddSeedData")]
+    partial class AddSeedData
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -905,25 +908,80 @@ namespace VehicleServiceCenter.Migrations
                     b.HasData(
                         new
                         {
-                            UserId = 122222,
+                            UserId = 1,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "hawa@example.com",
                             IsActive = true,
-                            Password = "$2a$11$ddvzOew6X6eRPWFL05eUHepg3eEwIUcR3PRS0QE64qxIgGaecTkZS",
+                            Password = "$2a$11$N3sA0Zt34ok9v8JHJdCtbexJ2lXnlBMJL1XpSdW90B7KRs0H3dmn2",
                             PhoneNumber = "99990000",
                             Role = "Admin",
                             UserName = "Hawa"
                         },
                         new
                         {
-                            UserId = 23333,
+                            UserId = 2,
                             CreatedAt = new DateTime(2026, 1, 2, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "mohammed@example.com",
                             IsActive = true,
-                            Password = "$2a$11$njiRWwm346PHbIdUUNQ9q.zTnQ60S7s81iFMnb.i0oY/MUWj2UOCe",
+                            Password = "$2a$11$1zioPNrzUW7ROf1GXOhBWOGAPetSd.cyhVD5et.X/Ps6IkK95.h.2",
                             PhoneNumber = "99999900",
                             Role = "Admin",
                             UserName = "Mohammed"
+                        },
+                        new
+                        {
+                            UserId = 3,
+                            CreatedAt = new DateTime(2026, 1, 3, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Email = "yousef@example.com",
+                            IsActive = true,
+                            Password = "$2a$11$hALBJpOvyTrZlLEcJnPFWu4NA7TBLwk3q3huW/keV6c4Bbk6brA9O",
+                            PhoneNumber = "91111111",
+                            Role = "Customer",
+                            UserName = "Yousef"
+                        },
+                        new
+                        {
+                            UserId = 4,
+                            CreatedAt = new DateTime(2026, 1, 4, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Email = "maria@example.com",
+                            IsActive = true,
+                            Password = "$2a$11$BGK2Ppq9wuPbpnsWk2L6W.tnrlxujROYp9PR2tLzmDAIfswo4zKxK",
+                            PhoneNumber = "92222222",
+                            Role = "Customer",
+                            UserName = "Maria"
+                        },
+                        new
+                        {
+                            UserId = 5,
+                            CreatedAt = new DateTime(2026, 1, 5, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Email = "bassam@example.com",
+                            IsActive = true,
+                            Password = "$2a$11$ok4EkGbmQVurJmezTbQcL.3Vhxj7n95ThNtJeSXH1rPD1XZMSrYZC",
+                            PhoneNumber = "93333333",
+                            Role = "Customer",
+                            UserName = "Bassam"
+                        },
+                        new
+                        {
+                            UserId = 6,
+                            CreatedAt = new DateTime(2026, 1, 6, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Email = "ahmed@example.com",
+                            IsActive = true,
+                            Password = "$2a$11$nUeJyCFSbAhaazyDrTer5exvyE/ImOZCqkiHG04iNos3CK4Roky12",
+                            PhoneNumber = "94444444",
+                            Role = "Mechanic",
+                            UserName = "Ahmed"
+                        },
+                        new
+                        {
+                            UserId = 7,
+                            CreatedAt = new DateTime(2026, 1, 7, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Email = "khalid@example.com",
+                            IsActive = true,
+                            Password = "$2a$11$Sf7OqYUyOnJmF.kR9vG2/O5rcqbClLV2JmIeNoH5bfOq2YujF4Z3.",
+                            PhoneNumber = "95555555",
+                            Role = "Mechanic",
+                            UserName = "Khalid"
                         });
                 });
 

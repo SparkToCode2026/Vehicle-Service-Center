@@ -34,7 +34,7 @@ namespace VehicleServiceCenter.Models
         [Column(TypeName = "decimal(10,2)")]
         public decimal? Mileage { get; set; }
 
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public DateTime CreatedAt { get; set; }
 
         public CustomerProfileModel CustomerProfile { get; set; } = null!;
 

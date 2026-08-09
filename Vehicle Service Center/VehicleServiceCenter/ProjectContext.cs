@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using VehicleServiceCenter.Models;
+using VehicleServiceCenter.Data;
 
 namespace VehicleServiceCenter
 {
@@ -27,6 +28,13 @@ namespace VehicleServiceCenter
             public DbSet<InvoiceModel> Invoices { get; set; }
             public DbSet<PaymentModel> Payments { get; set; }
             public DbSet<BranchModel> Branches { get; set; }
+            
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                base.OnModelCreating(modelBuilder);
+
+                SeedData.Seed(modelBuilder);
+            }
 
             
         }
