@@ -160,8 +160,21 @@ namespace VehicleServiceCenter.Controllers
                 return NotFound("User not found");
             }
 
+            string normalizedEmail = updatedUser.Email.Trim();
+
+            bool emailAlreadyExists = context.Users
+                .AsNoTracking()
+                .Any(u =>
+                    u.UserId != id &&
+                    u.Email == normalizedEmail);
+
+            if (emailAlreadyExists)
+            {
+                return BadRequest("Email is already registered");
+            }
+
             user.UserName = updatedUser.UserName;
-            user.Email = updatedUser.Email;
+            user.Email = normalizedEmail;
             user.Role = updatedUser.Role;
             user.PhoneNumber = updatedUser.PhoneNumber;
             user.IsActive = updatedUser.IsActive;

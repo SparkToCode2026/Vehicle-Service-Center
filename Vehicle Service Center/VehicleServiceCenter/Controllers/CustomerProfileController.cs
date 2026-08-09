@@ -293,7 +293,16 @@ namespace VehicleServiceCenter.Controllers
                 return BadRequest("Address cannot be empty");
             }
 
-            customerProfile.Address = newAddress;
+            string normalizedAddress = newAddress.Trim();
+
+            if (normalizedAddress.Length > 255)
+            {
+                return BadRequest(
+                    "Address cannot exceed 255 characters"
+                );
+            }
+
+            customerProfile.Address = normalizedAddress;
             context.SaveChanges();
 
             return Ok("Customer address updated successfully");
