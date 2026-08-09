@@ -29,5 +29,24 @@ public class ServiceTypeController : ControllerBase
         );
     }
 
-    
+    // 2. PUT - Update service type details
+    [HttpPut("{id}")]
+    public IActionResult UpdateServiceType(int id, ServiceTypeModel serviceType)
+    {
+        var existingServiceType = context.ServiceTypes.Find(id);
+
+        if (existingServiceType == null)
+            return NotFound();
+
+        existingServiceType.Name = serviceType.Name;
+        existingServiceType.Description = serviceType.Description;
+        existingServiceType.BasePrice = serviceType.BasePrice;
+        existingServiceType.EstimatedDurationMinutes = serviceType.EstimatedDurationMinutes;
+
+        context.SaveChanges();
+
+        return NoContent();
+    }
+
+
 }
