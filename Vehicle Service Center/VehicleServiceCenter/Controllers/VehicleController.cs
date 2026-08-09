@@ -53,7 +53,7 @@ namespace VehicleServiceCenter.Controllers
             });
         }
 
-        //create a new vehicle
+        // Create a new vehicle
         [HttpPost]
         public async Task<ActionResult<Vehicle>> CreateVehicle(VehicleCreateDto dto)
         {
@@ -74,6 +74,23 @@ namespace VehicleServiceCenter.Controllers
             await _context.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetVehicleById), new { id = vehicle.VehicleId }, vehicle);
+        }
+
+        // Full update of a vehicle's details
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateVehicle(int id, VehicleUpdateDto dto)
+        {
+            var vehicle = await _context.Vehicles.FindAsync(id);
+            if (vehicle == null) return NotFound();
+
+            vehicle.Make = dto.Make;
+            vehicle.Model = dto.Model;
+            vehicle.Year = dto.Year;
+            vehicle.PlateNumber = dto.PlateNumber;
+            vehicle.VIN = dto.VIN;
+
+            await _context.SaveChangesAsync();
+            return NoContent();
         }
 
         // Get all vehicles
