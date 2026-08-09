@@ -123,5 +123,20 @@ public class ServiceTypeController : ControllerBase
         return Ok(serviceTypes);
     }
 
-    
+    // 8. GET - Revenue per service type (aggregate)
+    [HttpGet("revenue")]
+    public IActionResult GetRevenueByServiceType()
+    {
+        var summary = context.ServiceTypes
+            .Select(s => new
+            {
+                s.ServiceTypeId,
+                s.Name,
+                TotalRevenue = s.ServiceOrderItems.Sum(i => (decimal?)(i.UnitPrice * i.Quantity)) ?? 0m
+            })
+            .OrderByDescending(s => s.TotalRevenue)
+            .ToList();
+
+        return Ok(summary);
+    }
 }
