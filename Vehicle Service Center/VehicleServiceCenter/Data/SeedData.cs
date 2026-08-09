@@ -19,7 +19,7 @@ public static class SeedData
                 Password = BCrypt.Net.BCrypt.HashPassword("Admin@123"),
                 Email = "hawa@example.com",
                 Role = "Admin",
-                PhoneNumber = "91234567",
+                PhoneNumber = "99990000",
                 IsActive = true,
                 CreatedAt = new DateTime(2026, 1, 1)
             },
@@ -32,7 +32,7 @@ public static class SeedData
                 Password = BCrypt.Net.BCrypt.HashPassword("Admin@123"),
                 Email = "mohammed@example.com",
                 Role = "Admin",
-                PhoneNumber = "92345678",
+                PhoneNumber = "99999900",
                 IsActive = true,
                 CreatedAt = new DateTime(2026, 1, 2)
             },
@@ -45,7 +45,7 @@ public static class SeedData
                 Password = BCrypt.Net.BCrypt.HashPassword("Customer@123"),
                 Email = "yousef@example.com",
                 Role = "Customer",
-                PhoneNumber = "93456789",
+                PhoneNumber = "91111111",
                 IsActive = true,
                 CreatedAt = new DateTime(2026, 1, 3)
             },
@@ -58,7 +58,7 @@ public static class SeedData
                 Password = BCrypt.Net.BCrypt.HashPassword("Customer@123"),
                 Email = "maria@example.com",
                 Role = "Customer",
-                PhoneNumber = "94567890",
+                PhoneNumber = "92222222",
                 IsActive = true,
                 CreatedAt = new DateTime(2026, 1, 4)
             },
@@ -71,9 +71,36 @@ public static class SeedData
                 Password = BCrypt.Net.BCrypt.HashPassword("Customer@123"),
                 Email = "bassam@example.com",
                 Role = "Customer",
-                PhoneNumber = "95678901",
+                PhoneNumber = "93333333",
                 IsActive = true,
                 CreatedAt = new DateTime(2026, 1, 5)
+            }
+        );
+        
+        // Branches
+
+        modelBuilder.Entity<BranchModel>().HasData(
+            new BranchModel
+            {
+                BranchId = 1,
+                BranchName = "Main Branch",
+                Address = "Muscat, Oman",
+                PhoneNumber = "99995555",
+                Email = "main@vehicleservice.com",
+                OpeningTime = new TimeSpan(8, 0, 0),
+                ClosingTime = new TimeSpan(18, 0, 0),
+                IsActive = true
+            },
+            new BranchModel
+            {
+                BranchId = 2,
+                BranchName = "Barka Branch",
+                Address = "Barka, Oman",
+                PhoneNumber = "26891234",
+                Email = "barka@vehicleservice.com",
+                OpeningTime = new TimeSpan(8, 0, 0),
+                ClosingTime = new TimeSpan(18, 0, 0),
+                IsActive = true
             }
         );
     }
