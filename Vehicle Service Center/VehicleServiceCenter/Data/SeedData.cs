@@ -242,7 +242,7 @@ public static class SeedData
                 ServiceTypeId = 1,
                 Name = "Oil Change",
                 Description = "Engine oil and oil filter replacement",
-                BasePrice = 25.00m,
+                BasePrice = 25.000m,
                 EstimatedDurationMinutes = 45,
                 IsActive = true
             },
@@ -252,7 +252,7 @@ public static class SeedData
                 ServiceTypeId = 2,
                 Name = "Brake Inspection",
                 Description = "Complete brake system inspection",
-                BasePrice = 30.00m,
+                BasePrice = 30.000m,
                 EstimatedDurationMinutes = 60,
                 IsActive = true
             },
@@ -262,7 +262,7 @@ public static class SeedData
                 ServiceTypeId = 3,
                 Name = "Engine Diagnostic",
                 Description = "Computerized engine diagnostic service",
-                BasePrice = 40.00m,
+                BasePrice = 40.000m,
                 EstimatedDurationMinutes = 60,
                 IsActive = true
             },
@@ -272,7 +272,7 @@ public static class SeedData
                 ServiceTypeId = 4,
                 Name = "Battery Replacement",
                 Description = "Vehicle battery inspection and replacement",
-                BasePrice = 15.00m,
+                BasePrice = 15.000m,
                 EstimatedDurationMinutes = 30,
                 IsActive = true
             }
