@@ -80,6 +80,16 @@ public class SparePartController : ControllerBase
         if (sparePart == null)
             return NotFound();
 
+        var isUsed = context.ServiceOrderItems
+            .Any(x => x.SparePartId == id);
+
+        if (isUsed)
+        {
+            return BadRequest(
+                "This spare part cannot be deleted because it is used in a service order."
+            );
+        }
+
         context.SpareParts.Remove(sparePart);
         context.SaveChanges();
 

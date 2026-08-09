@@ -16,7 +16,7 @@ public static class SeedData
             {
                 UserId = 122222,
                 UserName = "Hawa",
-                Password = "Admin@123",
+                Password = "$2a$11$ddvzOew6X6eRPWFL05eUHepg3eEwIUcR3PRS0QE64qxIgGaecTkZS",
                 Email = "hawa@example.com",
                 Role = "Admin",
                 PhoneNumber = "99990000",
@@ -29,7 +29,7 @@ public static class SeedData
             {
                 UserId = 23333,
                 UserName = "Mohammed",
-                Password = "Admin@123",
+                Password = "$2a$11$njiRWwm346PHbIdUUNQ9q.zTnQ60S7s81iFMnb.i0oY/MUWj2UOCe",
                 Email = "mohammed@example.com",
                 Role = "Admin",
                 PhoneNumber = "99999900",

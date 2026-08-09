@@ -71,7 +71,8 @@ public class AppointmentController : ControllerBase
         return Ok(appointment);
     }
 
-    // 4. DELETE - Delete an appointment
+  
+// 4. DELETE - Delete an appointment
     [HttpDelete("{id}")]
     public IActionResult DeleteAppointment(int id)
     {
@@ -80,11 +81,23 @@ public class AppointmentController : ControllerBase
         if (appointment == null)
             return NotFound();
 
+        // Find any service orders linked to this appointment
+        var serviceOrders = context.ServiceOrders
+            .Where(s => s.AppointmentId == id)
+            .ToList();
+
+        // Remove the relationship before deleting the appointment
+        foreach (var serviceOrder in serviceOrders)
+        {
+            serviceOrder.AppointmentId = null;
+        }
+
         context.Appointments.Remove(appointment);
         context.SaveChanges();
 
         return NoContent();
     }
+ 
 
     // 5. GET - Get all appointments with related entities
     [HttpGet]
