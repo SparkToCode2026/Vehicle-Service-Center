@@ -188,6 +188,52 @@ public static class SeedData
             }
         );
         
+        // Vehicles
+
+        modelBuilder.Entity<VehicleModel>().HasData(
+            new VehicleModel
+            {
+                VehicleId = 1,
+                CustomerProfileId = 1,
+                PlateNumber = "12345",
+                VIN = "OMVIN000000000001",
+                Make = "Toyota",
+                Model = "Camry",
+                Year = 2022,
+                Color = "White",
+                Mileage = 45000,
+                CreatedAt = new DateTime(2026, 1, 12)
+            },
+
+            new VehicleModel
+            {
+                VehicleId = 2,
+                CustomerProfileId = 2,
+                PlateNumber = "23456",
+                VIN = "OMVIN000000000002",
+                Make = "Nissan",
+                Model = "Altima",
+                Year = 2021,
+                Color = "Black",
+                Mileage = 62000,
+                CreatedAt = new DateTime(2026, 1, 13)
+            },
+
+            new VehicleModel
+            {
+                VehicleId = 3,
+                CustomerProfileId = 3,
+                PlateNumber = "34567",
+                VIN = "OMVIN000000000003",
+                Make = "Honda",
+                Model = "Accord",
+                Year = 2023,
+                Color = "Silver",
+                Mileage = 28000,
+                CreatedAt = new DateTime(2026, 1, 14)
+            }
+        );
+        
         
         
     }
