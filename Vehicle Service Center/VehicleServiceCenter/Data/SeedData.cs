@@ -162,6 +162,32 @@ public static class SeedData
             
         );
         
+        // Mechanic Profiles
+
+        modelBuilder.Entity<MechanicProfileModel>().HasData(
+            new MechanicProfileModel
+            {
+                MechanicProfileId = 1,
+                UserId = 6,
+                BranchId = 1,
+                Specialization = "Engine Repair",
+                ExperienceYears = 7,
+                HireDate = new DateOnly(2022, 1, 10),
+                IsAvailable = true
+            },
+
+            new MechanicProfileModel
+            {
+                MechanicProfileId = 2,
+                UserId = 7,
+                BranchId = 2,
+                Specialization = "Electrical Systems",
+                ExperienceYears = 5,
+                HireDate = new DateOnly(2023, 3, 15),
+                IsAvailable = true
+            }
+        );
+        
         
         
     }
