@@ -568,6 +568,34 @@ public static class SeedData
         }
     );
     
+    // Payments
+
+    modelBuilder.Entity<PaymentModel>().HasData(
+        new PaymentModel
+        {
+            PaymentId = 1,
+            InvoiceId = 1,
+            Amount = 33.500m,
+            PaymentDate = new DateTime(2026, 8, 10, 12, 30, 0),
+            PaymentMethod = "Card",
+            TransactionReference = "TXN-2026-0001",
+            Status = "Completed",
+            Notes = "Full payment"
+        },
+
+        new PaymentModel
+        {
+            PaymentId = 2,
+            InvoiceId = 2,
+            Amount = 30.000m,
+            PaymentDate = new DateTime(2026, 8, 11, 14, 0, 0),
+            PaymentMethod = "Cash",
+            TransactionReference = "TXN-2026-0002",
+            Status = "Completed",
+            Notes = "Partial payment"
+        }
+    );
+    
         
         
     }
