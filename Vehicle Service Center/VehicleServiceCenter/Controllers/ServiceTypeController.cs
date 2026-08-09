@@ -48,5 +48,18 @@ public class ServiceTypeController : ControllerBase
         return NoContent();
     }
 
+    // 3. PATCH - Activate/deactivate a service type
+    [HttpPatch("{id}/status")]
+    public IActionResult SetServiceTypeStatus(int id, bool isActive)
+    {
+        var serviceType = context.ServiceTypes.Find(id);
 
+        if (serviceType == null)
+            return NotFound();
+
+        serviceType.IsActive = isActive;
+        context.SaveChanges();
+
+        return Ok(serviceType);
+    }
 }
