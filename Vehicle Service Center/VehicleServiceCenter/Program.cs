@@ -122,6 +122,7 @@ namespace VehicleServiceCenter
 
             builder.Services.AddAuthorization();
             builder.Services.AddScoped<JwtTokenService>();
+            builder.Services.AddScoped<IEmailService, EmailService>();
 
 
             var app = builder.Build();
