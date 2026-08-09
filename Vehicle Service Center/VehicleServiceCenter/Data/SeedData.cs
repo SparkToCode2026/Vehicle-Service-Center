@@ -74,6 +74,32 @@ public static class SeedData
                 PhoneNumber = "93333333",
                 IsActive = true,
                 CreatedAt = new DateTime(2026, 1, 5)
+            },
+            
+            // Mechanic 1
+            new UserModel
+            {
+                UserId = 6,
+                UserName = "Ahmed",
+                Password = BCrypt.Net.BCrypt.HashPassword("Mechanic@123"),
+                Email = "ahmed@example.com",
+                Role = "Mechanic",
+                PhoneNumber = "94444444",
+                IsActive = true,
+                CreatedAt = new DateTime(2026, 1, 6)
+            },
+
+            // Mechanic 2
+            new UserModel
+            {
+                UserId = 7,
+                UserName = "Khalid",
+                Password = BCrypt.Net.BCrypt.HashPassword("Mechanic@123"),
+                Email = "khalid@example.com",
+                Role = "Mechanic",
+                PhoneNumber = "95555555",
+                IsActive = true,
+                CreatedAt = new DateTime(2026, 1, 7)
             }
         );
         
@@ -133,7 +159,11 @@ public static class SeedData
                 DateOfBirth = new DateOnly(1999, 3, 20),
                 CreatedAt = new DateTime(2026, 1, 5)
             }
+            
         );
+        
+        
+        
     }
 }
 
