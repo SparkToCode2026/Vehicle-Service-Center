@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using VehicleServiceCenter.Models;
 
@@ -50,6 +51,29 @@ namespace VehicleServiceCenter.Controllers
                 Message = "Vehicle registered successfully",
                 VehicleId = vehicle.VehicleId
             });
+        }
+
+        //create a new vehicle
+        [HttpPost]
+        public async Task<ActionResult<Vehicle>> CreateVehicle(VehicleCreateDto dto)
+        {
+            var customerExists = await _context.CustomerProfiles.AnyAsync(c => c.CustomerProfileId == dto.CustomerProfileId);
+            if (!customerExists) return BadRequest("CustomerProfileId does not exist.");
+
+            var vehicle = new Vehicle
+            {
+                CustomerProfileId = dto.CustomerProfileId,
+                Make = dto.Make,
+                Model = dto.Model,
+                Year = dto.Year,
+                PlateNumber = dto.PlateNumber,
+                VIN = dto.VIN
+            };
+
+            _context.Vehicles.Add(vehicle);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetVehicleById), new { id = vehicle.VehicleId }, vehicle);
         }
 
         // Get all vehicles
