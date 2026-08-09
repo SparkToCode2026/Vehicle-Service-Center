@@ -14,9 +14,9 @@ public static class SeedData
             // Admin 1 
             new UserModel
             {
-                UserId = 1,
+                UserId = 122222,
                 UserName = "Hawa",
-                Password = BCrypt.Net.BCrypt.HashPassword("Admin@123"),
+                Password = "Admin@123",
                 Email = "hawa@example.com",
                 Role = "Admin",
                 PhoneNumber = "99990000",
@@ -27,82 +27,82 @@ public static class SeedData
             // Admin 2 
             new UserModel
             {
-                UserId = 2,
+                UserId = 23333,
                 UserName = "Mohammed",
-                Password = BCrypt.Net.BCrypt.HashPassword("Admin@123"),
+                Password = "Admin@123",
                 Email = "mohammed@example.com",
                 Role = "Admin",
                 PhoneNumber = "99999900",
                 IsActive = true,
                 CreatedAt = new DateTime(2026, 1, 2)
-            },
-
-            // Customer 1 
-            new UserModel
-            {
-                UserId = 3,
-                UserName = "Yousef",
-                Password = BCrypt.Net.BCrypt.HashPassword("Customer@123"),
-                Email = "yousef@example.com",
-                Role = "Customer",
-                PhoneNumber = "91111111",
-                IsActive = true,
-                CreatedAt = new DateTime(2026, 1, 3)
-            },
-
-            // Customer 2 
-            new UserModel
-            {
-                UserId = 4,
-                UserName = "Maria",
-                Password = BCrypt.Net.BCrypt.HashPassword("Customer@123"),
-                Email = "maria@example.com",
-                Role = "Customer",
-                PhoneNumber = "92222222",
-                IsActive = true,
-                CreatedAt = new DateTime(2026, 1, 4)
-            },
-
-            // Customer 3 
-            new UserModel
-            {
-                UserId = 5,
-                UserName = "Bassam",
-                Password = BCrypt.Net.BCrypt.HashPassword("Customer@123"),
-                Email = "bassam@example.com",
-                Role = "Customer",
-                PhoneNumber = "93333333",
-                IsActive = true,
-                CreatedAt = new DateTime(2026, 1, 5)
-            },
-            
-            // Mechanic 1
-            new UserModel
-            {
-                UserId = 6,
-                UserName = "Ahmed",
-                Password = BCrypt.Net.BCrypt.HashPassword("Mechanic@123"),
-                Email = "ahmed@example.com",
-                Role = "Mechanic",
-                PhoneNumber = "94444444",
-                IsActive = true,
-                CreatedAt = new DateTime(2026, 1, 6)
-            },
-
-            // Mechanic 2
-            new UserModel
-            {
-                UserId = 7,
-                UserName = "Khalid",
-                Password = BCrypt.Net.BCrypt.HashPassword("Mechanic@123"),
-                Email = "khalid@example.com",
-                Role = "Mechanic",
-                PhoneNumber = "95555555",
-                IsActive = true,
-                CreatedAt = new DateTime(2026, 1, 7)
             }
         );
-        
+        //     // Customer 1 
+        //     new UserModel
+        //     {
+        //         UserId = 3,
+        //         UserName = "Yousef",
+        //         Password = BCrypt.Net.BCrypt.HashPassword("Customer@123"),
+        //         Email = "yousef@example.com",
+        //         Role = "Customer",
+        //         PhoneNumber = "91111111",
+        //         IsActive = true,
+        //         CreatedAt = new DateTime(2026, 1, 3)
+        //     },
+        //
+        //     // Customer 2 
+        //     new UserModel
+        //     {
+        //         UserId = 4,
+        //         UserName = "Maria",
+        //         Password = BCrypt.Net.BCrypt.HashPassword("Customer@123"),
+        //         Email = "maria@example.com",
+        //         Role = "Customer",
+        //         PhoneNumber = "92222222",
+        //         IsActive = true,
+        //         CreatedAt = new DateTime(2026, 1, 4)
+        //     },
+        //
+        //     // Customer 3 
+        //     new UserModel
+        //     {
+        //         UserId = 5,
+        //         UserName = "Bassam",
+        //         Password = BCrypt.Net.BCrypt.HashPassword("Customer@123"),
+        //         Email = "bassam@example.com",
+        //         Role = "Customer",
+        //         PhoneNumber = "93333333",
+        //         IsActive = true,
+        //         CreatedAt = new DateTime(2026, 1, 5)
+        //     },
+        //     
+        //     // Mechanic 1
+        //     new UserModel
+        //     {
+        //         UserId = 6,
+        //         UserName = "Ahmed",
+        //         Password = BCrypt.Net.BCrypt.HashPassword("Mechanic@123"),
+        //         Email = "ahmed@example.com",
+        //         Role = "Mechanic",
+        //         PhoneNumber = "94444444",
+        //         IsActive = true,
+        //         CreatedAt = new DateTime(2026, 1, 6)
+        //     },
+        //
+        //     // Mechanic 2
+        //     new UserModel
+        //     {
+        //         UserId = 7,
+        //         UserName = "Khalid",
+        //         Password = BCrypt.Net.BCrypt.HashPassword("Mechanic@123"),
+        //         Email = "khalid@example.com",
+        //         Role = "Mechanic",
+        //         PhoneNumber = "95555555",
+        //         IsActive = true,
+        //         CreatedAt = new DateTime(2026, 1, 7)
+        //     }
+        // );
+        //
         // Branches
 
         modelBuilder.Entity<BranchModel>().HasData(
@@ -383,58 +383,58 @@ public static class SeedData
         
         // Service Orders
 
-        modelBuilder.Entity<ServiceOrderModel>().HasData(
-            new ServiceOrderModel
-            {
-                ServiceOrderId = 1,
-                AppointmentId = 1,
-                CustomerProfileId = 1,
-                VehicleId = 1,
-                MechanicProfileId = 1,
-                BranchId = 1,
-                OrderDate = new DateTime(2026, 8, 10, 10, 0, 0),
-                CompletionDate = new DateTime(2026, 8, 10, 12, 0, 0),
-                Status = "Completed",
-                CustomerComplaint = "Vehicle needs regular maintenance",
-                Diagnosis = "Oil and filter replacement required",
-                TotalAmount = 33.500m,
-                CreatedAt = new DateTime(2026, 8, 10, 10, 0, 0)
-            },
+            modelBuilder.Entity<ServiceOrderModel>().HasData(
+                new ServiceOrderModel
+                {
+                    ServiceOrderId = 1,
+                    AppointmentId = 1,
+                    CustomerProfileId = 1,
+                    VehicleId = 1,
+                    MechanicProfileId = 1,
+                    BranchId = 1,
+                    OrderDate = new DateTime(2026, 8, 10, 10, 0, 0),
+                    CompletionDate = new DateTime(2026, 8, 10, 12, 0, 0),
+                    Status = "Completed",
+                    CustomerComplaint = "Vehicle needs regular maintenance",
+                    Diagnosis = "Oil and filter replacement required",
+                    TotalAmount = 33.500m,
+                    CreatedAt = new DateTime(2026, 8, 10, 10, 0, 0)
+                },
 
-            new ServiceOrderModel
-            {
-                ServiceOrderId = 2,
-                AppointmentId = 2,
-                CustomerProfileId = 2,
-                VehicleId = 2,
-                MechanicProfileId = 1,
-                BranchId = 1,
-                OrderDate = new DateTime(2026, 8, 11, 11, 0, 0),
-                CompletionDate = null,
-                Status = "In Progress",
-                CustomerComplaint = "Customer requested brake inspection",
-                Diagnosis = "Brake system inspection in progress",
-                TotalAmount = 65.000m,
-                CreatedAt = new DateTime(2026, 8, 11, 11, 0, 0)
-            },
+                new ServiceOrderModel
+                {
+                    ServiceOrderId = 2,
+                    AppointmentId = 2,
+                    CustomerProfileId = 2,
+                    VehicleId = 2,
+                    MechanicProfileId = 1,
+                    BranchId = 1,
+                    OrderDate = new DateTime(2026, 8, 11, 11, 0, 0),
+                    CompletionDate = null,
+                    Status = "In Progress",
+                    CustomerComplaint = "Customer requested brake inspection",
+                    Diagnosis = "Brake system inspection in progress",
+                    TotalAmount = 65.000m,
+                    CreatedAt = new DateTime(2026, 8, 11, 11, 0, 0)
+                },
 
-            new ServiceOrderModel
-            {
-                ServiceOrderId = 3,
-                AppointmentId = 3,
-                CustomerProfileId = 3,
-                VehicleId = 3,
-                MechanicProfileId = 2,
-                BranchId = 2,
-                OrderDate = new DateTime(2026, 8, 12, 9, 0, 0),
-                CompletionDate = null,
-                Status = "Pending",
-                CustomerComplaint = "Engine warning light is on",
-                Diagnosis = "Diagnostic inspection required",
-                TotalAmount = 40.000m,
-                CreatedAt = new DateTime(2026, 8, 12, 9, 0, 0)
-            }
-        );
+                new ServiceOrderModel
+                {
+                    ServiceOrderId = 3,
+                    AppointmentId = 3,
+                    CustomerProfileId = 3,
+                    VehicleId = 3,
+                    MechanicProfileId = 2,
+                    BranchId = 2,
+                    OrderDate = new DateTime(2026, 8, 12, 9, 0, 0),
+                    CompletionDate = null,
+                    Status = "Pending",
+                    CustomerComplaint = "Engine warning light is on",
+                    Diagnosis = "Diagnostic inspection required",
+                    TotalAmount = 40.000m,
+                    CreatedAt = new DateTime(2026, 8, 12, 9, 0, 0)
+                }
+            );
         
         
         // Service Order Items
