@@ -1,158 +1,142 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using VehicleServiceCenter.Models;
 
-namespace VehicleServiceCenter.Controllers
+namespace VehicleServiceCenter.Controllers;
+
+[ApiController]
+[Route("[controller]")]
+public class VehicleController : ControllerBase
 {
-    [ApiController]
-    [Route("Vehicle")]
-    public class VehicleController : ControllerBase
+    private readonly ProjectContext context;
+
+    public VehicleController(ProjectContext context)
     {
-        private ProjectContext context;
+        this.context = context;
+    }
 
-        public VehicleController(ProjectContext context)
-        {
-            context = context;
-        }
+    // 1. POST - Create a new vehicle
+    [HttpPost]
+    public IActionResult CreateVehicle(VehicleModel vehicle)
+    {
+        context.Vehicles.Add(vehicle);
+        context.SaveChanges();
 
-        // Register a new vehicle
-        [HttpPost("RegisterVehicle")]
-        public IActionResult RegisterVehicle(VehicleModel vehicle)
-        {
-            // Check whether the plate number already exists
-            VehicleModel existingPlate = context.Vehicles
-                .FirstOrDefault(v => v.PlateNumber == vehicle.PlateNumber);
+        return CreatedAtAction(
+            nameof(GetVehicle),
+            new { id = vehicle.VehicleId },
+            vehicle
+        );
+    }
 
-            if (existingPlate != null)
-            {
-                return BadRequest("Plate number is already registered");
-            }
+    // 2. PUT - Update vehicle details
+    [HttpPut("{id}")]
+    public IActionResult UpdateVehicle(int id, VehicleModel vehicle)
+    {
+        var existingVehicle = context.Vehicles.Find(id);
 
-            // Check whether the VIN already exists (VIN is optional)
-            if (!string.IsNullOrEmpty(vehicle.VIN))
-            {
-                VehicleModel existingVin = context.Vehicles
-                    .FirstOrDefault(v => v.VIN == vehicle.VIN);
+        if (existingVehicle == null)
+            return NotFound();
 
-                if (existingVin != null)
-                {
-                    return BadRequest("VIN is already registered");
-                }
-            }
+        existingVehicle.Make = vehicle.Make;
+        existingVehicle.Model = vehicle.Model;
+        existingVehicle.Year = vehicle.Year;
+        existingVehicle.PlateNumber = vehicle.PlateNumber;
+        existingVehicle.VIN = vehicle.VIN;
 
-            vehicle.CreatedAt = DateTime.Now;
+        context.SaveChanges();
 
-            context.Vehicles.Add(vehicle);
-            context.SaveChanges();
+        return NoContent();
+    }
 
-            return Ok(new
-            {
-                Message = "Vehicle registered successfully",
-                VehicleId = vehicle.VehicleId
-            });
-        }
+    // 3. PATCH - Reassign vehicle to a different customer (FK change)
+    [HttpPatch("{id}/reassign")]
+    public IActionResult ReassignVehicle(int id, int customerProfileId)
+    {
+        var vehicle = context.Vehicles.Find(id);
 
-        // Get all vehicles
-        [HttpGet("GetAll")]
-        public IActionResult GetAllVehicles()
-        {
-            var vehicles = context.Vehicles.ToList();
-            return Ok(vehicles);
-        }
+        if (vehicle == null)
+            return NotFound();
 
-        // Get vehicle by ID
-        [HttpGet("GetById/{id}")]
-        public IActionResult GetVehicleById(int id)
-        {
-            var vehicle = context.Vehicles.Find(id);
-            if (vehicle == null)
-            {
-                return NotFound("Vehicle not found");
-            }
-            return Ok(vehicle);
-        }
+        var customerExists = context.CustomerProfiles.Any(c => c.CustomerProfileId == customerProfileId);
 
-        // Get all vehicles belonging to a specific customer
-        [HttpGet("GetByCustomer/{customerProfileId}")]
-        public IActionResult GetVehiclesByCustomer(int customerProfileId)
-        {
-            var vehicles = context.Vehicles
-                .Where(v => v.CustomerProfileId == customerProfileId)
-                .ToList();
+        if (!customerExists)
+            return BadRequest("CustomerProfileId does not exist.");
 
-            return Ok(vehicles);
-        }
+        vehicle.CustomerProfileId = customerProfileId;
+        context.SaveChanges();
 
-        // Update vehicle by ID
-        [HttpPut("Update/{id}")]
-        public IActionResult UpdateVehicle(int id, VehicleModel updatedVehicle)
-        {
-            var vehicle = context.Vehicles.Find(id);
-            if (vehicle == null)
-            {
-                return NotFound("Vehicle not found");
-            }
+        return Ok(vehicle);
+    }
 
-            // Prevent duplicate plate number when it's being changed
-            if (vehicle.PlateNumber != updatedVehicle.PlateNumber)
-            {
-                bool plateTaken = context.Vehicles
-                    .Any(v => v.PlateNumber == updatedVehicle.PlateNumber && v.VehicleId != id);
+    // 4. DELETE - Delete a vehicle
+    [HttpDelete("{id}")]
+    public IActionResult DeleteVehicle(int id)
+    {
+        var vehicle = context.Vehicles.Find(id);
 
-                if (plateTaken)
-                {
-                    return BadRequest("Plate number is already registered");
-                }
-            }
+        if (vehicle == null)
+            return NotFound();
 
-            // Prevent duplicate VIN when it's being changed
-            if (!string.IsNullOrEmpty(updatedVehicle.VIN) && vehicle.VIN != updatedVehicle.VIN)
-            {
-                bool vinTaken = context.Vehicles
-                    .Any(v => v.VIN == updatedVehicle.VIN && v.VehicleId != id);
+        var hasServiceOrders = context.ServiceOrders.Any(s => s.VehicleId == id);
 
-                if (vinTaken)
-                {
-                    return BadRequest("VIN is already registered");
-                }
-            }
+        if (hasServiceOrders)
+            return Conflict("Cannot delete this vehicle: it has existing service orders.");
 
-            vehicle.CustomerProfileId = updatedVehicle.CustomerProfileId;
-            vehicle.PlateNumber = updatedVehicle.PlateNumber;
-            vehicle.VIN = updatedVehicle.VIN;
-            vehicle.Make = updatedVehicle.Make;
-            vehicle.Model = updatedVehicle.Model;
-            vehicle.Year = updatedVehicle.Year;
-            vehicle.Color = updatedVehicle.Color;
-            vehicle.Mileage = updatedVehicle.Mileage;
+        context.Vehicles.Remove(vehicle);
+        context.SaveChanges();
 
-            context.SaveChanges();
+        return NoContent();
+    }
 
-            return Ok(new
-            {
-                Message = "Vehicle updated successfully",
-                VehicleId = vehicle.VehicleId
-            });
-        }
+    // 5. GET - Get all vehicles with CustomerProfile
+    [HttpGet]
+    public IActionResult GetVehicles()
+    {
+        var vehicles = context.Vehicles
+            .Include(v => v.CustomerProfile)
+            .ToList();
 
-        // Delete vehicle by ID
-        [HttpDelete("Delete/{id}")]
-        public IActionResult DeleteVehicle(int id)
-        {
-            var vehicle = context.Vehicles.Find(id);
-            if (vehicle == null)
-            {
-                return NotFound("Vehicle not found");
-            }
+        return Ok(vehicles);
+    }
 
-            context.Vehicles.Remove(vehicle);
-            context.SaveChanges();
+    // 6. GET - Get vehicle by ID
+    [HttpGet("{id}")]
+    public IActionResult GetVehicle(int id)
+    {
+        var vehicle = context.Vehicles
+            .Include(v => v.CustomerProfile)
+            .Include(v => v.ServiceOrders)
+            .FirstOrDefault(v => v.VehicleId == id);
 
-            return Ok(new
-            {
-                Message = "Vehicle deleted successfully",
-                VehicleId = vehicle.VehicleId
-            });
-        }
+        if (vehicle == null)
+            return NotFound();
+
+        return Ok(vehicle);
+    }
+
+    // 7. GET - Filter vehicles by make
+    [HttpGet("filter")]
+    public IActionResult GetVehiclesByMake(string make)
+    {
+        var vehicles = context.Vehicles
+            .Where(v => v.Make.ToLower() == make.ToLower())
+            .Include(v => v.CustomerProfile)
+            .ToList();
+
+        return Ok(vehicles);
+    }
+
+    // 8. GET - Count vehicles grouped by make (aggregate)
+    [HttpGet("summary")]
+    public IActionResult GetVehicleCountByMake()
+    {
+        var summary = context.Vehicles
+            .GroupBy(v => v.Make)
+            .Select(g => new { Make = g.Key, Count = g.Count() })
+            .OrderByDescending(g => g.Count)
+            .ToList();
+
+        return Ok(summary);
     }
 }

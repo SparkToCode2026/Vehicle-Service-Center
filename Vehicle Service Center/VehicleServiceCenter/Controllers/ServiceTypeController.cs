@@ -1,140 +1,142 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using VehicleServiceCenter.Models;
 
-namespace VehicleServiceCenter.Controllers
+namespace VehicleServiceCenter.Controllers;
+
+[ApiController]
+[Route("[controller]")]
+public class ServiceTypeController : ControllerBase
 {
-    [ApiController]
-    [Route("ServiceType")]
-    public class ServiceTypeController : ControllerBase
+    private readonly ProjectContext context;
+
+    public ServiceTypeController(ProjectContext context)
     {
-        private ProjectContext context;
+        this.context = context;
+    }
 
-        public ServiceTypeController(ProjectContext context)
+    // 1. POST - Create a new service type
+    [HttpPost]
+    public IActionResult CreateServiceType(ServiceTypeModel serviceType)
+    {
+        context.ServiceTypes.Add(serviceType);
+        context.SaveChanges();
+
+        return CreatedAtAction(
+            nameof(GetServiceType),
+            new { id = serviceType.ServiceTypeId },
+            serviceType
+        );
+    }
+
+    // 2. PUT - Update service type details
+    [HttpPut("{id}")]
+    public IActionResult UpdateServiceType(int id, ServiceTypeModel serviceType)
+    {
+        var existingServiceType = context.ServiceTypes.Find(id);
+
+        if (existingServiceType == null)
+            return NotFound();
+
+        existingServiceType.Name = serviceType.Name;
+        existingServiceType.Description = serviceType.Description;
+        existingServiceType.BasePrice = serviceType.BasePrice;
+        existingServiceType.EstimatedDurationMinutes = serviceType.EstimatedDurationMinutes;
+
+        context.SaveChanges();
+
+        return NoContent();
+    }
+
+    // 3. PATCH - Activate/deactivate a service type
+    [HttpPatch("{id}/status")]
+    public IActionResult SetServiceTypeStatus(int id, bool isActive)
+    {
+        var serviceType = context.ServiceTypes.Find(id);
+
+        if (serviceType == null)
+            return NotFound();
+
+        serviceType.IsActive = isActive;
+        context.SaveChanges();
+
+        return Ok(serviceType);
+    }
+
+    // 4. DELETE - Delete a service type (or soft-delete if it's still referenced)
+    [HttpDelete("{id}")]
+    public IActionResult DeleteServiceType(int id)
+    {
+        var serviceType = context.ServiceTypes.Find(id);
+
+        if (serviceType == null)
+            return NotFound();
+
+        var isReferenced = context.ServiceOrderItems.Any(i => i.ServiceTypeId == id);
+
+        if (isReferenced)
         {
-            context = context;
-        }
-
-        // Register a new service type
-        [HttpPost("RegisterServiceType")]
-        public IActionResult RegisterServiceType(ServiceTypeModel serviceType)
-        {
-            // Check whether the service type name already exists
-            ServiceTypeModel existingType = context.ServiceTypes
-                .FirstOrDefault(s => s.Name == serviceType.Name);
-
-            if (existingType != null)
-            {
-                return BadRequest("Service type name is already registered");
-            }
-
-            serviceType.IsActive = true;
-
-            context.ServiceTypes.Add(serviceType);
+            serviceType.IsActive = false;
             context.SaveChanges();
-
-            return Ok(new
-            {
-                Message = "Service type registered successfully",
-                ServiceTypeId = serviceType.ServiceTypeId
-            });
+            return Ok("Service type is referenced by existing orders, so it was deactivated instead of deleted.");
         }
 
-        // Get all service types
-        [HttpGet("GetAll")]
-        public IActionResult GetAllServiceTypes()
-        {
-            var serviceTypes = context.ServiceTypes.ToList();
-            return Ok(serviceTypes);
-        }
+        context.ServiceTypes.Remove(serviceType);
+        context.SaveChanges();
 
-        // Get service type by ID
-        [HttpGet("GetById/{id}")]
-        public IActionResult GetServiceTypeById(int id)
-        {
-            var serviceType = context.ServiceTypes.Find(id);
-            if (serviceType == null)
+        return NoContent();
+    }
+
+    // 5. GET - Get all service types with ServiceOrderItems
+    [HttpGet]
+    public IActionResult GetServiceTypes()
+    {
+        var serviceTypes = context.ServiceTypes
+            .Include(s => s.ServiceOrderItems)
+            .ToList();
+
+        return Ok(serviceTypes);
+    }
+
+    // 6. GET - Get service type by ID
+    [HttpGet("{id}")]
+    public IActionResult GetServiceType(int id)
+    {
+        var serviceType = context.ServiceTypes
+            .Include(s => s.ServiceOrderItems)
+            .FirstOrDefault(s => s.ServiceTypeId == id);
+
+        if (serviceType == null)
+            return NotFound();
+
+        return Ok(serviceType);
+    }
+
+    // 7. GET - Filter service types by active status
+    [HttpGet("filter")]
+    public IActionResult GetActiveServiceTypes(bool isActive)
+    {
+        var serviceTypes = context.ServiceTypes
+            .Where(s => s.IsActive == isActive)
+            .ToList();
+
+        return Ok(serviceTypes);
+    }
+
+    // 8. GET - Revenue per service type (aggregate)
+    [HttpGet("revenue")]
+    public IActionResult GetRevenueByServiceType()
+    {
+        var summary = context.ServiceTypes
+            .Select(s => new
             {
-                return NotFound("Service type not found");
-            }
-            return Ok(serviceType);
-        }
+                s.ServiceTypeId,
+                s.Name,
+                TotalRevenue = s.ServiceOrderItems.Sum(i => (decimal?)(i.UnitPrice * i.Quantity)) ?? 0m
+            })
+            .OrderByDescending(s => s.TotalRevenue)
+            .ToList();
 
-        // Update service type by ID
-        [HttpPut("Update/{id}")]
-        public IActionResult UpdateServiceType(int id, ServiceTypeModel updatedServiceType)
-        {
-            var serviceType = context.ServiceTypes.Find(id);
-            if (serviceType == null)
-            {
-                return NotFound("Service type not found");
-            }
-
-            // Prevent duplicate name when it's being changed
-            if (serviceType.Name != updatedServiceType.Name)
-            {
-                bool nameTaken = context.ServiceTypes
-                    .Any(s => s.Name == updatedServiceType.Name && s.ServiceTypeId != id);
-
-                if (nameTaken)
-                {
-                    return BadRequest("Service type name is already registered");
-                }
-            }
-
-            serviceType.Name = updatedServiceType.Name;
-            serviceType.Description = updatedServiceType.Description;
-            serviceType.BasePrice = updatedServiceType.BasePrice;
-            serviceType.EstimatedDurationMinutes = updatedServiceType.EstimatedDurationMinutes;
-
-            context.SaveChanges();
-
-            return Ok(new
-            {
-                Message = "Service type updated successfully",
-                ServiceTypeId = serviceType.ServiceTypeId
-            });
-        }
-
-        // Change active status by ID
-        [HttpPatch("ChangeStatus/{id}")]
-        public IActionResult ChangeServiceTypeStatus(int id, bool isActive)
-        {
-            var serviceType = context.ServiceTypes.Find(id);
-            if (serviceType == null)
-            {
-                return NotFound("Service type not found");
-            }
-
-            serviceType.IsActive = isActive;
-            context.SaveChanges();
-
-            return Ok(new
-            {
-                Message = "Service type status changed successfully",
-                ServiceTypeId = serviceType.ServiceTypeId,
-                IsActive = serviceType.IsActive
-            });
-        }
-
-        // Delete service type by ID
-        [HttpDelete("Delete/{id}")]
-        public IActionResult DeleteServiceType(int id)
-        {
-            var serviceType = context.ServiceTypes.Find(id);
-            if (serviceType == null)
-            {
-                return NotFound("Service type not found");
-            }
-
-            context.ServiceTypes.Remove(serviceType);
-            context.SaveChanges();
-
-            return Ok(new
-            {
-                Message = "Service type deleted successfully",
-                ServiceTypeId = serviceType.ServiceTypeId
-            });
-        }
+        return Ok(summary);
     }
 }
