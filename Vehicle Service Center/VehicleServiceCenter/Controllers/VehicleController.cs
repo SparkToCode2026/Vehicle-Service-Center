@@ -109,25 +109,26 @@ namespace VehicleServiceCenter.Controllers
         }
 
         // Remove a vehicle
-        /* Vehicle is the "parent" of ServiceOrder — a parent with existing children cannot be deleted, so we block it explicitly instead
-        of relying on (or crashing from) an FK constraint at the DB layer. */
-        [HttpDelete("{id:int}")]
-        public async Task<IActionResult> DeleteVehicle(int id)
+        [HttpDelete("Delete/{id}")]
+        public IActionResult DeleteVehicle(int id)
         {
-            var vehicle = await _context.Vehicles.FindAsync(id);
-            if (vehicle == null) return NotFound();
+            var vehicle = context.Vehicles.Find(id);
+            if (vehicle == null)
+            {
+                return NotFound("Vehicle not found");
+            }
 
-            var hasServiceOrders = await _context.ServiceOrders.AnyAsync(so => so.VehicleId == id);
-            if (hasServiceOrders)
-                return Conflict("Cannot delete this vehicle: it has existing service orders. Remove or reassign those first.");
+            context.Vehicles.Remove(vehicle);
+            context.SaveChanges();
 
-            _context.Vehicles.Remove(vehicle);
-            await _context.SaveChangesAsync();
-            return NoContent();
-        }
+            return Ok(new
+            {
+                Message = "Vehicle deleted successfully",
+                VehicleId = vehicle.VehicleId
+            });
 
-        // Get all vehicles
-        [HttpGet("GetAll")]
+            // Get all vehicles
+            [HttpGet("GetAll")]
         public IActionResult GetAllVehicles()
         {
             var vehicles = context.Vehicles.ToList();
@@ -210,23 +211,7 @@ namespace VehicleServiceCenter.Controllers
         }
 
         // Delete vehicle by ID
-        [HttpDelete("Delete/{id}")]
-        public IActionResult DeleteVehicle(int id)
-        {
-            var vehicle = context.Vehicles.Find(id);
-            if (vehicle == null)
-            {
-                return NotFound("Vehicle not found");
-            }
-
-            context.Vehicles.Remove(vehicle);
-            context.SaveChanges();
-
-            return Ok(new
-            {
-                Message = "Vehicle deleted successfully",
-                VehicleId = vehicle.VehicleId
-            });
+        
         }
     }
 }
