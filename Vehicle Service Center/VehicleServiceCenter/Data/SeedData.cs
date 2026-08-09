@@ -234,6 +234,50 @@ public static class SeedData
             }
         );
         
+        // Service Types
+
+        modelBuilder.Entity<ServiceTypeModel>().HasData(
+            new ServiceTypeModel
+            {
+                ServiceTypeId = 1,
+                Name = "Oil Change",
+                Description = "Engine oil and oil filter replacement",
+                BasePrice = 25.00m,
+                EstimatedDurationMinutes = 45,
+                IsActive = true
+            },
+
+            new ServiceTypeModel
+            {
+                ServiceTypeId = 2,
+                Name = "Brake Inspection",
+                Description = "Complete brake system inspection",
+                BasePrice = 30.00m,
+                EstimatedDurationMinutes = 60,
+                IsActive = true
+            },
+
+            new ServiceTypeModel
+            {
+                ServiceTypeId = 3,
+                Name = "Engine Diagnostic",
+                Description = "Computerized engine diagnostic service",
+                BasePrice = 40.00m,
+                EstimatedDurationMinutes = 60,
+                IsActive = true
+            },
+
+            new ServiceTypeModel
+            {
+                ServiceTypeId = 4,
+                Name = "Battery Replacement",
+                Description = "Vehicle battery inspection and replacement",
+                BasePrice = 15.00m,
+                EstimatedDurationMinutes = 30,
+                IsActive = true
+            }
+        );
+        
         
         
     }
