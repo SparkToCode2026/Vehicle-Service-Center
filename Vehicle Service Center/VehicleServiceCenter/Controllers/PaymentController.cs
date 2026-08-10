@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using VehicleServiceCenter.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace VehicleServiceCenter.Controllers
 {
@@ -11,7 +12,7 @@ namespace VehicleServiceCenter.Controllers
 
         public PaymentController(ProjectContext context)
         {
-            context = context;
+            this.context = context;
         }
 
         // Add payment
@@ -68,6 +69,7 @@ namespace VehicleServiceCenter.Controllers
         public IActionResult GetAllPayments()
         {
             var payments = context.Payments
+                .Include(p => p.Invoice)
                 .Select(p => new
                 {
                     p.PaymentId,
@@ -77,7 +79,10 @@ namespace VehicleServiceCenter.Controllers
                     p.PaymentMethod,
                     p.TransactionReference,
                     p.Status,
-                    p.Notes
+                    p.Notes,
+                    InvoiceNumber = p.Invoice != null
+                        ? p.Invoice.InvoiceNumber
+                        : null
                 })
                 .ToList();
 
@@ -177,6 +182,109 @@ namespace VehicleServiceCenter.Controllers
             {
                 Message = "Payment updated successfully",
                 PaymentId = payment.PaymentId
+            });
+        }
+        
+        // Filter
+        [HttpGet("Filter")]
+        public IActionResult FilterPayments(
+            string? status,
+            string? paymentMethod,
+            DateTime? fromDate,
+            DateTime? toDate
+        )
+        {
+            if (string.IsNullOrWhiteSpace(status) &&
+                string.IsNullOrWhiteSpace(paymentMethod) &&
+                !fromDate.HasValue &&
+                !toDate.HasValue)
+            {
+                return BadRequest(
+                    "Provide a status, payment method, or date range"
+                );
+            }
+
+            IQueryable<PaymentModel> query = context.Payments;
+
+            if (!string.IsNullOrWhiteSpace(status))
+            {
+                query = query.Where(p => p.Status == status);
+            }
+
+            if (!string.IsNullOrWhiteSpace(paymentMethod))
+            {
+                query = query.Where(p => p.PaymentMethod == paymentMethod);
+            }
+
+            if (fromDate.HasValue)
+            {
+                query = query.Where(p => p.PaymentDate >= fromDate.Value);
+            }
+
+            if (toDate.HasValue)
+            {
+                query = query.Where(p => p.PaymentDate <= toDate.Value);
+            }
+
+            var payments = query
+                .Select(p => new
+                {
+                    p.PaymentId,
+                    p.InvoiceId,
+                    p.Amount,
+                    p.PaymentDate,
+                    p.PaymentMethod,
+                    p.Status
+                })
+                .ToList();
+
+            return Ok(payments);
+        }
+        
+        // Sort by date 
+        [HttpGet("SortByDate")]
+        public IActionResult SortPaymentsByDate(bool descending = true)
+        {
+            IQueryable<PaymentModel> query = context.Payments;
+
+            query = descending
+                ? query.OrderByDescending(p => p.PaymentDate)
+                : query.OrderBy(p => p.PaymentDate);
+
+            var payments = query
+                .Select(p => new
+                {
+                    p.PaymentId,
+                    p.InvoiceId,
+                    p.Amount,
+                    p.PaymentDate,
+                    p.Status
+                })
+                .ToList();
+
+            return Ok(payments);
+        }
+        
+        // Get by invoiceID
+        [HttpGet("GetTotalByInvoice/{invoiceId}")]
+        public IActionResult GetTotalPaidForInvoice(int invoiceId)
+        {
+            bool invoiceExists = context.Invoices
+                .Any(i => i.InvoiceId == invoiceId);
+
+            if (!invoiceExists)
+            {
+                return NotFound("Invoice not found");
+            }
+
+            decimal totalPaid = context.Payments
+                .Where(p => p.InvoiceId == invoiceId)
+                .Sum(p => (decimal?)p.Amount) ?? 0;
+
+            return Ok(new
+            {
+                InvoiceId = invoiceId,
+                TotalPaid = totalPaid
             });
         }
 
