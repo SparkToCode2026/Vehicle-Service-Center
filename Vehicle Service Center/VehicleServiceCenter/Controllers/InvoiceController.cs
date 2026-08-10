@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using VehicleServiceCenter.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace VehicleServiceCenter.Controllers
 {
@@ -11,7 +12,7 @@ namespace VehicleServiceCenter.Controllers
 
         public InvoiceController(ProjectContext context)
         {
-            context = context;
+            this.context = context;
         }
 
         // Add invoice
@@ -30,6 +31,22 @@ namespace VehicleServiceCenter.Controllers
                     "Service order does not exist"
                 );
             }
+            
+            // Check whether this service order already has an invoice
+            // (ServiceOrderId has a unique index, so this prevents a raw DB exception)
+            InvoiceModel existingInvoiceForOrder =
+                context.Invoices.FirstOrDefault(i =>
+                    i.ServiceOrderId == invoice.ServiceOrderId
+                );
+ 
+            if (existingInvoiceForOrder != null)
+            {
+                return BadRequest(
+                    "This service order already has an invoice"
+                );
+            }
+            
+            
             // Check whether invoice number already exists
             InvoiceModel existingInvoice =
                 context.Invoices.FirstOrDefault(i =>
@@ -93,6 +110,7 @@ namespace VehicleServiceCenter.Controllers
         public IActionResult GetAllInvoices()
         {
             var invoices = context.Invoices
+                .Include(i => i.ServiceOrder)
                 .Select(i => new
                 {
                     i.InvoiceId,
@@ -105,7 +123,10 @@ namespace VehicleServiceCenter.Controllers
                     i.DiscountAmount,
                     i.TotalAmount,
                     i.Status,
-                    i.Notes
+                    i.Notes,
+                    ServiceOrderStatus = i.ServiceOrder != null
+                        ? i.ServiceOrder.Status
+                        : null
                 })
                 .ToList();
 
@@ -175,6 +196,97 @@ namespace VehicleServiceCenter.Controllers
 
             return Ok(invoice);
         }
+        
+        // Filter invoices by status and/or issue date range
+        [HttpGet("Filter")]
+        public IActionResult FilterInvoices(
+            string? status,
+            DateTime? fromDate,
+            DateTime? toDate
+        )
+        {
+            if (string.IsNullOrWhiteSpace(status) &&
+                !fromDate.HasValue &&
+                !toDate.HasValue)
+            {
+                return BadRequest(
+                    "Provide a status or a date range"
+                );
+            }
+ 
+            IQueryable<InvoiceModel> query = context.Invoices;
+ 
+            if (!string.IsNullOrWhiteSpace(status))
+            {
+                query = query.Where(i => i.Status == status);
+            }
+ 
+            if (fromDate.HasValue)
+            {
+                query = query.Where(i => i.IssueDate >= fromDate.Value);
+            }
+ 
+            if (toDate.HasValue)
+            {
+                query = query.Where(i => i.IssueDate <= toDate.Value);
+            }
+ 
+            var invoices = query
+                .Select(i => new
+                {
+                    i.InvoiceId,
+                    i.InvoiceNumber,
+                    i.IssueDate,
+                    i.TotalAmount,
+                    i.Status
+                })
+                .ToList();
+ 
+            return Ok(invoices);
+        }
+        
+        // Sort invoices by total amount
+        [HttpGet("SortByTotalAmount")]
+        public IActionResult SortInvoicesByTotalAmount(
+            bool descending = true
+        )
+        {
+            IQueryable<InvoiceModel> query = context.Invoices;
+ 
+            query = descending
+                ? query.OrderByDescending(i => i.TotalAmount)
+                : query.OrderBy(i => i.TotalAmount);
+ 
+            var invoices = query
+                .Select(i => new
+                {
+                    i.InvoiceId,
+                    i.InvoiceNumber,
+                    i.TotalAmount,
+                    i.Status
+                })
+                .ToList();
+ 
+            return Ok(invoices);
+        }
+        
+        // Revenue summary grouped by status
+        [HttpGet("RevenueSummary")]
+        public IActionResult GetRevenueSummary()
+        {
+            var summary = context.Invoices
+                .GroupBy(i => i.Status)
+                .Select(g => new
+                {
+                    Status = g.Key,
+                    Count = g.Count(),
+                    TotalAmount = g.Sum(i => i.TotalAmount)
+                })
+                .ToList();
+ 
+            return Ok(summary);
+        }
+        
         // Update invoice by ID
         [HttpPut("Update/{id}")]
         public IActionResult UpdateInvoice(
@@ -200,6 +312,20 @@ namespace VehicleServiceCenter.Controllers
             {
                 return BadRequest(
                     "Service order does not exist"
+                );
+            }
+            
+            InvoiceModel existingInvoiceForOrder =
+                context.Invoices.FirstOrDefault(i =>
+                    i.ServiceOrderId ==
+                    updatedInvoice.ServiceOrderId &&
+                    i.InvoiceId != id
+                );
+ 
+            if (existingInvoiceForOrder != null)
+            {
+                return BadRequest(
+                    "This service order already has an invoice"
                 );
             }
 
