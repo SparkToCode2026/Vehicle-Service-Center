@@ -184,6 +184,62 @@ namespace VehicleServiceCenter.Controllers
                 PaymentId = payment.PaymentId
             });
         }
+        
+        // Filter
+        [HttpGet("Filter")]
+        public IActionResult FilterPayments(
+            string? status,
+            string? paymentMethod,
+            DateTime? fromDate,
+            DateTime? toDate
+        )
+        {
+            if (string.IsNullOrWhiteSpace(status) &&
+                string.IsNullOrWhiteSpace(paymentMethod) &&
+                !fromDate.HasValue &&
+                !toDate.HasValue)
+            {
+                return BadRequest(
+                    "Provide a status, payment method, or date range"
+                );
+            }
+
+            IQueryable<PaymentModel> query = context.Payments;
+
+            if (!string.IsNullOrWhiteSpace(status))
+            {
+                query = query.Where(p => p.Status == status);
+            }
+
+            if (!string.IsNullOrWhiteSpace(paymentMethod))
+            {
+                query = query.Where(p => p.PaymentMethod == paymentMethod);
+            }
+
+            if (fromDate.HasValue)
+            {
+                query = query.Where(p => p.PaymentDate >= fromDate.Value);
+            }
+
+            if (toDate.HasValue)
+            {
+                query = query.Where(p => p.PaymentDate <= toDate.Value);
+            }
+
+            var payments = query
+                .Select(p => new
+                {
+                    p.PaymentId,
+                    p.InvoiceId,
+                    p.Amount,
+                    p.PaymentDate,
+                    p.PaymentMethod,
+                    p.Status
+                })
+                .ToList();
+
+            return Ok(payments);
+        }
 
         // Change payment status
         [HttpPatch("ChangeStatus/{id}")]
