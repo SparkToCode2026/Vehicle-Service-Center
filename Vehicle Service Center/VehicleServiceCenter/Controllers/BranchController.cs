@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VehicleServiceCenter.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace VehicleServiceCenter.Controllers;
 [Authorize]
@@ -64,6 +65,8 @@ public class BranchController : ControllerBase
         });
     }
     
+    
+    
     // Get all branches
     [HttpGet("GetAll")]
     public IActionResult GetAllBranches()
@@ -79,6 +82,25 @@ public class BranchController : ControllerBase
                 b.OpeningTime,
                 b.ClosingTime,
                 b.IsActive
+            })
+            .ToList();
+
+        return Ok(branches);
+    }
+    
+    // Get with Mechanics 
+    [HttpGet("GetAllWithMechanics")]
+    public IActionResult GetAllBranchesWithMechanics()
+    {
+        var branches = context.Branches
+            .Include(b => b.MechanicProfiles)
+            .Select(b => new
+            {
+                b.BranchId,
+                b.BranchName,
+                b.Address,
+                b.IsActive,
+                MechanicCount = b.MechanicProfiles.Count
             })
             .ToList();
 
