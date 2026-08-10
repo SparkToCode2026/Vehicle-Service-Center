@@ -110,6 +110,7 @@ namespace VehicleServiceCenter.Controllers
         public IActionResult GetAllInvoices()
         {
             var invoices = context.Invoices
+                .Include(i => i.ServiceOrder)
                 .Select(i => new
                 {
                     i.InvoiceId,
@@ -122,7 +123,10 @@ namespace VehicleServiceCenter.Controllers
                     i.DiscountAmount,
                     i.TotalAmount,
                     i.Status,
-                    i.Notes
+                    i.Notes,
+                    ServiceOrderStatus = i.ServiceOrder != null
+                        ? i.ServiceOrder.Status
+                        : null
                 })
                 .ToList();
 
