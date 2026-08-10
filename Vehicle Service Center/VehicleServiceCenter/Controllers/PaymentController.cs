@@ -240,6 +240,30 @@ namespace VehicleServiceCenter.Controllers
 
             return Ok(payments);
         }
+        
+        // Sort by date 
+        [HttpGet("SortByDate")]
+        public IActionResult SortPaymentsByDate(bool descending = true)
+        {
+            IQueryable<PaymentModel> query = context.Payments;
+
+            query = descending
+                ? query.OrderByDescending(p => p.PaymentDate)
+                : query.OrderBy(p => p.PaymentDate);
+
+            var payments = query
+                .Select(p => new
+                {
+                    p.PaymentId,
+                    p.InvoiceId,
+                    p.Amount,
+                    p.PaymentDate,
+                    p.Status
+                })
+                .ToList();
+
+            return Ok(payments);
+        }
 
         // Change payment status
         [HttpPatch("ChangeStatus/{id}")]
