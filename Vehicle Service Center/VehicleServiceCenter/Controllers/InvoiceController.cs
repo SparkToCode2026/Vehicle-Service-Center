@@ -241,6 +241,31 @@ namespace VehicleServiceCenter.Controllers
             return Ok(invoices);
         }
         
+        // Sort invoices by total amount
+        [HttpGet("SortByTotalAmount")]
+        public IActionResult SortInvoicesByTotalAmount(
+            bool descending = true
+        )
+        {
+            IQueryable<InvoiceModel> query = context.Invoices;
+ 
+            query = descending
+                ? query.OrderByDescending(i => i.TotalAmount)
+                : query.OrderBy(i => i.TotalAmount);
+ 
+            var invoices = query
+                .Select(i => new
+                {
+                    i.InvoiceId,
+                    i.InvoiceNumber,
+                    i.TotalAmount,
+                    i.Status
+                })
+                .ToList();
+ 
+            return Ok(invoices);
+        }
+        
         // Update invoice by ID
         [HttpPut("Update/{id}")]
         public IActionResult UpdateInvoice(
