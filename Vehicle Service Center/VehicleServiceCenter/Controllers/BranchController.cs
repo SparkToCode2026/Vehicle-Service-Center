@@ -129,6 +129,22 @@ public class BranchController : ControllerBase
         return Ok(branches);
     }
     
+    // Count By status 
+    [HttpGet("CountByStatus")]
+    public IActionResult GetBranchCountByStatus()
+    {
+        var summary = context.Branches
+            .GroupBy(b => b.IsActive)
+            .Select(g => new
+            {
+                IsActive = g.Key,
+                Count = g.Count()
+            })
+            .ToList();
+
+        return Ok(summary);
+    }
+    
     // Get all active branches
     [HttpGet("GetActive")]
     public IActionResult GetActiveBranches()
