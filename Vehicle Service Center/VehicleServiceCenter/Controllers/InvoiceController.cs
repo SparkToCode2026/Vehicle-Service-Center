@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using VehicleServiceCenter.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace VehicleServiceCenter.Controllers
 {
@@ -11,7 +12,7 @@ namespace VehicleServiceCenter.Controllers
 
         public InvoiceController(ProjectContext context)
         {
-            context = context;
+            this.context = context;
         }
 
         // Add invoice
