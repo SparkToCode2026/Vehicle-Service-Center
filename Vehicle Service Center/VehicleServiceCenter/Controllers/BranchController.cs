@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VehicleServiceCenter.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace VehicleServiceCenter.Controllers;
 [Authorize]
@@ -64,6 +65,8 @@ public class BranchController : ControllerBase
         });
     }
     
+    
+    
     // Get all branches
     [HttpGet("GetAll")]
     public IActionResult GetAllBranches()
@@ -83,6 +86,63 @@ public class BranchController : ControllerBase
             .ToList();
 
         return Ok(branches);
+    }
+    
+    // Get with Mechanics 
+    [HttpGet("GetAllWithMechanics")]
+    public IActionResult GetAllBranchesWithMechanics()
+    {
+        var branches = context.Branches
+            .Include(b => b.MechanicProfiles)
+            .Select(b => new
+            {
+                b.BranchId,
+                b.BranchName,
+                b.Address,
+                b.IsActive,
+                MechanicCount = b.MechanicProfiles.Count
+            })
+            .ToList();
+
+        return Ok(branches);
+    }
+    
+    // Sort By name
+    [HttpGet("SortByName")]
+    public IActionResult SortBranchesByName(bool descending = false)
+    {
+        IQueryable<BranchModel> query = context.Branches;
+
+        query = descending
+            ? query.OrderByDescending(b => b.BranchName)
+            : query.OrderBy(b => b.BranchName);
+
+        var branches = query
+            .Select(b => new
+            {
+                b.BranchId,
+                b.BranchName,
+                b.IsActive
+            })
+            .ToList();
+
+        return Ok(branches);
+    }
+    
+    // Count By status 
+    [HttpGet("CountByStatus")]
+    public IActionResult GetBranchCountByStatus()
+    {
+        var summary = context.Branches
+            .GroupBy(b => b.IsActive)
+            .Select(g => new
+            {
+                IsActive = g.Key,
+                Count = g.Count()
+            })
+            .ToList();
+
+        return Ok(summary);
     }
     
     // Get all active branches
