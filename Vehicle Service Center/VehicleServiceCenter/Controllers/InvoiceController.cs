@@ -266,6 +266,23 @@ namespace VehicleServiceCenter.Controllers
             return Ok(invoices);
         }
         
+        // Revenue summary grouped by status
+        [HttpGet("RevenueSummary")]
+        public IActionResult GetRevenueSummary()
+        {
+            var summary = context.Invoices
+                .GroupBy(i => i.Status)
+                .Select(g => new
+                {
+                    Status = g.Key,
+                    Count = g.Count(),
+                    TotalAmount = g.Sum(i => i.TotalAmount)
+                })
+                .ToList();
+ 
+            return Ok(summary);
+        }
+        
         // Update invoice by ID
         [HttpPut("Update/{id}")]
         public IActionResult UpdateInvoice(
