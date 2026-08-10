@@ -192,6 +192,55 @@ namespace VehicleServiceCenter.Controllers
 
             return Ok(invoice);
         }
+        
+        // Filter invoices by status and/or issue date range
+        [HttpGet("Filter")]
+        public IActionResult FilterInvoices(
+            string? status,
+            DateTime? fromDate,
+            DateTime? toDate
+        )
+        {
+            if (string.IsNullOrWhiteSpace(status) &&
+                !fromDate.HasValue &&
+                !toDate.HasValue)
+            {
+                return BadRequest(
+                    "Provide a status or a date range"
+                );
+            }
+ 
+            IQueryable<InvoiceModel> query = context.Invoices;
+ 
+            if (!string.IsNullOrWhiteSpace(status))
+            {
+                query = query.Where(i => i.Status == status);
+            }
+ 
+            if (fromDate.HasValue)
+            {
+                query = query.Where(i => i.IssueDate >= fromDate.Value);
+            }
+ 
+            if (toDate.HasValue)
+            {
+                query = query.Where(i => i.IssueDate <= toDate.Value);
+            }
+ 
+            var invoices = query
+                .Select(i => new
+                {
+                    i.InvoiceId,
+                    i.InvoiceNumber,
+                    i.IssueDate,
+                    i.TotalAmount,
+                    i.Status
+                })
+                .ToList();
+ 
+            return Ok(invoices);
+        }
+        
         // Update invoice by ID
         [HttpPut("Update/{id}")]
         public IActionResult UpdateInvoice(
