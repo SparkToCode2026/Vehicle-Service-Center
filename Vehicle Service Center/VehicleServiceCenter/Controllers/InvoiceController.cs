@@ -310,6 +310,20 @@ namespace VehicleServiceCenter.Controllers
                     "Service order does not exist"
                 );
             }
+            
+            InvoiceModel existingInvoiceForOrder =
+                context.Invoices.FirstOrDefault(i =>
+                    i.ServiceOrderId ==
+                    updatedInvoice.ServiceOrderId &&
+                    i.InvoiceId != id
+                );
+ 
+            if (existingInvoiceForOrder != null)
+            {
+                return BadRequest(
+                    "This service order already has an invoice"
+                );
+            }
 
             InvoiceModel existingInvoice =
                 context.Invoices.FirstOrDefault(i =>
