@@ -107,6 +107,28 @@ public class BranchController : ControllerBase
         return Ok(branches);
     }
     
+    // Sort By name
+    [HttpGet("SortByName")]
+    public IActionResult SortBranchesByName(bool descending = false)
+    {
+        IQueryable<BranchModel> query = context.Branches;
+
+        query = descending
+            ? query.OrderByDescending(b => b.BranchName)
+            : query.OrderBy(b => b.BranchName);
+
+        var branches = query
+            .Select(b => new
+            {
+                b.BranchId,
+                b.BranchName,
+                b.IsActive
+            })
+            .ToList();
+
+        return Ok(branches);
+    }
+    
     // Get all active branches
     [HttpGet("GetActive")]
     public IActionResult GetActiveBranches()
