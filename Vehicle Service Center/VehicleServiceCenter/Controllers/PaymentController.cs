@@ -69,6 +69,7 @@ namespace VehicleServiceCenter.Controllers
         public IActionResult GetAllPayments()
         {
             var payments = context.Payments
+                .Include(p => p.Invoice)
                 .Select(p => new
                 {
                     p.PaymentId,
@@ -78,7 +79,10 @@ namespace VehicleServiceCenter.Controllers
                     p.PaymentMethod,
                     p.TransactionReference,
                     p.Status,
-                    p.Notes
+                    p.Notes,
+                    InvoiceNumber = p.Invoice != null
+                        ? p.Invoice.InvoiceNumber
+                        : null
                 })
                 .ToList();
 
