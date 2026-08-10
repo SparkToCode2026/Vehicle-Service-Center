@@ -31,6 +31,22 @@ namespace VehicleServiceCenter.Controllers
                     "Service order does not exist"
                 );
             }
+            
+            // Check whether this service order already has an invoice
+            // (ServiceOrderId has a unique index, so this prevents a raw DB exception)
+            InvoiceModel existingInvoiceForOrder =
+                context.Invoices.FirstOrDefault(i =>
+                    i.ServiceOrderId == invoice.ServiceOrderId
+                );
+ 
+            if (existingInvoiceForOrder != null)
+            {
+                return BadRequest(
+                    "This service order already has an invoice"
+                );
+            }
+            
+            
             // Check whether invoice number already exists
             InvoiceModel existingInvoice =
                 context.Invoices.FirstOrDefault(i =>
