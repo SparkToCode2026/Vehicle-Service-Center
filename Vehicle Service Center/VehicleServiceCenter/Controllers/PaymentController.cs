@@ -264,6 +264,29 @@ namespace VehicleServiceCenter.Controllers
 
             return Ok(payments);
         }
+        
+        // Get by invoiceID
+        [HttpGet("GetTotalByInvoice/{invoiceId}")]
+        public IActionResult GetTotalPaidForInvoice(int invoiceId)
+        {
+            bool invoiceExists = context.Invoices
+                .Any(i => i.InvoiceId == invoiceId);
+
+            if (!invoiceExists)
+            {
+                return NotFound("Invoice not found");
+            }
+
+            decimal totalPaid = context.Payments
+                .Where(p => p.InvoiceId == invoiceId)
+                .Sum(p => (decimal?)p.Amount) ?? 0;
+
+            return Ok(new
+            {
+                InvoiceId = invoiceId,
+                TotalPaid = totalPaid
+            });
+        }
 
         // Change payment status
         [HttpPatch("ChangeStatus/{id}")]
