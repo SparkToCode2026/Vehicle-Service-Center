@@ -4,15 +4,17 @@ import Sidebar from "./Sidebar";
 
 function AppLayout() {
   return (
-    <div className="app-layout">
-      <Sidebar />
+    <div className="container-fluid min-vh-100 bg-light">
+      <div className="row min-vh-100">
+        <Sidebar />
 
-      <div className="app-content">
-        <Navbar />
+        <div className="col p-0 d-flex flex-column">
+          <Navbar />
 
-        <main className="page-content">
-          <Outlet />
-        </main>
+          <main className="flex-grow-1 p-4">
+            <Outlet />
+          </main>
+        </div>
       </div>
     </div>
   );

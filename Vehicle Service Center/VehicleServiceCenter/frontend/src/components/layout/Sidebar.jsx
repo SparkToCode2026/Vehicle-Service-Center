@@ -25,17 +25,17 @@ function Sidebar() {
   const navigationLinks = navigationByRole[user?.role] || [];
 
   return (
-    <aside className="sidebar">
-      <h1>Vehicle Service Center</h1>
+    <aside className="col-auto col-md-3 col-xl-2 bg-dark text-white p-3">
+      <h1 className="fs-5 mb-4">Vehicle Service Center</h1>
 
       <nav aria-label="Main navigation">
-        <ul>
+        <ul className="nav nav-pills flex-column gap-2">
           {navigationLinks.map((link) => (
-            <li key={link.path}>
+            <li className="nav-item" key={link.path}>
               <NavLink
                 to={link.path}
                 className={({ isActive }) =>
-                  isActive ? "active" : undefined
+                  `nav-link ${isActive ? "active" : "text-white"}`
                 }
               >
                 {link.label}

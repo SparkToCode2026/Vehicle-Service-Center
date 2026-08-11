@@ -11,13 +11,19 @@ function Navbar() {
   }
 
   return (
-    <header className="navbar">
+    <header className="navbar bg-white border-bottom px-4 py-3">
       <div>
-        <p>Welcome, {user?.userName}</p>
-        <small>{user?.role}</small>
+        <span className="me-2">Welcome, {user?.userName}</span>
+        <span className="badge text-bg-secondary">
+          {user?.role}
+        </span>
       </div>
 
-      <button type="button" onClick={handleLogout}>
+      <button
+        type="button"
+        className="btn btn-outline-danger btn-sm"
+        onClick={handleLogout}
+      >
         Logout
       </button>
     </header>
