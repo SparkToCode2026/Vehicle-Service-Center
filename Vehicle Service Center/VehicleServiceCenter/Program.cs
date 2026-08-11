@@ -120,6 +120,17 @@ namespace VehicleServiceCenter
                 };
             });
 
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("Frontend", policy =>
+                {
+                    policy
+                        .WithOrigins("http://localhost:5173")
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                });
+            });
+
             builder.Services.AddAuthorization();
             builder.Services.AddScoped<JwtTokenService>();
             builder.Services.AddScoped<IEmailService, EmailService>();
@@ -135,6 +146,8 @@ namespace VehicleServiceCenter
             }
 
             app.UseHttpsRedirection();
+
+            app.UseCors("Frontend");
 
             app.UseAuthentication();
             app.UseAuthorization();
