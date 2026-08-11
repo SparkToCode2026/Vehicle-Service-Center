@@ -17,3 +17,7 @@ export function filterServiceOrders(filters) {
 export function getServiceOrderSummary() {
   return api.get("/api/ServiceOrder/summary");
 }
+
+export function deleteServiceOrder(serviceOrderId) {
+  return api.delete(`/api/ServiceOrder/${serviceOrderId}`);
+}
