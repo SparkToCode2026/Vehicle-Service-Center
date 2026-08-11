@@ -6,14 +6,8 @@ const navigationByRole = {
     { label: "Dashboard", path: "/admin" },
     { label: "Service Orders", path: "/service-orders" },
     { label: "Spare Parts", path: "/spare-parts" },
-    { label: "Invoices", path: "/invoices" },
-    { label: "Payments", path: "/payments" },
   ],
-  Customer: [
-    { label: "Service Orders", path: "/service-orders" },
-    { label: "Invoices", path: "/invoices" },
-    { label: "Payments", path: "/payments" },
-  ],
+  Customer: [{ label: "Service Orders", path: "/service-orders" }],
   Mechanic: [
     { label: "Service Orders", path: "/service-orders" },
     { label: "Spare Parts", path: "/spare-parts" },
