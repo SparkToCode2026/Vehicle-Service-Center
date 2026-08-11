@@ -1,5 +1,3 @@
-<<<<<<< Updated upstream
-=======
 import { useState } from "react";
 import { Link, Navigate } from "react-router";
 import { useAuth } from "../context/AuthContext";
@@ -205,4 +203,4 @@ function Register() {
 }
 
 export default Register;
->>>>>>> Stashed changes
+
