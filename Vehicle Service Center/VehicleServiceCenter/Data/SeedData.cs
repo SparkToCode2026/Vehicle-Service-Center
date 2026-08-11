@@ -35,6 +35,18 @@ public static class SeedData
                 PhoneNumber = "99999900",
                 IsActive = true,
                 CreatedAt = new DateTime(2026, 1, 2)
+            },
+
+            // Default development Admin
+            new UserModel
+            {
+                UserId = 300001,
+                UserName = "Admin",
+                Password = "$2a$11$dYf86bU3YfogdeiSjQy93eNG/ytmFJtHfDgNuSpP8mOMIzmenlq.K",
+                Email = "admin@gmail.com",
+                Role = "Admin",
+                IsActive = true,
+                CreatedAt = new DateTime(2026, 8, 11)
             }
         );
         //     // Customer 1 
