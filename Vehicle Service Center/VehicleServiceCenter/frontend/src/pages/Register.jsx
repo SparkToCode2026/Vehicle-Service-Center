@@ -86,6 +86,10 @@ function Register() {
                 </p>
               </div>
 
+              <div className="alert alert-info" role="alert">
+                Public registration creates Customer accounts only.
+              </div>
+
               {error && (
                 <div className="alert alert-danger" role="alert">
                   {error}
@@ -203,4 +207,3 @@ function Register() {
 }
 
 export default Register;
-
