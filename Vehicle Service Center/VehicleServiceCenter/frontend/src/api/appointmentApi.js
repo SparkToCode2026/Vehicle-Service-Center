@@ -45,3 +45,15 @@ export const deleteAppointment = (id) => {
         .delete(`/Appointment/${id}`)
         .then((response) => response.data);
 };
+
+// Filter appointments by status
+export const filterAppointmentsByStatus = (status) => {
+    return api
+        .get("/Appointment/filter", {
+            params: {
+                status: status,
+            },
+        })
+        .then((response) => response.data);
+};
+
