@@ -102,7 +102,40 @@ namespace VehicleServiceCenter.Controllers
 
             if (_resourceAccess.IsAdmin)
             {
+                bool vehicleBelongsToCustomer = await _context.Vehicles.AnyAsync(
+                    vehicle => vehicle.VehicleId == updated.VehicleId &&
+                        vehicle.CustomerProfileId == updated.CustomerProfileId);
+
+                if (!vehicleBelongsToCustomer)
+                    return BadRequest("The selected vehicle does not belong to the customer.");
+
+                if (!await _context.Branches.AnyAsync(branch =>
+                        branch.BranchId == updated.BranchId && branch.IsActive))
+                    return BadRequest("The selected branch does not exist or is inactive.");
+
+                if (updated.MechanicProfileId.HasValue &&
+                    !await _context.MechanicProfiles.AnyAsync(mechanic =>
+                        mechanic.MechanicProfileId == updated.MechanicProfileId.Value))
+                    return BadRequest("The selected mechanic does not exist.");
+
+                if (updated.AppointmentId.HasValue)
+                {
+                    bool appointmentExists = await _context.Appointments.AnyAsync(
+                        appointment => appointment.AppointmentId == updated.AppointmentId.Value);
+                    bool appointmentAlreadyUsed = await _context.ServiceOrders.AnyAsync(
+                        candidate => candidate.ServiceOrderId != id &&
+                            candidate.AppointmentId == updated.AppointmentId.Value);
+
+                    if (!appointmentExists || appointmentAlreadyUsed)
+                        return BadRequest("The selected appointment is invalid or already has a service order.");
+                }
+
+                order.AppointmentId = updated.AppointmentId;
+                order.CustomerProfileId = updated.CustomerProfileId;
+                order.VehicleId = updated.VehicleId;
                 order.MechanicProfileId = updated.MechanicProfileId;
+                order.BranchId = updated.BranchId;
+                order.CustomerComplaint = updated.CustomerComplaint;
             }
             order.Diagnosis = updated.Diagnosis;
             order.TotalAmount = updated.TotalAmount;
