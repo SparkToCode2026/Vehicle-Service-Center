@@ -27,3 +27,14 @@ export const updateAppointment = (id, appointmentData) => {
         .put(`/Appointment/${id}`, appointmentData)
         .then((response) => response.data);
 };
+
+// Change the status of an appointment
+export const updateAppointmentStatus = (id, status) => {
+    return api
+        .patch(`/Appointment/${id}/status`, null, {
+            params: {
+                status: status,
+            },
+        })
+        .then((response) => response.data);
+};
