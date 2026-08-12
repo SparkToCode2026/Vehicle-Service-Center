@@ -56,3 +56,7 @@ function AppointmentBooking() {
 
         return Object.keys(newErrors).length === 0;
     }
+
+    // Handle appointment booking
+    function handleSubmit(event) {
+        event.preventDefault();
