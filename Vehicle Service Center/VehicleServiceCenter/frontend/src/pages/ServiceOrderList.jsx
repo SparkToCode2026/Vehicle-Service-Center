@@ -1,11 +1,17 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
+
 import {
   deleteServiceOrder,
   filterServiceOrders,
   getAllServiceOrders,
+  getServiceOrdersByMechanic,
 } from "../api/serviceOrderApi";
+import { getMechanicProfileByUserId } from "../api/mechanicProfileApi";
+
 import { useAuth } from "../context/AuthContext";
+
+
 
 function formatDate(date) {
   return new Date(date).toLocaleDateString();
@@ -47,11 +53,14 @@ function ServiceOrderList() {
       setLoading(true);
       setError("");
 
+      
+
       const response = filters
-        ? await filterServiceOrders(filters)
-        : await getAllServiceOrders();
+          ? await filterServiceOrders(filters)
+          : await getAllServiceOrders();
 
       setServiceOrders(response.data);
+      
     } catch {
       setError("Could not load the service orders.");
     } finally {
@@ -60,9 +69,38 @@ function ServiceOrderList() {
   }
 
   useEffect(() => {
-    loadServiceOrders();
-  }, []);
+    async function loadData() {
+      try {
+        setLoading(true);
+        setError("");
 
+        if (user?.role === "Mechanic") {
+          const response = await getMechanicProfileByUserId(user.userId);
+
+          const profileId = response.data.mechanicProfileId;
+
+          
+
+          const ordersResponse =
+              await getServiceOrdersByMechanic(profileId);
+
+          setServiceOrders(ordersResponse.data);
+        } else {
+          await loadServiceOrders();
+        }
+      } catch (error) {
+        console.error(error);
+        setError("Could not load the service orders.");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    if (user) {
+      loadData();
+    }
+  }, [user]);
+  
   function handleFilter(event) {
     event.preventDefault();
 
