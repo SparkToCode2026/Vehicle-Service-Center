@@ -12,3 +12,12 @@ function AppointmentBooking() {
 
     // Store validation error messages
     const [errors, setErrors] = useState({});
+    
+    // Handle changes in the form fields
+    function handleChange(event) {
+        const { name, value } = event.target;
+
+        setFormData({
+            ...formData,
+            [name]: value,
+        });
