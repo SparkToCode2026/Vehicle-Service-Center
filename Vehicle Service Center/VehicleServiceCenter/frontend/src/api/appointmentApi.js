@@ -38,3 +38,10 @@ export const updateAppointmentStatus = (id, status) => {
         })
         .then((response) => response.data);
 };
+
+// Delete an appointment
+export const deleteAppointment = (id) => {
+    return api
+        .delete(`/Appointment/${id}`)
+        .then((response) => response.data);
+};
