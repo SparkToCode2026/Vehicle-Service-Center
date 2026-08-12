@@ -13,3 +13,10 @@ export const getAppointmentById = (id) => {
         .get(`/Appointment/${id}`)
         .then((response) => response.data);
 };
+
+// Create a new appointment
+export const createAppointment = (appointmentData) => {
+    return api
+        .post("/Appointment", appointmentData)
+        .then((response) => response.data);
+};
