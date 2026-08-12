@@ -7,20 +7,23 @@ using VehicleServiceCenter.Services;
 
 namespace VehicleServiceCenter.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [ApiController]
     [Route("User")]
     public class UserController : ControllerBase
     {
         private readonly ProjectContext context;
         private readonly JwtTokenService jwtTokenService;
+        private readonly IResourceAuthorizationService resourceAccess;
 
         public UserController(
             ProjectContext context,
-            JwtTokenService jwtTokenService)
+            JwtTokenService jwtTokenService,
+            IResourceAuthorizationService resourceAccess)
         {
             this.context = context;
             this.jwtTokenService = jwtTokenService;
+            this.resourceAccess = resourceAccess;
         }
 
         // Register User
@@ -131,6 +134,11 @@ namespace VehicleServiceCenter.Controllers
         [HttpGet("GetById/{id}")]
         public IActionResult GetUserById(int id)
         {
+            if (!resourceAccess.CanAccessUser(id))
+            {
+                return Forbid();
+            }
+
             var user = context.Users.Where(u => u.UserId == id).Select(u => new
                 {
                     u.UserId,
@@ -190,6 +198,11 @@ namespace VehicleServiceCenter.Controllers
         [HttpPut("ChangePassword/{id}")]
         public IActionResult ChangePassword(int id,string currentPassword,string newPassword)
         {
+            if (!resourceAccess.CanAccessUser(id))
+            {
+                return Forbid();
+            }
+
             var user = context.Users.Find(id);
             if (user == null)
             {
@@ -290,7 +303,7 @@ namespace VehicleServiceCenter.Controllers
         }
 
         // Delete user by ID
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpDelete("Delete/{id}")]
         public IActionResult DeleteUser(int id)
         {
