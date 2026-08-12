@@ -23,6 +23,7 @@ import VehicleList from "../pages/customer/VehicleList";
 
 import AppointmentBooking from "../pages/appointments/AppointmentBooking";
 import AppointmentList from "../pages/appointments/AppointmentList";
+import AppointmentManagement from "../pages/appointments/AppointmentManagement";
 
 function RootRoute() {
   const { user } = useAuth();
@@ -60,6 +61,19 @@ function AppRoutes() {
           <Route element={<RoleRoute allowedRoles={["Admin"]} />}>
             <Route path="admin" element={<AdminDashboard />} />
           </Route>
+
+          <Route
+              element={
+                <RoleRoute allowedRoles={["Admin", "Mechanic"]} />
+              }
+          >
+            <Route
+                path="appointments/management"
+                element={<AppointmentManagement />}
+            />
+          </Route>
+          
+          
 
           <Route element={<RoleRoute allowedRoles={["Customer"]} />}>
             <Route path="customer" element={<CustomerDashboard />} />
