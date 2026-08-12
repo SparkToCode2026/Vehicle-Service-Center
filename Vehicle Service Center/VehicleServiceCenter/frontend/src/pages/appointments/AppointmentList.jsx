@@ -1,30 +1,54 @@
 import { useEffect, useState } from "react";
 import { getAppointments } from "../../api/appointmentApi";
+import { getCustomerProfileByUserId } from "../../api/customerProfileApi";
+import { useAuth } from "../../context/AuthContext";
 
 function AppointmentList() {
+    const { user } = useAuth();
+
     const [appointments, setAppointments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
     useEffect(() => {
-        loadAppointments();
-    }, []);
+        async function loadAppointments() {
+            try {
+                setLoading(true);
+                setError("");
 
-    async function loadAppointments() {
-        try {
-            setLoading(true);
-            setError("");
+                // Get the logged-in customer's profile
+                const customerResponse =
+                    await getCustomerProfileByUserId(user.userId);
 
-            const data = await getAppointments();
+                const customerProfileId =
+                    customerResponse.data.customerProfileId;
 
-            setAppointments(data);
-        } catch (err) {
-            console.error("Failed to load appointments:", err);
-            setError("Failed to load appointments.");
-        } finally {
-            setLoading(false);
+                // Get all appointments from the backend
+                const data = await getAppointments();
+
+                // Show only this customer's appointments
+                const myAppointments = data.filter(
+                    (appointment) =>
+                        appointment.customerProfileId === customerProfileId
+                );
+
+                setAppointments(myAppointments);
+            } catch (err) {
+                console.error(
+                    "Failed to load appointments:",
+                    err
+                );
+
+                setError("Failed to load appointments.");
+            } finally {
+                setLoading(false);
+            }
         }
-    }
+
+        if (user?.userId) {
+            loadAppointments();
+        }
+    }, [user]);
 
     if (loading) {
         return (
@@ -93,12 +117,14 @@ function AppointmentList() {
                                 </td>
 
                                 <td>
-                    <span className="badge bg-primary">
-                      {appointment.status}
-                    </span>
+                                        <span className="badge bg-primary">
+                                            {appointment.status}
+                                        </span>
                                 </td>
 
-                                <td>{appointment.notes || "—"}</td>
+                                <td>
+                                    {appointment.notes || "—"}
+                                </td>
                             </tr>
                         ))}
                         </tbody>
