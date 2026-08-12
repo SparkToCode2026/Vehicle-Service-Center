@@ -4,6 +4,10 @@ import {
   getServiceOrderTotal, updateServiceOrderItem, updateServiceOrderItemQuantity,
 } from "../../api/serviceOrderItemApi";
 import { getApiErrorMessage } from "../../utils/httpErrors";
+import {
+  formatServiceOrderItemType,
+  normalizeServiceOrderItemType,
+} from "../../utils/serviceOrderValues";
 
 const blank = { itemType: "Service", serviceTypeId: "", sparePartId: "", description: "", quantity: 1, unitPrice: 0, laborHours: "" };
 
@@ -19,10 +23,19 @@ function ServiceOrderItemManager({ serviceOrderId }) {
   const load = useCallback(async (itemType = "") => {
     try {
       const [itemsResponse, totalResponse] = await Promise.all([
-        filterServiceOrderItems({ serviceOrderId, itemType: itemType || undefined }),
+        filterServiceOrderItems({ serviceOrderId }),
         getServiceOrderTotal(serviceOrderId),
       ]);
-      setItems(itemsResponse.data); setTotal(totalResponse.data.total);
+      const normalizedItems = itemsResponse.data.map((item) => ({
+        ...item,
+        itemType: normalizeServiceOrderItemType(item.itemType),
+      }));
+      setItems(
+        itemType
+          ? normalizedItems.filter((item) => item.itemType === itemType)
+          : normalizedItems
+      );
+      setTotal(totalResponse.data.total);
     } catch (requestError) { setError(getApiErrorMessage(requestError, "Could not load order items.")); }
   }, [serviceOrderId]);
 
@@ -30,7 +43,7 @@ function ServiceOrderItemManager({ serviceOrderId }) {
 
   function edit(item) {
     setEditingId(item.serviceOrderItemId);
-    setForm({ ...blank, ...item, serviceTypeId: item.serviceTypeId || "", sparePartId: item.sparePartId || "", laborHours: item.laborHours || "" });
+    setForm({ ...blank, ...item, itemType: normalizeServiceOrderItemType(item.itemType), serviceTypeId: item.serviceTypeId || "", sparePartId: item.sparePartId || "", laborHours: item.laborHours || "" });
     setShowForm(true);
   }
 
@@ -56,7 +69,7 @@ function ServiceOrderItemManager({ serviceOrderId }) {
         <div className="col-md-3"><label className="form-label" htmlFor="item-hours">Labor hours</label><input id="item-hours" className="form-control" type="number" min="0" step="0.25" value={form.laborHours} onChange={(event) => setForm({...form,laborHours:event.target.value})} /></div>
         <div className="col-md-6"><label className="form-label" htmlFor="item-description">Description</label><input id="item-description" className="form-control" value={form.description || ""} onChange={(event) => setForm({...form,description:event.target.value})} /></div>
       </div><div className="d-flex gap-2 mt-3"><button className="btn btn-primary btn-sm">Save item</button><button className="btn btn-outline-secondary btn-sm" type="button" onClick={() => setShowForm(false)}>Cancel</button></div></form>}
-      <div className="table-responsive"><table className="table table-sm align-middle"><thead><tr><th>Type</th><th>Description</th><th>Qty</th><th>Price</th><th>Subtotal</th><th>Actions</th></tr></thead><tbody>{items.map((item) => <tr key={item.serviceOrderItemId}><td>{item.itemType}</td><td>{item.description || "-"}</td><td>{item.quantity}</td><td>{Number(item.unitPrice).toFixed(2)}</td><td>{Number(item.subtotal).toFixed(2)}</td><td><div className="d-flex flex-wrap gap-1"><button className="btn btn-outline-primary btn-sm" type="button" onClick={() => edit(item)}>Edit</button><button className="btn btn-outline-warning btn-sm" type="button" onClick={async () => { const quantity = window.prompt("New quantity:", item.quantity); if (!quantity) return; try { await updateServiceOrderItemQuantity(item.serviceOrderItemId, Number(quantity)); load(itemTypeFilter); } catch (requestError) { setError(getApiErrorMessage(requestError)); } }}>Quantity</button><button className="btn btn-outline-danger btn-sm" type="button" onClick={async () => { if (!window.confirm("Delete this order item?")) return; try { await deleteServiceOrderItem(item.serviceOrderItemId); load(itemTypeFilter); } catch (requestError) { setError(getApiErrorMessage(requestError)); } }}>Delete</button></div></td></tr>)}</tbody></table></div>
+      <div className="table-responsive"><table className="table table-sm align-middle"><thead><tr><th>Type</th><th>Description</th><th>Qty</th><th>Price</th><th>Subtotal</th><th>Actions</th></tr></thead><tbody>{items.map((item) => <tr key={item.serviceOrderItemId}><td>{formatServiceOrderItemType(item.itemType)}</td><td>{item.description || "-"}</td><td>{item.quantity}</td><td>{Number(item.unitPrice).toFixed(2)}</td><td>{Number(item.subtotal).toFixed(2)}</td><td><div className="d-flex flex-wrap gap-1"><button className="btn btn-outline-primary btn-sm" type="button" onClick={() => edit(item)}>Edit</button><button className="btn btn-outline-warning btn-sm" type="button" onClick={async () => { const quantity = window.prompt("New quantity:", item.quantity); if (!quantity) return; try { await updateServiceOrderItemQuantity(item.serviceOrderItemId, Number(quantity)); load(itemTypeFilter); } catch (requestError) { setError(getApiErrorMessage(requestError)); } }}>Quantity</button><button className="btn btn-outline-danger btn-sm" type="button" onClick={async () => { if (!window.confirm("Delete this order item?")) return; try { await deleteServiceOrderItem(item.serviceOrderItemId); load(itemTypeFilter); } catch (requestError) { setError(getApiErrorMessage(requestError)); } }}>Delete</button></div></td></tr>)}</tbody></table></div>
     </div></div>;
 }
 

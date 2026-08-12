@@ -4,7 +4,9 @@ import {
   getAllSpareParts,
   getSparePartById,
   getSparePartsSortedByPrice,
+  updateSparePartStock,
 } from "../../api/sparePartApi";
+import { getApiErrorMessage } from "../../utils/httpErrors";
 
 function formatAmount(amount) {
   return Number(amount || 0).toFixed(2);
@@ -16,7 +18,9 @@ function SparePartsList() {
   const [selectedPart, setSelectedPart] = useState(null);
   const [loading, setLoading] = useState(true);
   const [detailsLoading, setDetailsLoading] = useState(false);
+  const [updatingStockId, setUpdatingStockId] = useState(null);
   const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
 
   async function loadAllSpareParts() {
     try {
@@ -89,6 +93,42 @@ function SparePartsList() {
     }
   }
 
+  async function handleUpdateStock(part) {
+    const input = window.prompt(
+      `New stock quantity for ${part.partName}:`,
+      part.stockQuantity
+    );
+
+    if (input === null) return;
+
+    const quantity = Number(input);
+    if (!Number.isInteger(quantity) || quantity < 0) {
+      setError("Stock quantity must be a whole number of zero or more.");
+      return;
+    }
+
+    try {
+      setUpdatingStockId(part.sparePartId);
+      setError("");
+      setMessage("");
+      const response = await updateSparePartStock(part.sparePartId, quantity);
+      const updatedPart = { ...part, ...response.data, branch: part.branch };
+      setSpareParts((current) => current.map((item) =>
+        item.sparePartId === part.sparePartId ? updatedPart : item
+      ));
+      setSelectedPart((current) =>
+        current?.sparePartId === part.sparePartId
+          ? { ...current, ...response.data, branch: current.branch }
+          : current
+      );
+      setMessage(`${part.partName} stock updated to ${quantity}.`);
+    } catch (requestError) {
+      setError(getApiErrorMessage(requestError, "Could not update the stock quantity."));
+    } finally {
+      setUpdatingStockId(null);
+    }
+  }
+
   return (
     <section>
       <div className="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
@@ -126,6 +166,7 @@ function SparePartsList() {
           {error}
         </div>
       )}
+      {message && <div className="alert alert-success">{message}</div>}
 
       {selectedPart && (
         <div className="card border-primary shadow-sm mb-4">
@@ -241,16 +282,28 @@ function SparePartsList() {
                             </span>
                           </td>
                           <td>
-                            <button
-                              className="btn btn-outline-primary btn-sm"
-                              type="button"
-                              disabled={detailsLoading}
-                              onClick={() =>
-                                handleViewDetails(part.sparePartId)
-                              }
-                            >
-                              View
-                            </button>
+                            <div className="d-flex flex-wrap gap-2">
+                              <button
+                                className="btn btn-outline-primary btn-sm"
+                                type="button"
+                                disabled={detailsLoading}
+                                onClick={() =>
+                                  handleViewDetails(part.sparePartId)
+                                }
+                              >
+                                View
+                              </button>
+                              <button
+                                className="btn btn-outline-secondary btn-sm"
+                                type="button"
+                                disabled={updatingStockId === part.sparePartId}
+                                onClick={() => handleUpdateStock(part)}
+                              >
+                                {updatingStockId === part.sparePartId
+                                  ? "Updating..."
+                                  : "Update stock"}
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       );

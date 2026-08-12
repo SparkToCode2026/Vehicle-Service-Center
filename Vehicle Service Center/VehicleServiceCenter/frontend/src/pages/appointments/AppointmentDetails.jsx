@@ -29,6 +29,8 @@ function AppointmentDetails() {
   async function save(event) {
     event.preventDefault();
     try {
+      setError("");
+      setMessage("");
       await updateAppointment(id, {
         ...form,
         customerProfileId: Number(form.customerProfileId),
@@ -46,6 +48,8 @@ function AppointmentDetails() {
 
   async function changeStatus(status) {
     try {
+      setError("");
+      setMessage("");
       await updateAppointmentStatus(id, status);
       setMessage(`Appointment changed to ${status}.`); await load();
     } catch (requestError) {
@@ -58,16 +62,34 @@ function AppointmentDetails() {
   }
 
   const canEdit = ["Admin", "Customer"].includes(user?.role);
-  const canSetStatus = ["Admin", "Mechanic"].includes(user?.role);
+  const canSetFullStatus = ["Admin", "Mechanic"].includes(user?.role);
+  const canCancel =
+    user?.role === "Customer" &&
+    !["Completed", "Cancelled"].includes(appointment.status);
+  const editFields = user?.role === "Admin"
+    ? [
+        { name: "customerProfileId", label: "Customer profile ID", type: "number" },
+        { name: "vehicleId", label: "Vehicle ID", type: "number" },
+        { name: "serviceTypeId", label: "Service type ID", type: "number" },
+        { name: "branchId", label: "Branch ID", type: "number" },
+        { name: "mechanicProfileId", label: "Mechanic profile ID", type: "number" },
+        { name: "appointmentDate", label: "Appointment date", type: "datetime-local" },
+      ]
+    : [
+        { name: "vehicleId", label: "Vehicle ID", type: "number" },
+        { name: "serviceTypeId", label: "Service type ID", type: "number" },
+        { name: "branchId", label: "Branch ID", type: "number" },
+        { name: "appointmentDate", label: "Appointment date", type: "datetime-local" },
+      ];
 
   return <section>
     <div className="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4"><div><h2>Appointment #{appointment.appointmentId}</h2><p className="text-secondary">{new Date(appointment.appointmentDate).toLocaleString()}</p></div><span className="badge text-bg-info">{appointment.status}</span></div>
     {error && <div className="alert alert-danger">{error}</div>}{message && <div className="alert alert-success">{message}</div>}
-    {canSetStatus && <div className="card card-body shadow-sm mb-4"><div className="d-flex flex-wrap gap-2 align-items-center"><strong>Update status:</strong>{["Confirmed", "In Progress", "Completed", "Cancelled"].map((status) => <button type="button" className="btn btn-outline-secondary btn-sm" key={status} onClick={() => changeStatus(status)}>{status}</button>)}</div></div>}
+    {canSetFullStatus && <div className="card card-body shadow-sm mb-4"><div className="d-flex flex-wrap gap-2 align-items-center"><strong>Update status:</strong>{["Confirmed", "In Progress", "Completed", "Cancelled"].filter((status) => status !== appointment.status).map((status) => <button type="button" className="btn btn-outline-secondary btn-sm" key={status} onClick={() => changeStatus(status)}>{status}</button>)}</div></div>}
+    {canCancel && <div className="card card-body shadow-sm mb-4"><div className="d-flex flex-wrap gap-3 align-items-center justify-content-between"><div><strong>Need to cancel?</strong><p className="text-secondary mb-0">You can cancel this appointment while it is still active.</p></div><button type="button" className="btn btn-outline-danger btn-sm" onClick={() => changeStatus("Cancelled")}>Cancel appointment</button></div></div>}
     <div className="card shadow-sm"><div className="card-body">
-      {!editing ? <div className="row g-3">{[["Customer profile", appointment.customerProfileId], ["Vehicle", appointment.vehicle ? `${appointment.vehicle.make} ${appointment.vehicle.model}` : `#${appointment.vehicleId}`], ["Service", appointment.serviceType?.name || `#${appointment.serviceTypeId}`], ["Branch", appointment.branch?.branchName || `#${appointment.branchId}`], ["Mechanic", appointment.mechanicProfileId || "Unassigned"], ["Notes", appointment.notes || "-"]].map(([label, value]) => <div className="col-md-4" key={label}><p className="text-secondary mb-1">{label}</p><p>{value}</p></div>)}</div> : <form onSubmit={save}><div className="row g-3">{[
-        { name: "customerProfileId", label: "Customer profile ID", type: "number" }, { name: "vehicleId", label: "Vehicle ID", type: "number" }, { name: "serviceTypeId", label: "Service type ID", type: "number" }, { name: "branchId", label: "Branch ID", type: "number" }, { name: "mechanicProfileId", label: "Mechanic profile ID", type: "number" }, { name: "appointmentDate", label: "Appointment date", type: "datetime-local" },
-      ].map((field) => <div className="col-md-4" key={field.name}><label className="form-label" htmlFor={`appointment-${field.name}`}>{field.label}</label><input id={`appointment-${field.name}`} className="form-control" type={field.type} required={field.name !== "mechanicProfileId"} value={form[field.name] ?? ""} onChange={(event) => setForm({ ...form, [field.name]: event.target.value })} /></div>)}<div className="col-12"><label className="form-label" htmlFor="appointment-notes">Notes</label><textarea id="appointment-notes" className="form-control" value={form.notes || ""} onChange={(event) => setForm({ ...form, notes: event.target.value })} /></div></div><div className="d-flex gap-2 mt-3"><button className="btn btn-primary">Save</button><button className="btn btn-outline-secondary" type="button" onClick={() => setEditing(false)}>Cancel</button></div></form>}
+      {!editing ? <div className="row g-3">{[["Customer profile", appointment.customerProfileId], ["Vehicle", appointment.vehicle ? `${appointment.vehicle.make} ${appointment.vehicle.model}` : `#${appointment.vehicleId}`], ["Service", appointment.serviceType?.name || `#${appointment.serviceTypeId}`], ["Branch", appointment.branch?.branchName || `#${appointment.branchId}`], ["Mechanic", appointment.mechanicProfileId || "Unassigned"], ["Notes", appointment.notes || "-"]].map(([label, value]) => <div className="col-md-4" key={label}><p className="text-secondary mb-1">{label}</p><p>{value}</p></div>)}</div> : <form onSubmit={save}><div className="row g-3">
+        {editFields.map((field) => <div className="col-md-4" key={field.name}><label className="form-label" htmlFor={`appointment-${field.name}`}>{field.label}</label><input id={`appointment-${field.name}`} className="form-control" type={field.type} min={field.type === "number" ? "1" : undefined} required={field.name !== "mechanicProfileId"} value={form[field.name] ?? ""} onChange={(event) => setForm({ ...form, [field.name]: event.target.value })} /></div>)}<div className="col-12"><label className="form-label" htmlFor="appointment-notes">Notes</label><textarea id="appointment-notes" className="form-control" value={form.notes || ""} onChange={(event) => setForm({ ...form, notes: event.target.value })} /></div></div><div className="d-flex gap-2 mt-3"><button className="btn btn-primary">Save</button><button className="btn btn-outline-secondary" type="button" onClick={() => setEditing(false)}>Cancel</button></div></form>}
       <div className="d-flex flex-wrap gap-2 mt-4">{canEdit && !editing && <button className="btn btn-primary" type="button" onClick={() => setEditing(true)}>Edit appointment</button>}{canEdit && <button className="btn btn-outline-danger" type="button" onClick={async () => { if (!window.confirm("Delete this appointment?")) return; try { await deleteAppointment(id); navigate(-1); } catch (requestError) { setError(getApiErrorMessage(requestError)); } }}>Delete</button>}<button className="btn btn-outline-secondary" type="button" onClick={() => navigate(-1)}>Back</button></div>
     </div></div>
   </section>;

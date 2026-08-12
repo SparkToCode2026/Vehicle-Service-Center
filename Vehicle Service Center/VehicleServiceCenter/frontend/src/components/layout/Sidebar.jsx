@@ -31,7 +31,7 @@ const navigationByRole = {
     { label: "Service Orders", path: "/service-orders" },
     { label: "Appointments", path: "/appointments/management" },
     { label: "Spare Parts", path: "/spare-parts" },
-      
+    { label: "Billing Records", path: "/mechanic/billing" },
   ],
 };
 

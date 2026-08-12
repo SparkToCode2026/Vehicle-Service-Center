@@ -22,6 +22,8 @@ function ServiceOrderFormPage() {
   useEffect(() => {
     async function load() {
       try {
+        setLoading(true);
+        setError("");
         if (id) {
           const response = await getServiceOrderById(id);
           setForm({ ...blankForm, ...response.data });
@@ -63,11 +65,35 @@ function ServiceOrderFormPage() {
 
   if (loading) return <div className="text-center py-5"><div className="spinner-border text-primary" /></div>;
 
-  return <section><div className="mb-4"><h2>{id ? `Edit Service Order #${id}` : "Create Service Order"}</h2><p className="text-secondary">Assign the vehicle, customer, branch, mechanic, and working amounts.</p></div>
+  const isMechanic = user?.role === "Mechanic";
+  const isMechanicEdit = isMechanic && Boolean(id);
+  const numericFields = isMechanicEdit
+    ? [
+        { name: "totalAmount", label: "Total amount", required: true },
+      ]
+    : [
+        { name: "customerProfileId", label: "Customer profile ID", required: true },
+        { name: "vehicleId", label: "Vehicle ID", required: true },
+        { name: "branchId", label: "Branch ID", required: true },
+        ...(!isMechanic
+          ? [{ name: "mechanicProfileId", label: "Mechanic profile ID" }]
+          : []),
+        { name: "appointmentId", label: "Appointment ID" },
+        { name: "totalAmount", label: "Total amount", required: true },
+      ];
+
+  const formDescription = isMechanicEdit
+    ? "Update the diagnosis and working total for your assigned order."
+    : isMechanic
+      ? "Create a service order that will automatically be assigned to you."
+      : "Assign the vehicle, customer, branch, mechanic, and working amounts.";
+
+  return <section><div className="mb-4"><h2>{id ? `Edit Service Order #${id}` : "Create Service Order"}</h2><p className="text-secondary">{formDescription}</p></div>
     {error && <div className="alert alert-danger">{error}</div>}
+    {isMechanicEdit && <div className="alert alert-info">Customer #{form.customerProfileId}, vehicle #{form.vehicleId}, branch #{form.branchId}. Assignment details can only be changed by an administrator.</div>}
     <div className="card shadow-sm"><form className="card-body" onSubmit={submit}><div className="row g-3">
-      {[{name:"customerProfileId",label:"Customer profile ID",required:true},{name:"vehicleId",label:"Vehicle ID",required:true},{name:"branchId",label:"Branch ID",required:true},{name:"mechanicProfileId",label:"Mechanic profile ID"},{name:"appointmentId",label:"Appointment ID"},{name:"totalAmount",label:"Total amount",required:true}].map((field) => <div className="col-md-4" key={field.name}><label className="form-label" htmlFor={`order-${field.name}`}>{field.label}</label><input id={`order-${field.name}`} name={field.name} className="form-control" type="number" min="0" step={field.name === "totalAmount" ? "0.01" : "1"} required={field.required} value={form[field.name] ?? ""} onChange={change} /></div>)}
-      <div className="col-md-6"><label className="form-label" htmlFor="order-complaint">Customer complaint</label><textarea id="order-complaint" name="customerComplaint" className="form-control" value={form.customerComplaint || ""} onChange={change} /></div>
+      {numericFields.map((field) => <div className="col-md-4" key={field.name}><label className="form-label" htmlFor={`order-${field.name}`}>{field.label}</label><input id={`order-${field.name}`} name={field.name} className="form-control" type="number" min={field.name === "totalAmount" ? "0" : "1"} step={field.name === "totalAmount" ? "0.01" : "1"} required={field.required} value={form[field.name] ?? ""} onChange={change} /></div>)}
+      {!isMechanicEdit && <div className="col-md-6"><label className="form-label" htmlFor="order-complaint">Customer complaint</label><textarea id="order-complaint" name="customerComplaint" className="form-control" value={form.customerComplaint || ""} onChange={change} /></div>}
       <div className="col-md-6"><label className="form-label" htmlFor="order-diagnosis">Diagnosis</label><textarea id="order-diagnosis" name="diagnosis" className="form-control" value={form.diagnosis || ""} onChange={change} /></div>
     </div><div className="d-flex gap-2 mt-4"><button className="btn btn-primary" disabled={saving}>{saving ? "Saving..." : "Save order"}</button><button className="btn btn-outline-secondary" type="button" onClick={() => navigate(-1)}>Cancel</button></div></form></div>
   </section>;
