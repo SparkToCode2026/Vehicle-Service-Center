@@ -9,3 +9,6 @@ function AppointmentBooking() {
         appointmentDate: "",
         notes: "",
     });
+
+    // Store validation error messages
+    const [errors, setErrors] = useState({});
