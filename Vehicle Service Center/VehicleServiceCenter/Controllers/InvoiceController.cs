@@ -1,26 +1,34 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using VehicleServiceCenter.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
+using VehicleServiceCenter.Services;
 
 namespace VehicleServiceCenter.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("Invoice")]
     public class InvoiceController : ControllerBase
     {
         private ProjectContext context;
+        private readonly IResourceAuthorizationService resourceAccess;
 
-        public InvoiceController(ProjectContext context)
+        public InvoiceController(
+            ProjectContext context,
+            IResourceAuthorizationService resourceAccess)
         {
             this.context = context;
+            this.resourceAccess = resourceAccess;
         }
 
         // Add invoice
+        [Authorize(Roles = "Admin")]
         [HttpPost("AddInvoice")]
         public IActionResult AddInvoice(InvoiceModel invoice)
         {
             // Check whether the service order exists
-            ServiceOrderModel serviceOrder =
+            ServiceOrderModel? serviceOrder =
                 context.ServiceOrders.FirstOrDefault(s =>
                     s.ServiceOrderId == invoice.ServiceOrderId
                 );
@@ -34,7 +42,7 @@ namespace VehicleServiceCenter.Controllers
             
             // Check whether this service order already has an invoice
             // (ServiceOrderId has a unique index, so this prevents a raw DB exception)
-            InvoiceModel existingInvoiceForOrder =
+            InvoiceModel? existingInvoiceForOrder =
                 context.Invoices.FirstOrDefault(i =>
                     i.ServiceOrderId == invoice.ServiceOrderId
                 );
@@ -48,7 +56,7 @@ namespace VehicleServiceCenter.Controllers
             
             
             // Check whether invoice number already exists
-            InvoiceModel existingInvoice =
+            InvoiceModel? existingInvoice =
                 context.Invoices.FirstOrDefault(i =>
                     i.InvoiceNumber == invoice.InvoiceNumber
                 );
@@ -109,7 +117,7 @@ namespace VehicleServiceCenter.Controllers
         [HttpGet("GetAll")]
         public IActionResult GetAllInvoices()
         {
-            var invoices = context.Invoices
+            var invoices = resourceAccess.ScopeInvoices(context.Invoices)
                 .Include(i => i.ServiceOrder)
                 .Select(i => new
                 {
@@ -136,7 +144,7 @@ namespace VehicleServiceCenter.Controllers
         [HttpGet("GetById/{id}")]
         public IActionResult GetInvoiceById(int id)
         {
-            var invoice = context.Invoices
+            var invoice = resourceAccess.ScopeInvoices(context.Invoices)
                 .Where(i => i.InvoiceId == id)
                 .Select(i => new
                 {
@@ -167,7 +175,7 @@ namespace VehicleServiceCenter.Controllers
             int serviceOrderId
         )
         {
-            var invoice = context.Invoices
+            var invoice = resourceAccess.ScopeInvoices(context.Invoices)
                 .Where(i =>
                     i.ServiceOrderId == serviceOrderId
                 )
@@ -214,7 +222,8 @@ namespace VehicleServiceCenter.Controllers
                 );
             }
  
-            IQueryable<InvoiceModel> query = context.Invoices;
+            IQueryable<InvoiceModel> query =
+                resourceAccess.ScopeInvoices(context.Invoices);
  
             if (!string.IsNullOrWhiteSpace(status))
             {
@@ -251,7 +260,8 @@ namespace VehicleServiceCenter.Controllers
             bool descending = true
         )
         {
-            IQueryable<InvoiceModel> query = context.Invoices;
+            IQueryable<InvoiceModel> query =
+                resourceAccess.ScopeInvoices(context.Invoices);
  
             query = descending
                 ? query.OrderByDescending(i => i.TotalAmount)
@@ -271,6 +281,7 @@ namespace VehicleServiceCenter.Controllers
         }
         
         // Revenue summary grouped by status
+        [Authorize(Roles = "Admin")]
         [HttpGet("RevenueSummary")]
         public IActionResult GetRevenueSummary()
         {
@@ -288,13 +299,14 @@ namespace VehicleServiceCenter.Controllers
         }
         
         // Update invoice by ID
+        [Authorize(Roles = "Admin")]
         [HttpPut("Update/{id}")]
         public IActionResult UpdateInvoice(
             int id,
             InvoiceModel updatedInvoice
         )
         {
-            InvoiceModel invoice =
+            InvoiceModel? invoice =
                 context.Invoices.Find(id);
 
             if (invoice == null)
@@ -302,7 +314,7 @@ namespace VehicleServiceCenter.Controllers
                 return NotFound("Invoice not found");
             }
 
-            ServiceOrderModel serviceOrder =
+            ServiceOrderModel? serviceOrder =
                 context.ServiceOrders.FirstOrDefault(s =>
                     s.ServiceOrderId ==
                     updatedInvoice.ServiceOrderId
@@ -315,7 +327,7 @@ namespace VehicleServiceCenter.Controllers
                 );
             }
             
-            InvoiceModel existingInvoiceForOrder =
+            InvoiceModel? existingInvoiceForOrder =
                 context.Invoices.FirstOrDefault(i =>
                     i.ServiceOrderId ==
                     updatedInvoice.ServiceOrderId &&
@@ -329,7 +341,7 @@ namespace VehicleServiceCenter.Controllers
                 );
             }
 
-            InvoiceModel existingInvoice =
+            InvoiceModel? existingInvoice =
                 context.Invoices.FirstOrDefault(i =>
                     i.InvoiceNumber ==
                         updatedInvoice.InvoiceNumber &&
@@ -391,13 +403,14 @@ namespace VehicleServiceCenter.Controllers
             });
         }
         // Change invoice status
+        [Authorize(Roles = "Admin")]
         [HttpPatch("ChangeStatus/{id}")]
         public IActionResult ChangeInvoiceStatus(
             int id,
             string status
         )
         {
-            InvoiceModel invoice =
+            InvoiceModel? invoice =
                 context.Invoices.Find(id);
 
             if (invoice == null)
@@ -416,10 +429,11 @@ namespace VehicleServiceCenter.Controllers
             });
         }
         // Delete invoice by ID
+        [Authorize(Roles = "Admin")]
         [HttpDelete("Delete/{id}")]
         public IActionResult DeleteInvoice(int id)
         {
-            InvoiceModel invoice =
+            InvoiceModel? invoice =
                 context.Invoices.Find(id);
 
             if (invoice == null)
