@@ -20,3 +20,10 @@ export const createAppointment = (appointmentData) => {
         .post("/Appointment", appointmentData)
         .then((response) => response.data);
 };
+
+// Update an existing appointment
+export const updateAppointment = (id, appointmentData) => {
+    return api
+        .put(`/Appointment/${id}`, appointmentData)
+        .then((response) => response.data);
+};
