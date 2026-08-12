@@ -11,7 +11,7 @@ function Branches() {
 
     useEffect(() => {
         api
-            .get("/api/Branch")
+            .get("/Branch/GetAll")
             .then((res) => setBranches(res.data))
             .catch(() => setError(true))
             .finally(() => setLoading(false));

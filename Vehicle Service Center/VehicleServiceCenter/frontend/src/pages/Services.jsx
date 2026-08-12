@@ -11,7 +11,7 @@ function Services() {
 
     useEffect(() => {
         api
-            .get("/api/ServiceType")
+            .get("/ServiceType")
             .then((res) => setServices(res.data))
             .catch(() => setError(true))
             .finally(() => setLoading(false));
