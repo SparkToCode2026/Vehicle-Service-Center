@@ -117,13 +117,15 @@ function AppointmentManagement() {
     }
 
     if (loading) {
+        
         return (
             <div className="container mt-5">
                 <p>Loading appointments...</p>
             </div>
         );
     }
-
+    
+console.log(appointments);
     return (
         <div className="container mt-5">
 
