@@ -11,8 +11,10 @@ import {
 import { getMechanicProfileByUserId } from "../../api/mechanicProfileApi";
 
 import { useAuth } from "../../context/AuthContext";
-
-
+import {
+  formatServiceOrderStatus,
+  normalizeServiceOrderStatus,
+} from "../../utils/serviceOrderValues";
 
 function formatDate(date) {
   return new Date(date).toLocaleDateString();
@@ -20,10 +22,6 @@ function formatDate(date) {
 
 function formatAmount(amount) {
   return Number(amount || 0).toFixed(2);
-}
-
-function formatStatus(status) {
-  return status.replace(/([a-z])([A-Z])/g, "$1 $2");
 }
 
 function getStatusColor(status) {
@@ -35,7 +33,7 @@ function getStatusColor(status) {
     Cancelled: "danger",
   };
 
-  return colors[status] || "secondary";
+  return colors[normalizeServiceOrderStatus(status)] || "secondary";
 }
 
 function ServiceOrderList() {
@@ -58,11 +56,24 @@ function ServiceOrderList() {
 
       
 
-      const response = filters
+      if (filters?.status === "InProgress") {
+        const [currentResponse, legacyResponse] = await Promise.all([
+          filterServiceOrders(filters),
+          filterServiceOrders({ ...filters, status: "In Progress" }),
+        ]);
+        const uniqueOrders = new Map(
+          [...currentResponse.data, ...legacyResponse.data].map((order) => [
+            order.serviceOrderId,
+            order,
+          ])
+        );
+        setServiceOrders([...uniqueOrders.values()]);
+      } else {
+        const response = filters
           ? await filterServiceOrders(filters)
           : await getAllServiceOrders();
-
-      setServiceOrders(response.data);
+        setServiceOrders(response.data);
+      }
       
     } catch {
       setError("Could not load the service orders.");
@@ -140,7 +151,21 @@ function ServiceOrderList() {
     try {
       setError("");
       const response = await getServiceOrderSummary();
-      setSummary(response.data);
+      const normalizedSummary = Object.values(
+        response.data.reduce((result, item) => {
+          const normalizedStatus = normalizeServiceOrderStatus(item.status);
+          const existing = result[normalizedStatus] || {
+            status: normalizedStatus,
+            count: 0,
+            totalRevenue: 0,
+          };
+          existing.count += Number(item.count || 0);
+          existing.totalRevenue += Number(item.totalRevenue || 0);
+          result[normalizedStatus] = existing;
+          return result;
+        }, {})
+      );
+      setSummary(normalizedSummary);
     } catch {
       setError("Could not load the service-order summary.");
     }
@@ -210,7 +235,7 @@ function ServiceOrderList() {
           {summary.map((item) => (
             <div className="col-sm-6 col-lg-3" key={item.status}>
               <div className="card card-body py-2">
-                <strong>{formatStatus(item.status)}</strong>
+                <strong>{formatServiceOrderStatus(item.status)}</strong>
                 <span>{item.count} orders · {formatAmount(item.totalRevenue)}</span>
               </div>
             </div>
@@ -330,7 +355,7 @@ function ServiceOrderList() {
                           <span
                             className={`badge text-bg-${getStatusColor(order.status)}`}
                           >
-                            {formatStatus(order.status)}
+                            {formatServiceOrderStatus(order.status)}
                           </span>
                         </td>
                         <td>{order.serviceOrderItems?.length || 0}</td>

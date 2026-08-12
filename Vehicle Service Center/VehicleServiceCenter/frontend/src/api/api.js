@@ -32,10 +32,14 @@ api.interceptors.response.use(
   (error) => {
     const errorType = classifyHttpError(error.response?.status);
     const requestUrl = error.config?.url || "";
+    const isIncorrectCurrentPassword =
+      requestUrl.includes("/User/ChangePassword/") &&
+      error.response?.data === "Current password is incorrect";
 
     if (
       errorType === "unauthorized" &&
       !requestUrl.includes("/User/Login") &&
+      !isIncorrectCurrentPassword &&
       typeof window !== "undefined"
     ) {
       localStorage.removeItem("accessToken");

@@ -4,6 +4,11 @@ import { changeServiceOrderStatus, getServiceOrderById } from "../../api/service
 import ServiceOrderItemManager from "../../components/serviceOrders/ServiceOrderItemManager";
 import { useAuth } from "../../context/AuthContext";
 import { getApiErrorMessage } from "../../utils/httpErrors";
+import {
+  formatServiceOrderItemType,
+  formatServiceOrderStatus,
+  normalizeServiceOrderStatus,
+} from "../../utils/serviceOrderValues";
 
 function formatDate(date) {
   if (!date) {
@@ -17,10 +22,6 @@ function formatAmount(amount) {
   return Number(amount || 0).toFixed(2);
 }
 
-function formatStatus(status) {
-  return status.replace(/([a-z])([A-Z])/g, "$1 $2");
-}
-
 function getStatusColor(status) {
   const colors = {
     Pending: "warning",
@@ -30,7 +31,7 @@ function getStatusColor(status) {
     Cancelled: "danger",
   };
 
-  return colors[status] || "secondary";
+  return colors[normalizeServiceOrderStatus(status)] || "secondary";
 }
 
 function ServiceOrderDetails() {
@@ -41,6 +42,7 @@ function ServiceOrderDetails() {
   const [serviceOrder, setServiceOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [actionError, setActionError] = useState("");
 
   useEffect(() => {
     async function loadServiceOrder() {
@@ -96,21 +98,25 @@ function ServiceOrderDetails() {
   const orderItems = serviceOrder.serviceOrderItems || [];
   const vehicle = serviceOrder.vehicle;
   const canManage = ["Admin", "Mechanic"].includes(user?.role);
+  const normalizedStatus = normalizeServiceOrderStatus(serviceOrder.status);
+  const hasLegacyInProgressStatus = serviceOrder.status === "In Progress";
   const validTransitions = {
     Pending: ["Approved", "Cancelled"],
     Approved: ["InProgress", "Cancelled"],
     InProgress: ["Completed", "Cancelled"],
   };
-  const availableTransitions = validTransitions[serviceOrder.status] || [];
+  const availableTransitions = hasLegacyInProgressStatus
+    ? []
+    : validTransitions[normalizedStatus] || [];
 
   async function updateStatus(newStatus) {
     try {
-      setError("");
+      setActionError("");
       await changeServiceOrderStatus(id, newStatus);
       const response = await getServiceOrderById(id);
       setServiceOrder(response.data);
     } catch (requestError) {
-      setError(getApiErrorMessage(requestError, "The status transition is not allowed."));
+      setActionError(getApiErrorMessage(requestError, "The status transition is not allowed."));
     }
   }
 
@@ -126,10 +132,12 @@ function ServiceOrderDetails() {
           </p>
         </div>
 
-        <div className="d-flex gap-2 align-items-center"><span className={`badge text-bg-${getStatusColor(serviceOrder.status)}`}>{formatStatus(serviceOrder.status)}</span>{canManage && <Link className="btn btn-outline-primary btn-sm" to={`/service-orders/${id}/edit`}>Edit order</Link>}</div>
+        <div className="d-flex gap-2 align-items-center"><span className={`badge text-bg-${getStatusColor(serviceOrder.status)}`}>{formatServiceOrderStatus(serviceOrder.status)}</span>{canManage && <Link className="btn btn-outline-primary btn-sm" to={`/service-orders/${id}/edit`}>Edit order</Link>}</div>
       </div>
 
-      {canManage && <div className="card card-body shadow-sm mb-4"><div className="d-flex flex-wrap align-items-center gap-2"><strong>Status transition:</strong>{availableTransitions.length > 0 ? availableTransitions.map((status) => <button className="btn btn-outline-secondary btn-sm" type="button" key={status} onClick={() => updateStatus(status)}>{formatStatus(status)}</button>) : <span className="text-secondary">No further transitions are available.</span>}</div></div>}
+      {actionError && <div className="alert alert-danger">{actionError}</div>}
+      {hasLegacyInProgressStatus && canManage && <div className="alert alert-warning">This order uses an older status value. Its status must be corrected in the backend before it can move to Completed or Cancelled.</div>}
+      {canManage && <div className="card card-body shadow-sm mb-4"><div className="d-flex flex-wrap align-items-center gap-2"><strong>Status transition:</strong>{availableTransitions.length > 0 ? availableTransitions.map((status) => <button className="btn btn-outline-secondary btn-sm" type="button" key={status} onClick={() => updateStatus(status)}>{formatServiceOrderStatus(status)}</button>) : <span className="text-secondary">No further transitions are available.</span>}</div></div>}
 
       <div className="row g-4 mb-4">
         <div className="col-lg-7">
@@ -266,7 +274,7 @@ function ServiceOrderDetails() {
                 <tbody>
                   {orderItems.map((item) => (
                     <tr key={item.serviceOrderItemId}>
-                      <td>{item.itemType}</td>
+                      <td>{formatServiceOrderItemType(item.itemType)}</td>
                       <td>{item.description || "Not available"}</td>
                       <td>{item.quantity}</td>
                       <td>{formatAmount(item.unitPrice)}</td>

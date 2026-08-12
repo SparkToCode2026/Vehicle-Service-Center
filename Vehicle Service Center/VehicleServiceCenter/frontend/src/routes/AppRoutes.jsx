@@ -32,6 +32,7 @@ import VehicleList from "../pages/customer/VehicleList";
 import SparePartsList from "../pages/inventory/SparePartsList";
 import MechanicDashboard from "../pages/mechanic/MechanicDashboard";
 import MechanicAvailability from "../pages/mechanic/MechanicAvailability";
+import MechanicBilling from "../pages/mechanic/MechanicBilling";
 import About from "../pages/public/About";
 import Branches from "../pages/public/Branches";
 import Home from "../pages/public/Home";
@@ -121,6 +122,7 @@ function AppRoutes() {
                 path="mechanic/availability"
                 element={<MechanicAvailability />}
             />
+            <Route path="mechanic/billing" element={<MechanicBilling />} />
           </Route>
           
           
@@ -185,7 +187,7 @@ function AppRoutes() {
           </Route>
 
           <Route
-            element={<RoleRoute allowedRoles={["Admin", "Customer"]} />}
+            element={<RoleRoute allowedRoles={["Admin", "Customer", "Mechanic"]} />}
           >
             <Route path="invoices/:id" element={<InvoiceDetails />} />
             <Route path="payments/:id" element={<PaymentDetails />} />
