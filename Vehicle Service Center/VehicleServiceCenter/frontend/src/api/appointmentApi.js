@@ -57,3 +57,10 @@ export const filterAppointmentsByStatus = (status) => {
         .then((response) => response.data);
 };
 
+// Get appointments sorted by appointment date
+export const sortAppointments = () => {
+    return api
+        .get("/Appointment/sort")
+        .then((response) => response.data);
+};
+
