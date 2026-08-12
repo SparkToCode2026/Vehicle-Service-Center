@@ -1,18 +1,25 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 using VehicleServiceCenter.Models;
+using VehicleServiceCenter.Services;
 
 namespace VehicleServiceCenter.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("CustomerProfile")]
     public class CustomerProfileController : ControllerBase
     {
         private ProjectContext context;
+        private readonly IResourceAuthorizationService resourceAccess;
 
-        public CustomerProfileController(ProjectContext context)
+        public CustomerProfileController(
+            ProjectContext context,
+            IResourceAuthorizationService resourceAccess)
         {
             this.context = context;
+            this.resourceAccess = resourceAccess;
         }
 
         // Add Customer Profile
@@ -20,6 +27,11 @@ namespace VehicleServiceCenter.Controllers
         public IActionResult AddCustomerProfile(
             CustomerProfileModel customerProfile)
         {
+            if (!resourceAccess.CanAccessUser(customerProfile.UserId))
+            {
+                return Forbid();
+            }
+
             // Check whether the user exists
             UserModel? user = context.Users.FirstOrDefault(
                 u => u.UserId == customerProfile.UserId
@@ -90,6 +102,11 @@ namespace VehicleServiceCenter.Controllers
                 return NotFound("Customer profile not found");
             }
 
+            if (!resourceAccess.CanAccessCustomerProfile(id))
+            {
+                return Forbid();
+            }
+
             return Ok(customerProfile);
         }
 
@@ -97,6 +114,11 @@ namespace VehicleServiceCenter.Controllers
         [HttpGet("GetByUserId")]
         public IActionResult GetByUserId(int userId)
         {
+            if (!resourceAccess.CanAccessUser(userId))
+            {
+                return Forbid();
+            }
+
             CustomerProfileModel? customerProfile =
                 context.CustomerProfiles.FirstOrDefault(
                     c => c.UserId == userId
@@ -111,6 +133,7 @@ namespace VehicleServiceCenter.Controllers
         }
 
         // Get All Customer Profiles
+        [Authorize(Roles = "Admin")]
         [HttpGet("GetAllCustomerProfiles")]
         public IActionResult GetAllCustomerProfiles()
         {
@@ -144,6 +167,7 @@ namespace VehicleServiceCenter.Controllers
         }
 
         // Filter Customer Profiles
+        [Authorize(Roles = "Admin")]
         [HttpGet("Filter")]
         public IActionResult FilterCustomerProfiles(
             string? address,
@@ -209,6 +233,7 @@ namespace VehicleServiceCenter.Controllers
         }
 
         // Get Customer Profiles sorted by creation date
+        [Authorize(Roles = "Admin")]
         [HttpGet("GetSortedByCreatedAt")]
         public IActionResult GetSortedByCreatedAt(
             bool descending = true)
@@ -254,6 +279,11 @@ namespace VehicleServiceCenter.Controllers
                 return NotFound("Customer profile not found");
             }
 
+            if (!resourceAccess.CanAccessCustomerProfile(id))
+            {
+                return Forbid();
+            }
+
             DateOnly today = DateOnly.FromDateTime(DateTime.Today);
 
             if (newCustomerProfile.DateOfBirth > today)
@@ -288,6 +318,11 @@ namespace VehicleServiceCenter.Controllers
                 return NotFound("Customer profile not found");
             }
 
+            if (!resourceAccess.CanAccessCustomerProfile(id))
+            {
+                return Forbid();
+            }
+
             if (string.IsNullOrWhiteSpace(newAddress))
             {
                 return BadRequest("Address cannot be empty");
@@ -320,6 +355,11 @@ namespace VehicleServiceCenter.Controllers
             if (customerProfile == null)
             {
                 return NotFound("Customer profile not found");
+            }
+
+            if (!resourceAccess.CanAccessCustomerProfile(id))
+            {
+                return Forbid();
             }
 
             context.CustomerProfiles.Remove(customerProfile);
