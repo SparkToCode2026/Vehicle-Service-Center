@@ -7,7 +7,15 @@ function getHomePage(role) {
     return "/admin";
   }
 
-  return "/service-orders";
+  if (role === "Customer") {
+    return "/customer";
+  }
+
+  if (role === "Mechanic") {
+    return "/mechanic";
+  }
+
+  return "/";
 }
 
 function Login() {
