@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
-import { getServiceOrderSummary } from "../api/serviceOrderApi";
+import { getServiceOrderSummary } from "../../api/serviceOrderApi";
 
 function formatAmount(amount) {
   return Number(amount || 0).toFixed(2);

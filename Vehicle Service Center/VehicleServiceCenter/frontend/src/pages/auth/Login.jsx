@@ -1,25 +1,11 @@
 import { useState } from "react";
-import { Link, Navigate } from "react-router";
-import { useAuth } from "../context/AuthContext";
-
-function getHomePage(role) {
-  if (role === "Admin") {
-    return "/admin";
-  }
-
-  if (role === "Customer") {
-    return "/customer";
-  }
-
-  if (role === "Mechanic") {
-    return "/mechanic";
-  }
-
-  return "/";
-}
+import { Link, Navigate, useSearchParams } from "react-router";
+import { useAuth } from "../../context/AuthContext";
+import { getHomePageForRole } from "../../utils/roleAccess";
 
 function Login() {
   const { user, isAuthenticated, login } = useAuth();
+  const [searchParams] = useSearchParams();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -27,7 +13,7 @@ function Login() {
   const [error, setError] = useState("");
 
   if (isAuthenticated) {
-    return <Navigate to={getHomePage(user?.role)} replace />;
+    return <Navigate to={getHomePageForRole(user?.role)} replace />;
   }
 
   async function handleSubmit(event) {
@@ -67,6 +53,12 @@ function Login() {
               {error && (
                 <div className="alert alert-danger" role="alert">
                   {error}
+                </div>
+              )}
+
+              {searchParams.get("reason") === "session-expired" && !error && (
+                <div className="alert alert-warning" role="alert">
+                  Your session expired. Please sign in again.
                 </div>
               )}
 

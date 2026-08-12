@@ -143,7 +143,7 @@ function AppointmentBooking() {
             await createAppointment(appointmentData);
 
             setSuccessMessage(
-                "Appointment booked successfully!"
+                "Appointment booked successfully. A confirmation email has been sent when an email address is available."
             );
 
             setFormData({

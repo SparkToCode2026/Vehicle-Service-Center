@@ -25,3 +25,15 @@ export function getServiceOrderSummary() {
 export function deleteServiceOrder(serviceOrderId) {
   return api.delete(`/api/ServiceOrder/${serviceOrderId}`);
 }
+
+export function createServiceOrder(orderData) {
+  return api.post("/api/ServiceOrder", orderData);
+}
+
+export function updateServiceOrder(id, orderData) {
+  return api.put(`/api/ServiceOrder/${id}`, orderData);
+}
+
+export function changeServiceOrderStatus(id, newStatus) {
+  return api.patch(`/api/ServiceOrder/${id}/status`, JSON.stringify(newStatus));
+}

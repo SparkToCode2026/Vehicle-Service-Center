@@ -4,8 +4,17 @@ import { useAuth } from "../../context/AuthContext";
 const navigationByRole = {
   Admin: [
     { label: "Dashboard", path: "/admin" },
+    { label: "Users", path: "/admin/users" },
+    { label: "Customers", path: "/admin/customers" },
+    { label: "Vehicles", path: "/admin/vehicles" },
+    { label: "Service Types", path: "/admin/service-types" },
+    { label: "Mechanics", path: "/admin/mechanics" },
+    { label: "Branches", path: "/admin/branches" },
+    { label: "Appointments", path: "/appointments/management" },
     { label: "Service Orders", path: "/service-orders" },
-    { label: "Spare Parts", path: "/spare-parts" },
+    { label: "Inventory", path: "/admin/spare-parts" },
+    { label: "Invoices", path: "/admin/invoices" },
+    { label: "Payments", path: "/admin/payments" },
   ],
   Customer: [
     { label: "Dashboard", path: "/customer", end: true },
@@ -14,6 +23,7 @@ const navigationByRole = {
     { label: "Service Orders", path: "/service-orders" },
     { label: "My Appointments", path: "/customer/appointments" },
     { label: "Book Appointment", path: "/customer/appointments/new" },
+    { label: "Billing", path: "/customer/billing" },
   ],
   Mechanic: [
     { label: "Dashboard", path: "/mechanic", end: true },

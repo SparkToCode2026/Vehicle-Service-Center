@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from "react-router";
 import {
   getPaymentById,
   getTotalPaidForInvoice,
-} from "../api/paymentApi";
+} from "../../api/paymentApi";
 
 function formatDate(date) {
   if (!date) {

@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router";
-import { getServiceOrderById } from "../api/serviceOrderApi";
+import { Link, useNavigate, useParams } from "react-router";
+import { changeServiceOrderStatus, getServiceOrderById } from "../../api/serviceOrderApi";
+import ServiceOrderItemManager from "../../components/serviceOrders/ServiceOrderItemManager";
+import { useAuth } from "../../context/AuthContext";
+import { getApiErrorMessage } from "../../utils/httpErrors";
 
 function formatDate(date) {
   if (!date) {
@@ -33,6 +36,7 @@ function getStatusColor(status) {
 function ServiceOrderDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const [serviceOrder, setServiceOrder] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -91,6 +95,24 @@ function ServiceOrderDetails() {
 
   const orderItems = serviceOrder.serviceOrderItems || [];
   const vehicle = serviceOrder.vehicle;
+  const canManage = ["Admin", "Mechanic"].includes(user?.role);
+  const validTransitions = {
+    Pending: ["Approved", "Cancelled"],
+    Approved: ["InProgress", "Cancelled"],
+    InProgress: ["Completed", "Cancelled"],
+  };
+  const availableTransitions = validTransitions[serviceOrder.status] || [];
+
+  async function updateStatus(newStatus) {
+    try {
+      setError("");
+      await changeServiceOrderStatus(id, newStatus);
+      const response = await getServiceOrderById(id);
+      setServiceOrder(response.data);
+    } catch (requestError) {
+      setError(getApiErrorMessage(requestError, "The status transition is not allowed."));
+    }
+  }
 
   return (
     <section>
@@ -104,12 +126,10 @@ function ServiceOrderDetails() {
           </p>
         </div>
 
-        <span
-          className={`badge text-bg-${getStatusColor(serviceOrder.status)}`}
-        >
-          {formatStatus(serviceOrder.status)}
-        </span>
+        <div className="d-flex gap-2 align-items-center"><span className={`badge text-bg-${getStatusColor(serviceOrder.status)}`}>{formatStatus(serviceOrder.status)}</span>{canManage && <Link className="btn btn-outline-primary btn-sm" to={`/service-orders/${id}/edit`}>Edit order</Link>}</div>
       </div>
+
+      {canManage && <div className="card card-body shadow-sm mb-4"><div className="d-flex flex-wrap align-items-center gap-2"><strong>Status transition:</strong>{availableTransitions.length > 0 ? availableTransitions.map((status) => <button className="btn btn-outline-secondary btn-sm" type="button" key={status} onClick={() => updateStatus(status)}>{formatStatus(status)}</button>) : <span className="text-secondary">No further transitions are available.</span>}</div></div>}
 
       <div className="row g-4 mb-4">
         <div className="col-lg-7">
@@ -266,6 +286,8 @@ function ServiceOrderDetails() {
           )}
         </div>
       </div>
+
+      {canManage && <ServiceOrderItemManager serviceOrderId={Number(id)} />}
 
       <button
         type="button"

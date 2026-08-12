@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, Navigate } from "react-router";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../../context/AuthContext";
 
 function Register() {
   const { isAuthenticated, register } = useAuth();

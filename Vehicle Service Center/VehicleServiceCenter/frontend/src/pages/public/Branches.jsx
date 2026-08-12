@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import api from "../api/api";
-import LoadingSpinner from "../components/shared/LoadingSpinner";
-import EmptyDataMessage from "../components/shared/EmptyDataMessage";
-import StatusBadge from "../components/shared/StatusBadge";
+import api from "../../api/api";
+import LoadingSpinner from "../../components/shared/LoadingSpinner";
+import EmptyDataMessage from "../../components/shared/EmptyDataMessage";
+import StatusBadge from "../../components/shared/StatusBadge";
 
 function Branches() {
     const [branches, setBranches] = useState([]);

@@ -19,3 +19,21 @@ export function filterSparePartsByAvailability(isAvailable) {
 export function getSparePartsSortedByPrice() {
   return api.get("/SparePart/sort");
 }
+
+export function createSparePart(sparePartData) {
+  return api.post("/SparePart", sparePartData);
+}
+
+export function updateSparePart(id, sparePartData) {
+  return api.put(`/SparePart/${id}`, sparePartData);
+}
+
+export function updateSparePartStock(id, quantity) {
+  return api.patch(`/SparePart/${id}/stock`, null, {
+    params: { quantity },
+  });
+}
+
+export function deleteSparePart(id) {
+  return api.delete(`/SparePart/${id}`);
+}

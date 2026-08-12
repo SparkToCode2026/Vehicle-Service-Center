@@ -5,11 +5,12 @@ import {
   deleteServiceOrder,
   filterServiceOrders,
   getAllServiceOrders,
+  getServiceOrderSummary,
   getServiceOrdersByMechanic,
-} from "../api/serviceOrderApi";
-import { getMechanicProfileByUserId } from "../api/mechanicProfileApi";
+} from "../../api/serviceOrderApi";
+import { getMechanicProfileByUserId } from "../../api/mechanicProfileApi";
 
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../../context/AuthContext";
 
 
 
@@ -44,6 +45,8 @@ function ServiceOrderList() {
   const [status, setStatus] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
+  const [mechanicProfileId, setMechanicProfileId] = useState("");
+  const [summary, setSummary] = useState([]);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState(null);
   const [error, setError] = useState("");
@@ -115,7 +118,32 @@ function ServiceOrderList() {
     setStatus("");
     setFromDate("");
     setToDate("");
+    setMechanicProfileId("");
     loadServiceOrders();
+  }
+
+  async function filterByMechanic() {
+    if (!mechanicProfileId) return;
+    try {
+      setLoading(true);
+      setError("");
+      const response = await getServiceOrdersByMechanic(mechanicProfileId);
+      setServiceOrders(response.data);
+    } catch {
+      setError("Could not filter service orders by mechanic.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function loadSummary() {
+    try {
+      setError("");
+      const response = await getServiceOrderSummary();
+      setSummary(response.data);
+    } catch {
+      setError("Could not load the service-order summary.");
+    }
   }
 
   async function handleDelete(serviceOrderId) {
@@ -148,11 +176,47 @@ function ServiceOrderList() {
   return (
     <section>
       <div className="mb-4">
-        <h2 className="mb-1">Service Orders</h2>
-        <p className="text-secondary mb-0">
-          View and manage vehicle service orders
-        </p>
+        <div className="d-flex justify-content-between align-items-start gap-3">
+          <div><h2 className="mb-1">Service Orders</h2><p className="text-secondary mb-0">View and manage vehicle service orders</p></div>
+          {["Admin", "Mechanic"].includes(user?.role) && <Link className="btn btn-primary" to="/service-orders/new">Create order</Link>}
+        </div>
       </div>
+
+      <div className="d-flex flex-wrap gap-2 mb-4">
+        {user?.role === "Admin" && (
+          <>
+            <input
+              className="form-control"
+              style={{ maxWidth: 220 }}
+              type="number"
+              min="1"
+              aria-label="Mechanic profile ID"
+              placeholder="Mechanic profile ID"
+              value={mechanicProfileId}
+              onChange={(event) => setMechanicProfileId(event.target.value)}
+            />
+            <button className="btn btn-outline-primary" type="button" disabled={!mechanicProfileId} onClick={filterByMechanic}>
+              Filter by mechanic
+            </button>
+          </>
+        )}
+        <button className="btn btn-outline-info" type="button" onClick={loadSummary}>
+          Status summary
+        </button>
+      </div>
+
+      {summary.length > 0 && (
+        <div className="row g-2 mb-4">
+          {summary.map((item) => (
+            <div className="col-sm-6 col-lg-3" key={item.status}>
+              <div className="card card-body py-2">
+                <strong>{formatStatus(item.status)}</strong>
+                <span>{item.count} orders · {formatAmount(item.totalRevenue)}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       <div className="card shadow-sm mb-4">
         <div className="card-body">
@@ -279,6 +343,10 @@ function ServiceOrderList() {
                             >
                               Details
                             </Link>
+
+                            {["Admin", "Mechanic"].includes(user?.role) && (
+                              <Link className="btn btn-outline-secondary btn-sm" to={`/service-orders/${order.serviceOrderId}/edit`}>Edit</Link>
+                            )}
 
                             {user?.role === "Admin" && (
                               <button

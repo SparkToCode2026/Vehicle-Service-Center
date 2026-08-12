@@ -3,29 +3,42 @@ import AppLayout from "../components/layout/AppLayout";
 import ProtectedRoute from "../components/routing/ProtectedRoute";
 import RoleRoute from "../components/routing/RoleRoute";
 import { useAuth } from "../context/AuthContext";
-import AdminDashboard from "../pages/AdminDashboard";
-import InvoiceDetails from "../pages/InvoiceDetails";
-import Login from "../pages/Login";
-import PaymentDetails from "../pages/PaymentDetails";
-import Register from "../pages/Register";
-import ServiceOrderDetails from "../pages/ServiceOrderDetails";
-import ServiceOrderList from "../pages/ServiceOrderList";
-import SparePartsList from "../pages/SparePartsList";
-import Home from "../pages/Home";
-import About from "../pages/About";
-import Services from "../pages/Services";
-import Branches from "../pages/Branches";
+import AccountSettings from "../pages/account/AccountSettings";
+import AdminDashboard from "../pages/admin/AdminDashboard";
+import BranchManagement from "../pages/admin/BranchManagement";
+import CustomerProfileManagement from "../pages/admin/CustomerProfileManagement";
+import InvoiceManagement from "../pages/admin/InvoiceManagement";
+import MechanicManagement from "../pages/admin/MechanicManagement";
+import PaymentManagement from "../pages/admin/PaymentManagement";
+import ServiceTypeManagement from "../pages/admin/ServiceTypeManagement";
+import SparePartManagement from "../pages/admin/SparePartManagement";
+import UserManagement from "../pages/admin/UserManagement";
+import VehicleManagement from "../pages/admin/VehicleManagement";
+import AppointmentBooking from "../pages/appointments/AppointmentBooking";
+import AppointmentDetails from "../pages/appointments/AppointmentDetails";
+import AppointmentList from "../pages/appointments/AppointmentList";
+import AppointmentManagement from "../pages/appointments/AppointmentManagement";
+import Login from "../pages/auth/Login";
+import Register from "../pages/auth/Register";
+import Unauthorized from "../pages/auth/Unauthorized";
+import InvoiceDetails from "../pages/billing/InvoiceDetails";
+import PaymentDetails from "../pages/billing/PaymentDetails";
 import CustomerDashboard from "../pages/customer/CustomerDashboard";
+import CustomerBilling from "../pages/customer/CustomerBilling";
 import CustomerProfile from "../pages/customer/CustomerProfile";
 import VehicleDetails from "../pages/customer/VehicleDetails";
 import VehicleFormPage from "../pages/customer/VehicleFormPage";
 import VehicleList from "../pages/customer/VehicleList";
-
-import AppointmentBooking from "../pages/appointments/AppointmentBooking";
-import AppointmentList from "../pages/appointments/AppointmentList";
-import AppointmentManagement from "../pages/appointments/AppointmentManagement";
+import SparePartsList from "../pages/inventory/SparePartsList";
 import MechanicDashboard from "../pages/mechanic/MechanicDashboard";
 import MechanicAvailability from "../pages/mechanic/MechanicAvailability";
+import About from "../pages/public/About";
+import Branches from "../pages/public/Branches";
+import Home from "../pages/public/Home";
+import Services from "../pages/public/Services";
+import ServiceOrderDetails from "../pages/serviceOrders/ServiceOrderDetails";
+import ServiceOrderFormPage from "../pages/serviceOrders/ServiceOrderFormPage";
+import ServiceOrderList from "../pages/serviceOrders/ServiceOrderList";
 
 function RootRoute() {
   const { user } = useAuth();
@@ -64,8 +77,20 @@ function AppRoutes() {
 
       <Route element={<ProtectedRoute />}>
         <Route element={<AppLayout />}>
+          <Route path="unauthorized" element={<Unauthorized />} />
+          <Route path="account" element={<AccountSettings />} />
+
           <Route element={<RoleRoute allowedRoles={["Admin"]} />}>
             <Route path="admin" element={<AdminDashboard />} />
+            <Route path="admin/users" element={<UserManagement />} />
+            <Route path="admin/customers" element={<CustomerProfileManagement />} />
+            <Route path="admin/vehicles" element={<VehicleManagement />} />
+            <Route path="admin/service-types" element={<ServiceTypeManagement />} />
+            <Route path="admin/mechanics" element={<MechanicManagement />} />
+            <Route path="admin/branches" element={<BranchManagement />} />
+            <Route path="admin/invoices" element={<InvoiceManagement />} />
+            <Route path="admin/payments" element={<PaymentManagement />} />
+            <Route path="admin/spare-parts" element={<SparePartManagement />} />
           </Route>
 
           <Route
@@ -83,6 +108,8 @@ function AppRoutes() {
                 path="appointments/management"
                 element={<AppointmentManagement />}
             />
+            <Route path="service-orders/new" element={<ServiceOrderFormPage />} />
+            <Route path="service-orders/:id/edit" element={<ServiceOrderFormPage />} />
           </Route>
 
           <Route
@@ -129,6 +156,7 @@ function AppRoutes() {
                 path="customer/appointments"
                 element={<AppointmentList />}
             />
+            <Route path="customer/billing" element={<CustomerBilling />} />
             
           </Route>
 
@@ -143,6 +171,10 @@ function AppRoutes() {
             <Route
               path="service-orders/:id"
               element={<ServiceOrderDetails />}
+            />
+            <Route
+              path="appointments/:id"
+              element={<AppointmentDetails />}
             />
           </Route>
 

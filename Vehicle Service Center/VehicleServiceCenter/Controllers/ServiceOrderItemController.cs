@@ -51,6 +51,9 @@ namespace VehicleServiceCenter.Controllers
             if (!_resourceAccess.CanManageServiceOrder(item.ServiceOrderId))
                 return Forbid();
 
+            string? validationError = await ValidateItem(item);
+            if (validationError != null) return BadRequest(validationError);
+
             item.Subtotal = item.Quantity * item.UnitPrice;
             _context.ServiceOrderItems.Add(item);
             await _context.SaveChangesAsync();
@@ -66,6 +69,12 @@ namespace VehicleServiceCenter.Controllers
             if (!_resourceAccess.CanManageServiceOrderItem(id))
                 return Forbid();
 
+            string? validationError = await ValidateItem(updated);
+            if (validationError != null) return BadRequest(validationError);
+
+            item.ItemType = updated.ItemType;
+            item.ServiceTypeId = updated.ServiceTypeId;
+            item.SparePartId = updated.SparePartId;
             item.Quantity = updated.Quantity;
             item.UnitPrice = updated.UnitPrice;
             item.LaborHours = updated.LaborHours;
@@ -100,6 +109,9 @@ namespace VehicleServiceCenter.Controllers
             if (!_resourceAccess.CanManageServiceOrderItem(id))
                 return Forbid();
 
+            if (quantity <= 0)
+                return BadRequest("Quantity must be greater than zero.");
+
             item.Quantity = quantity;
             item.Subtotal = quantity * item.UnitPrice;
 
@@ -133,6 +145,37 @@ namespace VehicleServiceCenter.Controllers
                 .Where(i => i.ServiceOrderId == serviceOrderId)
                 .SumAsync(i => i.Subtotal);
             return Ok(new { ServiceOrderId = serviceOrderId, Total = total });
+        }
+
+        private async Task<string?> ValidateItem(ServiceOrderItemModel item)
+        {
+            if (item.Quantity <= 0) return "Quantity must be greater than zero.";
+            if (item.UnitPrice < 0) return "Unit price cannot be negative.";
+
+            if (item.ItemType == "Service")
+            {
+                if (!item.ServiceTypeId.HasValue || item.SparePartId.HasValue)
+                    return "A service item must select one service type and no spare part.";
+
+                if (!await _context.ServiceTypes.AnyAsync(service =>
+                        service.ServiceTypeId == item.ServiceTypeId.Value))
+                    return "The selected service type does not exist.";
+            }
+            else if (item.ItemType == "SparePart")
+            {
+                if (!item.SparePartId.HasValue || item.ServiceTypeId.HasValue)
+                    return "A spare-part item must select one spare part and no service type.";
+
+                if (!await _context.SpareParts.AnyAsync(part =>
+                        part.SparePartId == item.SparePartId.Value))
+                    return "The selected spare part does not exist.";
+            }
+            else
+            {
+                return "Item type must be Service or SparePart.";
+            }
+
+            return null;
         }
     }
 }

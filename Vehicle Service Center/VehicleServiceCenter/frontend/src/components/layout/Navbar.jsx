@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useAuth } from "../../context/AuthContext";
 
 function Navbar() {
@@ -19,13 +19,10 @@ function Navbar() {
         </span>
       </div>
 
-      <button
-        type="button"
-        className="btn btn-outline-danger btn-sm"
-        onClick={handleLogout}
-      >
-        Logout
-      </button>
+      <div className="d-flex gap-2">
+        <Link className="btn btn-outline-secondary btn-sm" to="/account">Account</Link>
+        <button type="button" className="btn btn-outline-danger btn-sm" onClick={handleLogout}>Logout</button>
+      </div>
     </header>
   );
 }

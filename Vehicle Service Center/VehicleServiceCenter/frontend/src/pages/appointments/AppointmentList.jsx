@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router";
 import { getAppointments } from "../../api/appointmentApi";
 import { getCustomerProfileByUserId } from "../../api/customerProfileApi";
 import { useAuth } from "../../context/AuthContext";
@@ -87,6 +88,7 @@ function AppointmentList() {
                             <th>Date</th>
                             <th>Status</th>
                             <th>Notes</th>
+                            <th>Action</th>
                         </tr>
                         </thead>
 
@@ -125,6 +127,7 @@ function AppointmentList() {
                                 <td>
                                     {appointment.notes || "—"}
                                 </td>
+                                <td><Link className="btn btn-outline-primary btn-sm" to={`/appointments/${appointment.appointmentId}`}>Details</Link></td>
                             </tr>
                         ))}
                         </tbody>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
-import { getInvoiceById } from "../api/invoiceApi";
+import { getInvoiceById } from "../../api/invoiceApi";
 
 function formatDate(date) {
   if (!date) {

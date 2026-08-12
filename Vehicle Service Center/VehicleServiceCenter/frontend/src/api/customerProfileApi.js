@@ -68,3 +68,7 @@ export function deleteCustomerProfile(customerProfileId) {
     },
   });
 }
+
+export function sortCustomerProfiles(descending = true) {
+  return getCustomerProfilesSortedByCreatedAt(descending);
+}

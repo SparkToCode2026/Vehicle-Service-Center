@@ -1,15 +1,21 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router";
 import {
+    filterAppointmentsByStatus,
     getAppointments,
+    sortAppointments,
     updateAppointmentStatus,
     deleteAppointment,
 } from "../../api/appointmentApi";
+import { useAuth } from "../../context/AuthContext";
 
 function AppointmentManagement() {
+    const { user } = useAuth();
     const [appointments, setAppointments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [updatingId, setUpdatingId] = useState(null);
+    const [statusFilter, setStatusFilter] = useState("");
 
     useEffect(() => {
         loadAppointments();
@@ -125,7 +131,6 @@ function AppointmentManagement() {
         );
     }
     
-console.log(appointments);
     return (
         <div className="container mt-5">
 
@@ -138,6 +143,26 @@ console.log(appointments);
                 >
                     Refresh
                 </button>
+            </div>
+
+            <div className="card card-body shadow-sm mb-4">
+                <div className="d-flex flex-wrap gap-2 align-items-end">
+                    <div>
+                        <label className="form-label" htmlFor="appointment-status-filter">Status filter</label>
+                        <select id="appointment-status-filter" className="form-select" value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}>
+                            <option value="">All</option><option value="Pending">Pending</option><option value="Confirmed">Confirmed</option><option value="In Progress">In Progress</option><option value="Completed">Completed</option><option value="Cancelled">Cancelled</option>
+                        </select>
+                    </div>
+                    <button className="btn btn-outline-primary" type="button" disabled={!statusFilter} onClick={async () => {
+                        try { setAppointments(await filterAppointmentsByStatus(statusFilter)); }
+                        catch { setError("Failed to filter appointments."); }
+                    }}>Filter</button>
+                    <button className="btn btn-outline-info" type="button" onClick={async () => {
+                        try { setAppointments(await sortAppointments()); }
+                        catch { setError("Failed to sort appointments."); }
+                    }}>Sort by date</button>
+                    <button className="btn btn-outline-secondary" type="button" onClick={loadAppointments}>Reset</button>
+                </div>
             </div>
 
             {error && (
@@ -276,7 +301,8 @@ console.log(appointments);
                                         </option>
                                     </select>
 
-                                    <button
+                                    <Link className="btn btn-sm btn-outline-primary me-2" to={`/appointments/${appointment.appointmentId}`}>Details</Link>
+                                    {user?.role === "Admin" && <button
                                         className="btn btn-sm btn-danger"
                                         onClick={() =>
                                             handleDelete(
@@ -285,7 +311,7 @@ console.log(appointments);
                                         }
                                     >
                                         Delete
-                                    </button>
+                                    </button>}
 
                                 </td>
 

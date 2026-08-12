@@ -4,7 +4,7 @@ import {
   getAllSpareParts,
   getSparePartById,
   getSparePartsSortedByPrice,
-} from "../api/sparePartApi";
+} from "../../api/sparePartApi";
 
 function formatAmount(amount) {
   return Number(amount || 0).toFixed(2);

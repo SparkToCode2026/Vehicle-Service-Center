@@ -1,16 +1,47 @@
-# React + Vite
+# Vehicle Service Center Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+React and Vite frontend for the Vehicle Service Center API. It provides separate Admin, Customer, and Mechanic journeys, JWT-authenticated API access, role-aware navigation, and management workflows for every project controller.
 
-Currently, two official plugins are available:
+## Requirements
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Node.js 20 or newer
+- The ASP.NET Core API running locally
 
-## React Compiler
+## Installation
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+From the `frontend` directory:
 
-## Expanding the Oxlint configuration
+```powershell
+npm install
+Copy-Item .env.example .env
+npm run dev
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+Open the URL printed by Vite. By default, API requests use `http://localhost:5248`.
+
+## Environment variables
+
+`VITE_API_BASE_URL` is the public base URL of the backend API. Vite variables are included in browser code, so never put database passwords, SMTP passwords, JWT signing keys, or any other secret in `frontend/.env`.
+
+Backend secrets belong in the root `.env` file or a secure deployment secret store. The committed `.env.example` files contain placeholders only.
+
+## Commands
+
+```powershell
+npm run dev      # development server
+npm run build    # production build in dist/
+npm run preview  # preview the production build
+npm run lint     # Oxlint checks
+```
+
+## Main journeys
+
+- Admin: users, customer profiles, vehicles, service types, mechanics, appointments, service orders/items, invoices, payments, spare parts, and branches.
+- Customer: profile and vehicles, appointment booking/history/details, and owned service-order/invoice/payment records.
+- Mechanic: dashboard and availability, assigned appointments and service orders, order status/items, and spare-part inventory.
+
+The frontend hides actions that do not apply to the signed-in role. The backend remains responsible for authorization and ownership checks. A `401` clears the expired session and returns to login; a `403` opens the unauthorized page with a clear explanation.
+
+## Manual verification
+
+Use [SPRINT_2_USER_TEST_CHECKLIST.md](./SPRINT_2_USER_TEST_CHECKLIST.md) to record browser evidence for the three roles, all CRUD workflows, loading/empty/error states, and authorization failures.
