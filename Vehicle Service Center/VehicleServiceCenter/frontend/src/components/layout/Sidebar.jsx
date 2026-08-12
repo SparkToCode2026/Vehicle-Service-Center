@@ -7,7 +7,12 @@ const navigationByRole = {
     { label: "Service Orders", path: "/service-orders" },
     { label: "Spare Parts", path: "/spare-parts" },
   ],
-  Customer: [{ label: "Service Orders", path: "/service-orders" }],
+  Customer: [
+    { label: "Dashboard", path: "/customer", end: true },
+    { label: "Profile", path: "/customer/profile" },
+    { label: "My Vehicles", path: "/customer/vehicles" },
+    { label: "Service Orders", path: "/service-orders" },
+  ],
   Mechanic: [
     { label: "Service Orders", path: "/service-orders" },
     { label: "Spare Parts", path: "/spare-parts" },
@@ -28,6 +33,7 @@ function Sidebar() {
             <li className="nav-item" key={link.path}>
               <NavLink
                 to={link.path}
+                end={link.end}
                 className={({ isActive }) =>
                   `nav-link ${isActive ? "active" : "text-white"}`
                 }
