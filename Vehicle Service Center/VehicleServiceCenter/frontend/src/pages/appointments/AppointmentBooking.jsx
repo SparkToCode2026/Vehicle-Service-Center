@@ -21,3 +21,12 @@ function AppointmentBooking() {
             ...formData,
             [name]: value,
         });
+        
+        
+
+    // Remove the error when the user starts correcting the field
+    setErrors({
+        ...errors,
+        [name]: "",
+    });
+}
