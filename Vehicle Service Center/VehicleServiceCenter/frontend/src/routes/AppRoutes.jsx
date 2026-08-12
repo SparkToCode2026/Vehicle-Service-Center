@@ -16,8 +16,12 @@ import About from "../pages/About";
 import Services from "../pages/Services";
 import Branches from "../pages/Branches";
 
-function HomeRedirect() {
+function RootRoute() {
   const { user } = useAuth();
+
+  if (!user) {
+    return <Home />;
+  }
 
   if (user?.role === "Admin") {
     return <Navigate to="/admin" replace />;
@@ -31,11 +35,16 @@ function AppRoutes() {
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      
+      <Route element={<AppLayout />}>
+        <Route path="/" element={<RootRoute />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/services" element={<Services />} />
+        <Route path="/branches" element={<Branches />} />
+      </Route>
 
       <Route element={<ProtectedRoute />}>
         <Route element={<AppLayout />}>
-          <Route index element={<HomeRedirect />} />
-
           <Route element={<RoleRoute allowedRoles={["Admin"]} />}>
             <Route path="admin" element={<AdminDashboard />} />
           </Route>
