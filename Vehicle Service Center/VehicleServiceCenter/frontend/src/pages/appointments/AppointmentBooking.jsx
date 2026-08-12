@@ -1,7 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { createAppointment } from "../../api/appointmentApi";
+import { getCustomerProfileByUserId } from "../../api/customerProfileApi";
+import { getAllVehicles } from "../../api/vehicleApi";
+import { getActiveBranches } from "../../api/branchApi";
+import { getActiveServiceTypes } from "../../api/serviceTypeApi";
+import { useAuth } from "../../context/AuthContext";
 
 function AppointmentBooking() {
-    // Store the appointment form data
+    const { user } = useAuth();
+
     const [formData, setFormData] = useState({
         vehicleId: "",
         serviceTypeId: "",
@@ -10,10 +17,59 @@ function AppointmentBooking() {
         notes: "",
     });
 
-    // Store validation error messages
+    const [vehicles, setVehicles] = useState([]);
+    const [services, setServices] = useState([]);
+    const [branches, setBranches] = useState([]);
+
+    const [customerProfileId, setCustomerProfileId] = useState(null);
+
     const [errors, setErrors] = useState({});
-    
-    // Handle changes in the form fields
+    const [apiError, setApiError] = useState("");
+    const [successMessage, setSuccessMessage] = useState("");
+    const [loading, setLoading] = useState(true);
+    const [submitting, setSubmitting] = useState(false);
+
+    // Load customer data and booking options
+    useEffect(() => {
+        async function loadBookingData() {
+            try {
+                setLoading(true);
+                setApiError("");
+
+                const [
+                    customerResponse,
+                    vehiclesResponse,
+                    servicesResponse,
+                    branchesResponse,
+                ] = await Promise.all([
+                    getCustomerProfileByUserId(user.userId),
+                    getAllVehicles(),
+                    getActiveServiceTypes(),
+                    getActiveBranches(),
+                ]);
+
+                setCustomerProfileId(customerResponse.data.customerProfileId);
+
+                setVehicles(vehiclesResponse.data);
+                setServices(servicesResponse.data);
+                setBranches(branchesResponse.data);
+            } catch (error) {
+                console.error(error);
+
+                setApiError(
+                    error.response?.data ||
+                    "Failed to load appointment booking data."
+                );
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        if (user?.userId) {
+            loadBookingData();
+        }
+    }, [user]);
+
     function handleChange(event) {
         const { name, value } = event.target;
 
@@ -21,17 +77,16 @@ function AppointmentBooking() {
             ...formData,
             [name]: value,
         });
-        
-        
 
-    // Remove the error when the user starts correcting the field
-    setErrors({
-        ...errors,
-        [name]: "",
-    });
-}
+        setErrors({
+            ...errors,
+            [name]: "",
+        });
 
-    // Validate the appointment form
+        setApiError("");
+        setSuccessMessage("");
+    }
+
     function validateForm() {
         const newErrors = {};
 
@@ -57,29 +112,88 @@ function AppointmentBooking() {
         return Object.keys(newErrors).length === 0;
     }
 
-    // Handle appointment booking
-    function handleSubmit(event) {
+    async function handleSubmit(event) {
         event.preventDefault();
 
-        // Validate the form before submitting
-        const isValid = validateForm();
+        setSuccessMessage("");
+        setApiError("");
 
-        if (!isValid) {
+        if (!validateForm()) {
             return;
         }
 
-        // We will connect this form to the backend API next
-        console.log("Appointment data:", formData);
+        if (!customerProfileId) {
+            setApiError("Customer profile could not be found.");
+            return;
+        }
+
+        try {
+            setSubmitting(true);
+
+            const appointmentData = {
+                customerProfileId: customerProfileId,
+                vehicleId: Number(formData.vehicleId),
+                serviceTypeId: Number(formData.serviceTypeId),
+                branchId: Number(formData.branchId),
+                appointmentDate: formData.appointmentDate,
+                status: "Pending",
+                notes: formData.notes || null,
+            };
+
+            await createAppointment(appointmentData);
+
+            setSuccessMessage(
+                "Appointment booked successfully!"
+            );
+
+            setFormData({
+                vehicleId: "",
+                serviceTypeId: "",
+                branchId: "",
+                appointmentDate: "",
+                notes: "",
+            });
+
+            setErrors({});
+        } catch (error) {
+            console.error(error);
+
+            setApiError(
+                error.response?.data ||
+                "Failed to book the appointment."
+            );
+        } finally {
+            setSubmitting(false);
+        }
+    }
+
+    if (loading) {
+        return (
+            <div className="container mt-5">
+                <p>Loading booking information...</p>
+            </div>
+        );
     }
 
     return (
         <div className="container mt-5">
-            {/* Page title */}
             <h2 className="mb-4">Book an Appointment</h2>
+
+            {apiError && (
+                <div className="alert alert-danger">
+                    {apiError}
+                </div>
+            )}
+
+            {successMessage && (
+                <div className="alert alert-success">
+                    {successMessage}
+                </div>
+            )}
 
             <form onSubmit={handleSubmit}>
 
-                {/* Vehicle selection */}
+                {/* Vehicle */}
                 <div className="mb-3">
                     <label className="form-label">
                         Vehicle
@@ -95,10 +209,15 @@ function AppointmentBooking() {
                             Select your vehicle
                         </option>
 
-                        {/* Vehicle data will come from the API later */}
-                        <option value="1">
-                            Vehicle 1
-                        </option>
+                        {vehicles.map((vehicle) => (
+                            <option
+                                key={vehicle.vehicleId}
+                                value={vehicle.vehicleId}
+                            >
+                                {vehicle.make} {vehicle.model} -{" "}
+                                {vehicle.plateNumber}
+                            </option>
+                        ))}
                     </select>
 
                     {errors.vehicleId && (
@@ -108,7 +227,7 @@ function AppointmentBooking() {
                     )}
                 </div>
 
-                {/* Service selection */}
+                {/* Service */}
                 <div className="mb-3">
                     <label className="form-label">
                         Service
@@ -124,10 +243,14 @@ function AppointmentBooking() {
                             Select a service
                         </option>
 
-                        {/* Service data will come from the API later */}
-                        <option value="1">
-                            Oil Change
-                        </option>
+                        {services.map((service) => (
+                            <option
+                                key={service.serviceTypeId}
+                                value={service.serviceTypeId}
+                            >
+                                {service.name}
+                            </option>
+                        ))}
                     </select>
 
                     {errors.serviceTypeId && (
@@ -137,7 +260,7 @@ function AppointmentBooking() {
                     )}
                 </div>
 
-                {/* Branch selection */}
+                {/* Branch */}
                 <div className="mb-3">
                     <label className="form-label">
                         Branch
@@ -153,10 +276,14 @@ function AppointmentBooking() {
                             Select a branch
                         </option>
 
-                        {/* Branch data will come from the API later */}
-                        <option value="1">
-                            Main Branch
-                        </option>
+                        {branches.map((branch) => (
+                            <option
+                                key={branch.branchId}
+                                value={branch.branchId}
+                            >
+                                {branch.branchName}
+                            </option>
+                        ))}
                     </select>
 
                     {errors.branchId && (
@@ -166,7 +293,7 @@ function AppointmentBooking() {
                     )}
                 </div>
 
-                {/* Appointment date and time */}
+                {/* Appointment date */}
                 <div className="mb-3">
                     <label className="form-label">
                         Appointment Date & Time
@@ -187,7 +314,7 @@ function AppointmentBooking() {
                     )}
                 </div>
 
-                {/* Optional notes */}
+                {/* Notes */}
                 <div className="mb-3">
                     <label className="form-label">
                         Notes
@@ -204,12 +331,14 @@ function AppointmentBooking() {
                     />
                 </div>
 
-                {/* Submit button */}
                 <button
                     type="submit"
                     className="btn btn-primary"
+                    disabled={submitting}
                 >
-                    Book Appointment
+                    {submitting
+                        ? "Booking..."
+                        : "Book Appointment"}
                 </button>
 
             </form>
