@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import {
   createCustomerProfile,
+  deleteCustomerProfile,
   getCustomerProfileByUserId,
   updateCustomerProfile,
 } from "../../api/customerProfileApi";
@@ -106,6 +107,26 @@ function CustomerProfile() {
         });
         setSuccess("Your profile was created successfully.");
       }
+    } catch (requestError) {
+      setError(getErrorMessage(requestError));
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleDelete() {
+    if (!profile || !window.confirm("Delete your customer profile? This cannot be undone.")) {
+      return;
+    }
+
+    try {
+      setSaving(true);
+      setError("");
+      setSuccess("");
+      await deleteCustomerProfile(profile.customerProfileId);
+      setProfile(null);
+      setFormData(emptyForm);
+      setSuccess("Your customer profile was deleted.");
     } catch (requestError) {
       setError(getErrorMessage(requestError));
     } finally {
@@ -244,6 +265,17 @@ function CustomerProfile() {
                   disabled={saving}
                 >
                   Reset
+                </button>
+              )}
+
+              {profile && (
+                <button
+                  className="btn btn-outline-danger ms-auto"
+                  type="button"
+                  onClick={handleDelete}
+                  disabled={saving}
+                >
+                  Delete Profile
                 </button>
               )}
             </div>
