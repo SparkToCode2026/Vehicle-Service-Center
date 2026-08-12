@@ -124,6 +124,20 @@ namespace VehicleServiceCenter.Controllers
             if (to.HasValue) query = query.Where(so => so.OrderDate <= to.Value);
             return await query.ToListAsync();
         }
+        
+        // Case 8: Get service orders assigned to a specific mechanic
+        [HttpGet("mechanic/{mechanicProfileId}")]
+        public async Task<ActionResult<IEnumerable<ServiceOrderModel>>> GetByMechanic(
+            int mechanicProfileId)
+        {
+            var orders = await _context.ServiceOrders
+                .Include(so => so.Vehicle)
+                .Include(so => so.ServiceOrderItems)
+                .Where(so => so.MechanicProfileId == mechanicProfileId)
+                .ToListAsync();
+
+            return Ok(orders);
+        }
 
         // Case 8: group + aggregate by status
         [HttpGet("summary")]

@@ -21,6 +21,12 @@ import VehicleDetails from "../pages/customer/VehicleDetails";
 import VehicleFormPage from "../pages/customer/VehicleFormPage";
 import VehicleList from "../pages/customer/VehicleList";
 
+import AppointmentBooking from "../pages/appointments/AppointmentBooking";
+import AppointmentList from "../pages/appointments/AppointmentList";
+import AppointmentManagement from "../pages/appointments/AppointmentManagement";
+import MechanicDashboard from "../pages/mechanic/MechanicDashboard";
+import MechanicAvailability from "../pages/mechanic/MechanicAvailability";
+
 function RootRoute() {
   const { user } = useAuth();
 
@@ -36,8 +42,12 @@ function RootRoute() {
     return <Navigate to="/customer" replace />;
   }
 
+  if (user?.role === "Mechanic") {
+    return <Navigate to="/mechanic" replace />;
+  }
+
   return <Navigate to="/service-orders" replace />;
-}
+  }
 
 function AppRoutes() {
   return (
@@ -57,6 +67,36 @@ function AppRoutes() {
           <Route element={<RoleRoute allowedRoles={["Admin"]} />}>
             <Route path="admin" element={<AdminDashboard />} />
           </Route>
+
+          <Route
+              element={<RoleRoute allowedRoles={["Mechanic"]} />}
+          >
+            <Route path="mechanic" element={<MechanicDashboard />} />
+          </Route>
+
+          <Route
+              element={
+                <RoleRoute allowedRoles={["Admin", "Mechanic"]} />
+              }
+          >
+            <Route
+                path="appointments/management"
+                element={<AppointmentManagement />}
+            />
+          </Route>
+
+          <Route
+              element={
+                <RoleRoute allowedRoles={["Mechanic"]} />
+              }
+          >
+            <Route
+                path="mechanic/availability"
+                element={<MechanicAvailability />}
+            />
+          </Route>
+          
+          
 
           <Route element={<RoleRoute allowedRoles={["Customer"]} />}>
             <Route path="customer" element={<CustomerDashboard />} />
@@ -80,6 +120,16 @@ function AppRoutes() {
               path="customer/vehicles/:id/edit"
               element={<VehicleFormPage />}
             />
+
+            <Route
+                path="customer/appointments/new"
+                element={<AppointmentBooking />}
+            />
+            <Route
+                path="customer/appointments"
+                element={<AppointmentList />}
+            />
+            
           </Route>
 
           <Route

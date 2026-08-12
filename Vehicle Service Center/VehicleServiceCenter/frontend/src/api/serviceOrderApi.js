@@ -8,6 +8,10 @@ export function getServiceOrderById(serviceOrderId) {
   return api.get(`/api/ServiceOrder/${serviceOrderId}`);
 }
 
+export function getServiceOrdersByMechanic(mechanicProfileId) {
+  return api.get(`/api/ServiceOrder/mechanic/${mechanicProfileId}`);
+}
+
 export function filterServiceOrders(filters) {
   return api.get("/api/ServiceOrder/filter", {
     params: filters,

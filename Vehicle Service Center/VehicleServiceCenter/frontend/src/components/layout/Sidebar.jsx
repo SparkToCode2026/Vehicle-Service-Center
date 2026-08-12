@@ -12,10 +12,16 @@ const navigationByRole = {
     { label: "Profile", path: "/customer/profile" },
     { label: "My Vehicles", path: "/customer/vehicles" },
     { label: "Service Orders", path: "/service-orders" },
+    { label: "My Appointments", path: "/customer/appointments" },
+    { label: "Book Appointment", path: "/customer/appointments/new" },
   ],
   Mechanic: [
+    { label: "Dashboard", path: "/mechanic", end: true },
+    { label: "Availability", path: "/mechanic/availability" },
     { label: "Service Orders", path: "/service-orders" },
+    { label: "Appointments", path: "/appointments/management" },
     { label: "Spare Parts", path: "/spare-parts" },
+      
   ],
 };
 
