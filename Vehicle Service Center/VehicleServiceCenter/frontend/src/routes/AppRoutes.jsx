@@ -24,6 +24,7 @@ import VehicleList from "../pages/customer/VehicleList";
 import AppointmentBooking from "../pages/appointments/AppointmentBooking";
 import AppointmentList from "../pages/appointments/AppointmentList";
 import AppointmentManagement from "../pages/appointments/AppointmentManagement";
+import MechanicDashboard from "../pages/mechanic/MechanicDashboard";
 import MechanicAvailability from "../pages/mechanic/MechanicAvailability";
 
 function RootRoute() {
@@ -41,8 +42,12 @@ function RootRoute() {
     return <Navigate to="/customer" replace />;
   }
 
+  if (user?.role === "Mechanic") {
+    return <Navigate to="/mechanic" replace />;
+  }
+
   return <Navigate to="/service-orders" replace />;
-}
+  }
 
 function AppRoutes() {
   return (
@@ -61,6 +66,12 @@ function AppRoutes() {
         <Route element={<AppLayout />}>
           <Route element={<RoleRoute allowedRoles={["Admin"]} />}>
             <Route path="admin" element={<AdminDashboard />} />
+          </Route>
+
+          <Route
+              element={<RoleRoute allowedRoles={["Mechanic"]} />}
+          >
+            <Route path="mechanic" element={<MechanicDashboard />} />
           </Route>
 
           <Route
