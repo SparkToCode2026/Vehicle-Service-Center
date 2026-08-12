@@ -11,6 +11,10 @@ import Register from "../pages/Register";
 import ServiceOrderDetails from "../pages/ServiceOrderDetails";
 import ServiceOrderList from "../pages/ServiceOrderList";
 import SparePartsList from "../pages/SparePartsList";
+import Home from "../pages/Home";
+import About from "../pages/About";
+import Services from "../pages/Services";
+import Branches from "../pages/Branches";
 
 function HomeRedirect() {
   const { user } = useAuth();
