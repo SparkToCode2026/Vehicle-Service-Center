@@ -20,6 +20,7 @@ import CustomerProfile from "../pages/customer/CustomerProfile";
 import VehicleDetails from "../pages/customer/VehicleDetails";
 import VehicleFormPage from "../pages/customer/VehicleFormPage";
 import VehicleList from "../pages/customer/VehicleList";
+import AppointmentBooking from "../pages/appointments/AppointmentBooking";
 
 function RootRoute() {
   const { user } = useAuth();
@@ -80,6 +81,12 @@ function AppRoutes() {
               path="customer/vehicles/:id/edit"
               element={<VehicleFormPage />}
             />
+
+            <Route
+                path="customer/appointments/new"
+                element={<AppointmentBooking />}
+            />
+            
           </Route>
 
           <Route
