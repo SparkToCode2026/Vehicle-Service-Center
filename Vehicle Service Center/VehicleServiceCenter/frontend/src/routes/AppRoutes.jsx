@@ -15,6 +15,11 @@ import Home from "../pages/Home";
 import About from "../pages/About";
 import Services from "../pages/Services";
 import Branches from "../pages/Branches";
+import CustomerDashboard from "../pages/customer/CustomerDashboard";
+import CustomerProfile from "../pages/customer/CustomerProfile";
+import VehicleDetails from "../pages/customer/VehicleDetails";
+import VehicleFormPage from "../pages/customer/VehicleFormPage";
+import VehicleList from "../pages/customer/VehicleList";
 
 function RootRoute() {
   const { user } = useAuth();
@@ -25,6 +30,10 @@ function RootRoute() {
 
   if (user?.role === "Admin") {
     return <Navigate to="/admin" replace />;
+  }
+
+  if (user?.role === "Customer") {
+    return <Navigate to="/customer" replace />;
   }
 
   return <Navigate to="/service-orders" replace />;
@@ -47,6 +56,30 @@ function AppRoutes() {
         <Route element={<AppLayout />}>
           <Route element={<RoleRoute allowedRoles={["Admin"]} />}>
             <Route path="admin" element={<AdminDashboard />} />
+          </Route>
+
+          <Route element={<RoleRoute allowedRoles={["Customer"]} />}>
+            <Route path="customer" element={<CustomerDashboard />} />
+            <Route
+              path="customer/profile"
+              element={<CustomerProfile />}
+            />
+            <Route
+              path="customer/vehicles"
+              element={<VehicleList />}
+            />
+            <Route
+              path="customer/vehicles/new"
+              element={<VehicleFormPage />}
+            />
+            <Route
+              path="customer/vehicles/:id"
+              element={<VehicleDetails />}
+            />
+            <Route
+              path="customer/vehicles/:id/edit"
+              element={<VehicleFormPage />}
+            />
           </Route>
 
           <Route
