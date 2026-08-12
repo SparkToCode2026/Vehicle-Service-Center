@@ -1,23 +1,32 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VehicleServiceCenter.Models;
+using VehicleServiceCenter.Services;
 
 namespace VehicleServiceCenter.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class ServiceOrderItemController : ControllerBase
     {
         private ProjectContext _context;
-        public ServiceOrderItemController(ProjectContext context)
+        private readonly IResourceAuthorizationService _resourceAccess;
+
+        public ServiceOrderItemController(
+            ProjectContext context,
+            IResourceAuthorizationService resourceAccess)
         {
             _context = context;
+            _resourceAccess = resourceAccess;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ServiceOrderItemModel>>> GetAll()
         {
-            return await _context.ServiceOrderItems
+            return await _resourceAccess
+                .ScopeServiceOrderItems(_context.ServiceOrderItems)
                 .Include(i => i.ServiceType)
                 .Include(i => i.SparePart)
                 .ToListAsync();
@@ -26,7 +35,8 @@ namespace VehicleServiceCenter.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<ServiceOrderItemModel>> GetById(int id)
         {
-            var item = await _context.ServiceOrderItems
+            var item = await _resourceAccess
+                .ScopeServiceOrderItems(_context.ServiceOrderItems)
                 .Include(i => i.ServiceType)
                 .Include(i => i.SparePart)
                 .FirstOrDefaultAsync(i => i.ServiceOrderItemId == id);
@@ -38,6 +48,9 @@ namespace VehicleServiceCenter.Controllers
         [HttpPost]
         public async Task<ActionResult<ServiceOrderItemModel>> Create(ServiceOrderItemModel item)
         {
+            if (!_resourceAccess.CanManageServiceOrder(item.ServiceOrderId))
+                return Forbid();
+
             item.Subtotal = item.Quantity * item.UnitPrice;
             _context.ServiceOrderItems.Add(item);
             await _context.SaveChangesAsync();
@@ -49,6 +62,9 @@ namespace VehicleServiceCenter.Controllers
         {
             var item = await _context.ServiceOrderItems.FindAsync(id);
             if (item == null) return NotFound();
+
+            if (!_resourceAccess.CanManageServiceOrderItem(id))
+                return Forbid();
 
             item.Quantity = updated.Quantity;
             item.UnitPrice = updated.UnitPrice;
@@ -66,6 +82,9 @@ namespace VehicleServiceCenter.Controllers
             var item = await _context.ServiceOrderItems.FindAsync(id);
             if (item == null) return NotFound();
 
+            if (!_resourceAccess.CanManageServiceOrderItem(id))
+                return Forbid();
+
             _context.ServiceOrderItems.Remove(item);
             await _context.SaveChangesAsync();
             return NoContent();
@@ -78,6 +97,9 @@ namespace VehicleServiceCenter.Controllers
             var item = await _context.ServiceOrderItems.FindAsync(id);
             if (item == null) return NotFound();
 
+            if (!_resourceAccess.CanManageServiceOrderItem(id))
+                return Forbid();
+
             item.Quantity = quantity;
             item.Subtotal = quantity * item.UnitPrice;
 
@@ -89,7 +111,11 @@ namespace VehicleServiceCenter.Controllers
         [HttpGet("filter")]
         public async Task<ActionResult<IEnumerable<ServiceOrderItemModel>>> Filter([FromQuery] int? serviceOrderId, [FromQuery] string? itemType)
         {
-            var query = _context.ServiceOrderItems.Include(i => i.ServiceType).Include(i => i.SparePart).AsQueryable();
+            var query = _resourceAccess
+                .ScopeServiceOrderItems(_context.ServiceOrderItems)
+                .Include(i => i.ServiceType)
+                .Include(i => i.SparePart)
+                .AsQueryable();
             if (serviceOrderId.HasValue) query = query.Where(i => i.ServiceOrderId == serviceOrderId.Value);
             if (!string.IsNullOrEmpty(itemType)) query = query.Where(i => i.ItemType == itemType);
             return await query.ToListAsync();
@@ -99,7 +125,11 @@ namespace VehicleServiceCenter.Controllers
         [HttpGet("total/{serviceOrderId}")]
         public async Task<ActionResult> GetOrderTotal(int serviceOrderId)
         {
-            var total = await _context.ServiceOrderItems
+            if (!_resourceAccess.CanAccessServiceOrder(serviceOrderId))
+                return Forbid();
+
+            var total = await _resourceAccess
+                .ScopeServiceOrderItems(_context.ServiceOrderItems)
                 .Where(i => i.ServiceOrderId == serviceOrderId)
                 .SumAsync(i => i.Subtotal);
             return Ok(new { ServiceOrderId = serviceOrderId, Total = total });

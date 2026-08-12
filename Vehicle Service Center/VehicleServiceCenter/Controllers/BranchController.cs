@@ -17,11 +17,12 @@ public class BranchController : ControllerBase
     }
 
     // Add branch
+    [Authorize(Roles = "Admin")]
     [HttpPost("AddBranch")]
     public IActionResult AddBranch(BranchModel branch)
     {
         // Check whether branch name already exists
-        BranchModel existingBranch =
+        BranchModel? existingBranch =
             context.Branches.FirstOrDefault(b =>
                 b.BranchName == branch.BranchName
             );
@@ -34,7 +35,7 @@ public class BranchController : ControllerBase
         }
 
         // Check whether branch email already exists
-        BranchModel existingEmail =
+        BranchModel? existingEmail =
             context.Branches.FirstOrDefault(b =>
                 b.Email == branch.Email
             );
@@ -68,6 +69,7 @@ public class BranchController : ControllerBase
     
     
     // Get all branches
+    [AllowAnonymous]
     [HttpGet("GetAll")]
     public IActionResult GetAllBranches()
     {
@@ -89,6 +91,7 @@ public class BranchController : ControllerBase
     }
     
     // Get with Mechanics 
+    [Authorize(Roles = "Admin,Mechanic")]
     [HttpGet("GetAllWithMechanics")]
     public IActionResult GetAllBranchesWithMechanics()
     {
@@ -108,6 +111,7 @@ public class BranchController : ControllerBase
     }
     
     // Sort By name
+    [AllowAnonymous]
     [HttpGet("SortByName")]
     public IActionResult SortBranchesByName(bool descending = false)
     {
@@ -130,6 +134,7 @@ public class BranchController : ControllerBase
     }
     
     // Count By status 
+    [Authorize(Roles = "Admin")]
     [HttpGet("CountByStatus")]
     public IActionResult GetBranchCountByStatus()
     {
@@ -146,6 +151,7 @@ public class BranchController : ControllerBase
     }
     
     // Get all active branches
+    [AllowAnonymous]
     [HttpGet("GetActive")]
     public IActionResult GetActiveBranches()
     {
@@ -168,6 +174,7 @@ public class BranchController : ControllerBase
     }
     
     // Get branch by ID
+    [AllowAnonymous]
     [HttpGet("GetById/{id}")]
     public IActionResult GetBranchById(int id)
     {
@@ -195,13 +202,14 @@ public class BranchController : ControllerBase
     }
     
     // Update branch by ID
+        [Authorize(Roles = "Admin")]
         [HttpPut("Update/{id}")]
         public IActionResult UpdateBranch(
             int id,
             BranchModel updatedBranch
         )
         {
-            BranchModel branch =
+            BranchModel? branch =
                 context.Branches.Find(id);
 
             if (branch == null)
@@ -209,7 +217,7 @@ public class BranchController : ControllerBase
                 return NotFound("Branch not found");
             }
 
-            BranchModel existingBranchName =
+            BranchModel? existingBranchName =
                 context.Branches.FirstOrDefault(b =>
                     b.BranchName ==
                         updatedBranch.BranchName &&
@@ -223,7 +231,7 @@ public class BranchController : ControllerBase
                 );
             }
 
-            BranchModel existingEmail =
+            BranchModel? existingEmail =
                 context.Branches.FirstOrDefault(b =>
                     b.Email == updatedBranch.Email &&
                     b.BranchId != id
@@ -269,13 +277,14 @@ public class BranchController : ControllerBase
         }
         
         // Change branch status
+        [Authorize(Roles = "Admin")]
         [HttpPatch("ChangeStatus/{id}")]
         public IActionResult ChangeBranchStatus(
             int id,
             bool isActive
         )
         {
-            BranchModel branch =
+            BranchModel? branch =
                 context.Branches.Find(id);
 
             if (branch == null)
@@ -294,10 +303,11 @@ public class BranchController : ControllerBase
             });
         }
         // Delete branch by ID
+        [Authorize(Roles = "Admin")]
         [HttpDelete("Delete/{id}")]
         public IActionResult DeleteBranch(int id)
         {
-            BranchModel branch =
+            BranchModel? branch =
                 context.Branches.Find(id);
 
             if (branch == null)

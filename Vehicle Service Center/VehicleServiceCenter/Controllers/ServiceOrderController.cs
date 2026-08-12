@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VehicleServiceCenter.Models;
@@ -5,23 +6,33 @@ using VehicleServiceCenter.Services;
 
 namespace VehicleServiceCenter.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class ServiceOrderController : ControllerBase
     {
         private readonly ProjectContext _context;
         private readonly IEmailService _emailService;
+        private readonly IResourceAuthorizationService _resourceAccess;
+        private readonly ILogger<ServiceOrderController> _logger;
 
-        public ServiceOrderController(ProjectContext context, IEmailService emailService)
+        public ServiceOrderController(
+            ProjectContext context,
+            IEmailService emailService,
+            IResourceAuthorizationService resourceAccess,
+            ILogger<ServiceOrderController> logger)
         {
             _context = context;
             _emailService = emailService;
+            _resourceAccess = resourceAccess;
+            _logger = logger;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ServiceOrderModel>>> GetAll()
         {
-            return await _context.ServiceOrders
+            return await _resourceAccess
+                .ScopeServiceOrders(_context.ServiceOrders)
                 .Include(so => so.Vehicle)
                 .Include(so => so.ServiceOrderItems)
                 .ToListAsync();
@@ -30,7 +41,8 @@ namespace VehicleServiceCenter.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<ServiceOrderModel>> GetById(int id)
         {
-            var order = await _context.ServiceOrders
+            var order = await _resourceAccess
+                .ScopeServiceOrders(_context.ServiceOrders)
                 .Include(so => so.Vehicle)
                 .Include(so => so.ServiceOrderItems)
                 .FirstOrDefaultAsync(so => so.ServiceOrderId == id);
@@ -39,9 +51,39 @@ namespace VehicleServiceCenter.Controllers
             return order;
         }
 
+        [Authorize(Roles = "Admin,Mechanic")]
         [HttpPost]
         public async Task<ActionResult<ServiceOrderModel>> Create(ServiceOrderModel order)
         {
+            if (!_resourceAccess.IsAdmin)
+            {
+                int? mechanicProfileId =
+                    _resourceAccess.GetCurrentMechanicProfileId();
+
+                if (!mechanicProfileId.HasValue ||
+                    order.MechanicProfileId != mechanicProfileId.Value)
+                {
+                    return Forbid();
+                }
+            }
+
+            bool vehicleBelongsToCustomer = await _context.Vehicles.AnyAsync(
+                vehicle => vehicle.VehicleId == order.VehicleId &&
+                    vehicle.CustomerProfileId == order.CustomerProfileId);
+
+            if (!vehicleBelongsToCustomer)
+            {
+                return BadRequest(
+                    "The selected vehicle does not belong to the customer.");
+            }
+
+            if (!await _context.Branches.AnyAsync(branch =>
+                    branch.BranchId == order.BranchId && branch.IsActive))
+            {
+                return BadRequest(
+                    "The selected branch does not exist or is inactive.");
+            }
+
             order.CreatedAt = DateTime.UtcNow;
             order.OrderDate = DateTime.UtcNow;
             _context.ServiceOrders.Add(order);
@@ -55,7 +97,13 @@ namespace VehicleServiceCenter.Controllers
             var order = await _context.ServiceOrders.FindAsync(id);
             if (order == null) return NotFound();
 
-            order.MechanicProfileId = updated.MechanicProfileId;
+            if (!_resourceAccess.CanManageServiceOrder(id))
+                return Forbid();
+
+            if (_resourceAccess.IsAdmin)
+            {
+                order.MechanicProfileId = updated.MechanicProfileId;
+            }
             order.Diagnosis = updated.Diagnosis;
             order.TotalAmount = updated.TotalAmount;
 
@@ -63,6 +111,7 @@ namespace VehicleServiceCenter.Controllers
             return NoContent();
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
@@ -81,6 +130,9 @@ namespace VehicleServiceCenter.Controllers
             var order = await _context.ServiceOrders.FindAsync(id);
             if (order == null) return NotFound();
 
+            if (!_resourceAccess.CanManageServiceOrder(id))
+                return Forbid();
+
             var validTransitions = new Dictionary<string, string[]>
             {
                 ["Pending"] = new[] { "Approved", "Cancelled" },
@@ -92,25 +144,40 @@ namespace VehicleServiceCenter.Controllers
                 return BadRequest($"Cannot transition from {order.Status} to {newStatus}.");
 
             order.Status = newStatus;
+            bool sendCompletionEmail = newStatus == "Completed";
             if (newStatus == "Completed")
             {
                 order.CompletionDate = DateTime.UtcNow;
+            }
+
+            await _context.SaveChangesAsync();
+
+            if (sendCompletionEmail)
+            {
                 var customerProfile = await _context.CustomerProfiles.FindAsync(order.CustomerProfileId);
                 if (customerProfile != null)
                 {
                     var user = await _context.Users.FindAsync(customerProfile.UserId);
                     if (user != null && !string.IsNullOrEmpty(user.Email))
                     {
-                        await _emailService.SendEmailAsync(
-                            user.Email,
-                            "Your Vehicle Is Ready for Pickup",
-                            $"Hi {user.UserName},\n\nYour service order #{order.ServiceOrderId} has been completed. Total: {order.TotalAmount:C}.\n\nThank you!"
-                        );
+                        try
+                        {
+                            await _emailService.SendEmailAsync(
+                                user.Email,
+                                "Your Vehicle Is Ready for Pickup",
+                                $"Hi {user.UserName},\n\nYour service order #{order.ServiceOrderId} has been completed. Total: {order.TotalAmount:C}.\n\nThank you!");
+                        }
+                        catch (Exception exception)
+                        {
+                            _logger.LogError(
+                                exception,
+                                "Service order {ServiceOrderId} was completed, but its notification email could not be sent.",
+                                order.ServiceOrderId);
+                        }
                     }
                 }
             }
 
-            await _context.SaveChangesAsync();
             return NoContent();
         }
 
@@ -118,7 +185,10 @@ namespace VehicleServiceCenter.Controllers
         [HttpGet("filter")]
         public async Task<ActionResult<IEnumerable<ServiceOrderModel>>> Filter([FromQuery] string? status, [FromQuery] DateTime? from, [FromQuery] DateTime? to)
         {
-            var query = _context.ServiceOrders.Include(so => so.Vehicle).AsQueryable();
+            var query = _resourceAccess
+                .ScopeServiceOrders(_context.ServiceOrders)
+                .Include(so => so.Vehicle)
+                .AsQueryable();
             if (!string.IsNullOrEmpty(status)) query = query.Where(so => so.Status == status);
             if (from.HasValue) query = query.Where(so => so.OrderDate >= from.Value);
             if (to.HasValue) query = query.Where(so => so.OrderDate <= to.Value);
@@ -130,7 +200,15 @@ namespace VehicleServiceCenter.Controllers
         public async Task<ActionResult<IEnumerable<ServiceOrderModel>>> GetByMechanic(
             int mechanicProfileId)
         {
-            var orders = await _context.ServiceOrders
+            if (!_resourceAccess.IsAdmin &&
+                _resourceAccess.GetCurrentMechanicProfileId() !=
+                    mechanicProfileId)
+            {
+                return Forbid();
+            }
+
+            var orders = await _resourceAccess
+                .ScopeServiceOrders(_context.ServiceOrders)
                 .Include(so => so.Vehicle)
                 .Include(so => so.ServiceOrderItems)
                 .Where(so => so.MechanicProfileId == mechanicProfileId)
@@ -143,7 +221,8 @@ namespace VehicleServiceCenter.Controllers
         [HttpGet("summary")]
         public async Task<ActionResult> GetSummary()
         {
-            var summary = await _context.ServiceOrders
+            var summary = await _resourceAccess
+                .ScopeServiceOrders(_context.ServiceOrders)
                 .GroupBy(so => so.Status)
                 .Select(g => new { Status = g.Key, Count = g.Count(), TotalRevenue = g.Sum(so => so.TotalAmount) })
                 .ToListAsync();

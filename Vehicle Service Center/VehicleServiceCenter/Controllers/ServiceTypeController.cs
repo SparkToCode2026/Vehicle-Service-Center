@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 using VehicleServiceCenter.Models;
 
 namespace VehicleServiceCenter.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("[controller]")]
 public class ServiceTypeController : ControllerBase
@@ -16,6 +18,7 @@ public class ServiceTypeController : ControllerBase
     }
 
     // 1. POST - Create a new service type
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     public IActionResult CreateServiceType(ServiceTypeModel serviceType)
     {
@@ -30,6 +33,7 @@ public class ServiceTypeController : ControllerBase
     }
 
     // 2. PUT - Update service type details
+    [Authorize(Roles = "Admin")]
     [HttpPut("{id}")]
     public IActionResult UpdateServiceType(int id, ServiceTypeModel serviceType)
     {
@@ -49,6 +53,7 @@ public class ServiceTypeController : ControllerBase
     }
 
     // 3. PATCH - Activate/deactivate a service type
+    [Authorize(Roles = "Admin")]
     [HttpPatch("{id}/status")]
     public IActionResult SetServiceTypeStatus(int id, bool isActive)
     {
@@ -64,6 +69,7 @@ public class ServiceTypeController : ControllerBase
     }
 
     // 4. DELETE - Delete a service type (or soft-delete if it's still referenced)
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{id}")]
     public IActionResult DeleteServiceType(int id)
     {
@@ -88,6 +94,7 @@ public class ServiceTypeController : ControllerBase
     }
 
     // 5. GET - Get all service types with ServiceOrderItems
+    [AllowAnonymous]
     [HttpGet]
     public IActionResult GetServiceTypes()
     {
@@ -99,6 +106,7 @@ public class ServiceTypeController : ControllerBase
     }
 
     // 6. GET - Get service type by ID
+    [AllowAnonymous]
     [HttpGet("{id}")]
     public IActionResult GetServiceType(int id)
     {
@@ -113,6 +121,7 @@ public class ServiceTypeController : ControllerBase
     }
 
     // 7. GET - Filter service types by active status
+    [AllowAnonymous]
     [HttpGet("filter")]
     public IActionResult GetActiveServiceTypes(bool isActive)
     {
@@ -124,6 +133,7 @@ public class ServiceTypeController : ControllerBase
     }
 
     // 8. GET - Revenue per service type (aggregate)
+    [Authorize(Roles = "Admin")]
     [HttpGet("revenue")]
     public IActionResult GetRevenueByServiceType()
     {

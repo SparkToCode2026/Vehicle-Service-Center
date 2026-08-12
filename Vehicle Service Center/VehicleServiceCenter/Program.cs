@@ -13,6 +13,11 @@ namespace VehicleServiceCenter
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            builder.Configuration.AddJsonFile(
+                "appsettings.Local.json",
+                optional: true,
+                reloadOnChange: true);
+
             string envFilePath = Path.Combine(
                 builder.Environment.ContentRootPath,
                 ".env");
@@ -48,14 +53,27 @@ namespace VehicleServiceCenter
                             variableValue);
                     }
                 }
-
-                builder.Configuration.AddEnvironmentVariables();
             }
+
+            // Environment variables override committed and local JSON settings.
+            builder.Configuration.AddEnvironmentVariables();
 
             // Add services to the container.
             //DbContext
+            string connectionString = builder.Configuration
+                .GetConnectionString("DefaultConnection")
+                ?? string.Empty;
+
+            if (string.IsNullOrWhiteSpace(connectionString))
+            {
+                throw new InvalidOperationException(
+                    "ConnectionStrings:DefaultConnection is missing. " +
+                    "Set ConnectionStrings__DefaultConnection in .env " +
+                    "or use an ignored appsettings.Local.json file.");
+            }
+
             builder.Services.AddDbContext<ProjectContext>(options =>
-                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+                options.UseSqlServer(connectionString));
             //////////////////////////////////////////////////////////
 
 
@@ -95,6 +113,16 @@ namespace VehicleServiceCenter
     });
             });
 
+            string jwtKey = builder.Configuration["Jwt:Key"]
+                ?? string.Empty;
+
+            if (string.IsNullOrWhiteSpace(jwtKey))
+            {
+                throw new InvalidOperationException(
+                    "Jwt:Key is missing. Set Jwt__Key in .env or " +
+                    "use an ignored appsettings.Local.json file.");
+            }
+
             builder.Services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -110,8 +138,7 @@ namespace VehicleServiceCenter
                     ValidAudience = builder.Configuration["Jwt:Audience"],
                     IssuerSigningKey = new SymmetricSecurityKey(
                         System.Text.Encoding.UTF8.GetBytes(
-                            builder.Configuration["Jwt:Key"]
-                            ?? throw new InvalidOperationException("JWT signing key is missing."))),
+                            jwtKey)),
                     ValidateIssuer = true,
                     ValidateAudience = true,
                     ValidateLifetime = true,
@@ -132,8 +159,12 @@ namespace VehicleServiceCenter
             });
 
             builder.Services.AddAuthorization();
+            builder.Services.AddHttpContextAccessor();
             builder.Services.AddScoped<JwtTokenService>();
             builder.Services.AddScoped<IEmailService, EmailService>();
+            builder.Services.AddScoped<
+                IResourceAuthorizationService,
+                ResourceAuthorizationService>();
 
 
             var app = builder.Build();

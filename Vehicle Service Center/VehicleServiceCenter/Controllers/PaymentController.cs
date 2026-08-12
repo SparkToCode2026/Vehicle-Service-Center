@@ -1,21 +1,29 @@
 using Microsoft.AspNetCore.Mvc;
 using VehicleServiceCenter.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
+using VehicleServiceCenter.Services;
 
 namespace VehicleServiceCenter.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("Payment")]
     public class PaymentController : ControllerBase
     {
         private ProjectContext context;
+        private readonly IResourceAuthorizationService resourceAccess;
 
-        public PaymentController(ProjectContext context)
+        public PaymentController(
+            ProjectContext context,
+            IResourceAuthorizationService resourceAccess)
         {
             this.context = context;
+            this.resourceAccess = resourceAccess;
         }
 
         // Add payment
+        [Authorize(Roles = "Admin,Customer")]
         [HttpPost("AddPayment")]
         public IActionResult AddPayment(PaymentModel payment)
         {
@@ -27,6 +35,12 @@ namespace VehicleServiceCenter.Controllers
             if (invoice == null)
             {
                 return BadRequest("Invoice does not exist");
+            }
+
+            if (!resourceAccess.IsAdmin &&
+                !resourceAccess.CanAccessInvoice(payment.InvoiceId))
+            {
+                return Forbid();
             }
 
             if (payment.Amount <= 0)
@@ -68,7 +82,7 @@ namespace VehicleServiceCenter.Controllers
         [HttpGet("GetAll")]
         public IActionResult GetAllPayments()
         {
-            var payments = context.Payments
+            var payments = resourceAccess.ScopePayments(context.Payments)
                 .Include(p => p.Invoice)
                 .Select(p => new
                 {
@@ -93,7 +107,7 @@ namespace VehicleServiceCenter.Controllers
         [HttpGet("GetById/{id}")]
         public IActionResult GetPaymentById(int id)
         {
-            var payment = context.Payments
+            var payment = resourceAccess.ScopePayments(context.Payments)
                 .Where(p => p.PaymentId == id)
                 .Select(p => new
                 {
@@ -117,6 +131,7 @@ namespace VehicleServiceCenter.Controllers
         }
 
         // Update payment by ID
+        [Authorize(Roles = "Admin")]
         [HttpPut("Update/{id}")]
         public IActionResult UpdatePayment(
             int id,
@@ -204,7 +219,8 @@ namespace VehicleServiceCenter.Controllers
                 );
             }
 
-            IQueryable<PaymentModel> query = context.Payments;
+            IQueryable<PaymentModel> query =
+                resourceAccess.ScopePayments(context.Payments);
 
             if (!string.IsNullOrWhiteSpace(status))
             {
@@ -245,7 +261,8 @@ namespace VehicleServiceCenter.Controllers
         [HttpGet("SortByDate")]
         public IActionResult SortPaymentsByDate(bool descending = true)
         {
-            IQueryable<PaymentModel> query = context.Payments;
+            IQueryable<PaymentModel> query =
+                resourceAccess.ScopePayments(context.Payments);
 
             query = descending
                 ? query.OrderByDescending(p => p.PaymentDate)
@@ -277,6 +294,11 @@ namespace VehicleServiceCenter.Controllers
                 return NotFound("Invoice not found");
             }
 
+            if (!resourceAccess.CanAccessInvoice(invoiceId))
+            {
+                return Forbid();
+            }
+
             decimal totalPaid = context.Payments
                 .Where(p => p.InvoiceId == invoiceId)
                 .Sum(p => (decimal?)p.Amount) ?? 0;
@@ -289,6 +311,7 @@ namespace VehicleServiceCenter.Controllers
         }
 
         // Change payment status
+        [Authorize(Roles = "Admin")]
         [HttpPatch("ChangeStatus/{id}")]
         public IActionResult ChangePaymentStatus(
             int id,
@@ -315,6 +338,7 @@ namespace VehicleServiceCenter.Controllers
         }
 
         // Delete payment by ID
+        [Authorize(Roles = "Admin")]
         [HttpDelete("Delete/{id}")]
         public IActionResult DeletePayment(int id)
         {

@@ -1,21 +1,29 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 using VehicleServiceCenter.Models;
+using VehicleServiceCenter.Services;
 
 namespace VehicleServiceCenter.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("MechanicProfile")]
     public class MechanicProfileController : ControllerBase
     {
         private ProjectContext context;
+        private readonly IResourceAuthorizationService resourceAccess;
 
-        public MechanicProfileController(ProjectContext projectContext)
+        public MechanicProfileController(
+            ProjectContext projectContext,
+            IResourceAuthorizationService resourceAccess)
         {
             context = projectContext;
+            this.resourceAccess = resourceAccess;
         }
 
         // Add Mechanic Profile
+        [Authorize(Roles = "Admin")]
         [HttpPost("AddMechanicProfile")]
         public IActionResult AddMechanicProfile(
             MechanicProfileModel mechanicProfile)
@@ -90,10 +98,16 @@ namespace VehicleServiceCenter.Controllers
                 return NotFound("Mechanic profile not found");
             }
 
+            if (!resourceAccess.CanAccessMechanicProfile(id))
+            {
+                return Forbid();
+            }
+
             return Ok(mechanicProfile);
         }
 
         // Get All Mechanic Profiles
+        [Authorize(Roles = "Admin")]
         [HttpGet("GetAllMechanicProfiles")]
         public IActionResult GetAllMechanicProfiles()
         {
@@ -138,9 +152,15 @@ namespace VehicleServiceCenter.Controllers
         }
 
         // Get Mechanic Profile by User ID
+        [Authorize(Roles = "Admin,Mechanic")]
         [HttpGet("GetByUserId")]
         public IActionResult GetByUserId(int userId)
         {
+            if (!resourceAccess.CanAccessUser(userId))
+            {
+                return Forbid();
+            }
+
             MechanicProfileModel? mechanicProfile =
                 context.MechanicProfiles.FirstOrDefault(
                     m => m.UserId == userId
@@ -155,6 +175,7 @@ namespace VehicleServiceCenter.Controllers
         }
 
         // Get Mechanics by Branch ID
+        [Authorize(Roles = "Admin")]
         [HttpGet("GetByBranchId")]
         public IActionResult GetByBranchId(int branchId)
         {
@@ -183,6 +204,7 @@ namespace VehicleServiceCenter.Controllers
         }
 
         // Get Mechanic Profiles sorted by experience
+        [Authorize(Roles = "Admin")]
         [HttpGet("GetSortedByExperience")]
         public IActionResult GetSortedByExperience(
             bool descending = true)
@@ -220,6 +242,7 @@ namespace VehicleServiceCenter.Controllers
         }
 
         // Update Mechanic Profile
+        [Authorize(Roles = "Admin")]
         [HttpPut("UpdateMechanicProfile")]
         public IActionResult UpdateMechanicProfile(
             int id,
@@ -233,6 +256,11 @@ namespace VehicleServiceCenter.Controllers
             if (mechanicProfile == null)
             {
                 return NotFound("Mechanic profile not found");
+            }
+
+            if (!resourceAccess.CanAccessMechanicProfile(id))
+            {
+                return Forbid();
             }
 
             BranchModel? branch = context.Branches.FirstOrDefault(
@@ -280,6 +308,11 @@ namespace VehicleServiceCenter.Controllers
                 return NotFound("Mechanic profile not found");
             }
 
+            if (!resourceAccess.CanAccessMechanicProfile(id))
+            {
+                return Forbid();
+            }
+
             mechanicProfile.IsAvailable = isAvailable;
             context.SaveChanges();
 
@@ -287,6 +320,7 @@ namespace VehicleServiceCenter.Controllers
         }
 
         // Delete Mechanic Profile
+        [Authorize(Roles = "Admin")]
         [HttpDelete("RemoveMechanicProfile")]
         public IActionResult RemoveMechanicProfile(int id)
         {

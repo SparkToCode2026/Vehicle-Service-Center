@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 using VehicleServiceCenter.Models;
 
 namespace VehicleServiceCenter.Controllers;
 
+[Authorize(Roles = "Admin,Mechanic")]
 [ApiController]
 [Route("[controller]")]
 public class SparePartController : ControllerBase
@@ -16,6 +18,7 @@ public class SparePartController : ControllerBase
     }
 
     // 1. POST - Create a new spare part
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     public IActionResult CreateSparePart(SparePartModel sparePart)
     {
@@ -30,6 +33,7 @@ public class SparePartController : ControllerBase
     }
 
     // 2. PUT - Update spare part details
+    [Authorize(Roles = "Admin")]
     [HttpPut("{id}")]
     public IActionResult UpdateSparePart(int id, SparePartModel sparePart)
     {
@@ -53,6 +57,7 @@ public class SparePartController : ControllerBase
     }
 
     // 3. PATCH - Update spare part stock quantity
+    [Authorize(Roles = "Admin,Mechanic")]
     [HttpPatch("{id}/stock")]
     public IActionResult UpdateStockQuantity(int id, int quantity)
     {
@@ -72,6 +77,7 @@ public class SparePartController : ControllerBase
     }
 
     // 4. DELETE - Delete a spare part
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{id}")]
     public IActionResult DeleteSparePart(int id)
     {
