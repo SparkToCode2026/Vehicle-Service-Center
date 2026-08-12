@@ -30,3 +30,29 @@ function AppointmentBooking() {
         [name]: "",
     });
 }
+
+    // Validate the appointment form
+    function validateForm() {
+        const newErrors = {};
+
+        if (!formData.vehicleId) {
+            newErrors.vehicleId = "Please select a vehicle.";
+        }
+
+        if (!formData.serviceTypeId) {
+            newErrors.serviceTypeId = "Please select a service.";
+        }
+
+        if (!formData.branchId) {
+            newErrors.branchId = "Please select a branch.";
+        }
+
+        if (!formData.appointmentDate) {
+            newErrors.appointmentDate =
+                "Please select an appointment date and time.";
+        }
+
+        setErrors(newErrors);
+
+        return Object.keys(newErrors).length === 0;
+    }
