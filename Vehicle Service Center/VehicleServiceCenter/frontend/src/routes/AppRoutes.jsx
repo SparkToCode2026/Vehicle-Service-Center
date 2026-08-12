@@ -20,7 +20,9 @@ import CustomerProfile from "../pages/customer/CustomerProfile";
 import VehicleDetails from "../pages/customer/VehicleDetails";
 import VehicleFormPage from "../pages/customer/VehicleFormPage";
 import VehicleList from "../pages/customer/VehicleList";
+
 import AppointmentBooking from "../pages/appointments/AppointmentBooking";
+import AppointmentList from "../pages/appointments/AppointmentList";
 
 function RootRoute() {
   const { user } = useAuth();
@@ -85,6 +87,10 @@ function AppRoutes() {
             <Route
                 path="customer/appointments/new"
                 element={<AppointmentBooking />}
+            />
+            <Route
+                path="customer/appointments"
+                element={<AppointmentList />}
             />
             
           </Route>
