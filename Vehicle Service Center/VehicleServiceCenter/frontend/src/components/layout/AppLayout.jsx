@@ -1,6 +1,7 @@
 import { Outlet, NavLink, Link } from "react-router";
 import { useAuth } from "../../context/AuthContext";
 import Navbar from "./Navbar";
+import PublicFooter from "./PublicFooter";
 import Sidebar from "./Sidebar";
 
 function AppLayout() {
@@ -20,12 +21,15 @@ function AppLayout() {
                   type="button"
                   data-bs-toggle="collapse"
                   data-bs-target="#navMenu"
+                  aria-controls="navMenu"
+                  aria-expanded="false"
+                  aria-label="Toggle navigation"
               >
                 <span className="navbar-toggler-icon"></span>
               </button>
 
               <div className="collapse navbar-collapse" id="navMenu">
-                <ul className="navbar-nav ms-auto gap-2">
+                <ul className="navbar-nav ms-auto gap-lg-2">
                   <li className="nav-item">
                     <NavLink className="nav-link" to="/" end>Home</NavLink>
                   </li>
@@ -39,6 +43,15 @@ function AppLayout() {
                     <NavLink className="nav-link" to="/branches">Branches</NavLink>
                   </li>
                 </ul>
+
+                <div className="d-flex flex-column flex-lg-row gap-2 ms-lg-3 mt-3 mt-lg-0">
+                  <Link className="btn btn-outline-primary" to="/login">
+                    Sign In
+                  </Link>
+                  <Link className="btn btn-primary" to="/register">
+                    Create Account
+                  </Link>
+                </div>
               </div>
             </div>
           </nav>
@@ -46,6 +59,8 @@ function AppLayout() {
           <main className="flex-grow-1">
             <Outlet />
           </main>
+
+          <PublicFooter />
         </div>
     );
   }
