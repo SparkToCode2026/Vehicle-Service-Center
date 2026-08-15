@@ -37,6 +37,7 @@ namespace VehicleServiceCenter.Services
             message.Body = new TextPart("plain") { Text = body };
 
             using var client = new SmtpClient();
+            client.CheckCertificateRevocation = false;
             await client.ConnectAsync(
                 smtpServer,
                 smtpPort,
