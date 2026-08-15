@@ -94,3 +94,94 @@ aside .nav-link.active {
   background-color: var(--vsc-blue);
   color: var(--vsc-white) !important;
 }
+
+/* Cards */
+.card {
+  border: 1px solid var(--vsc-border);
+  border-radius: var(--vsc-radius);
+  box-shadow: var(--vsc-shadow-sm);
+}
+
+/* Dashboard stat cards */
+.stat-card {
+  border: 1px solid var(--vsc-border);
+  border-radius: var(--vsc-radius);
+  background: var(--vsc-white);
+  padding: 1.25rem;
+}
+.stat-card .stat-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--vsc-navy);
+}
+.stat-card .stat-label {
+  color: var(--vsc-gray-600);
+  font-size: 0.8125rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+/* Tables */
+
+.table {
+  --bs-table-hover-bg: var(--vsc-gray-100);
+}
+.table thead th {
+  background-color: var(--vsc-gray-100);
+  color: var(--vsc-gray-800);
+  font-weight: 600;
+  font-size: 0.8125rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border-bottom: 2px solid var(--vsc-border);
+  white-space: nowrap;
+}
+.table td,
+.table th {
+  padding: 0.75rem 1rem;
+  vertical-align: middle;
+}
+.table-responsive {
+  border-radius: var(--vsc-radius);
+}
+
+/*Forms*/
+
+.form-label {
+  font-weight: 500;
+  color: var(--vsc-gray-800);
+  margin-bottom: 0.35rem;
+}
+.form-control,
+.form-select {
+  border-radius: var(--vsc-radius-sm);
+  border-color: var(--vsc-border);
+  padding: 0.5rem 0.75rem;
+}
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--vsc-blue);
+  box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.15);
+}
+.form-control.is-invalid,
+.form-select.is-invalid {
+  border-color: var(--bs-danger);
+}
+.form-text {
+  color: var(--vsc-gray-600);
+}
+
+
+   /*page-header*/
+  
+.page-header {
+  margin-bottom: 1.5rem;
+}
+.page-header h1,
+.page-header h2 {
+  margin-bottom: 0.25rem;
+}
+.page-header p {
+  color: var(--vsc-gray-600);
+  margin-bottom: 0;
+}
