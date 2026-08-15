@@ -185,3 +185,56 @@ aside .nav-link.active {
   color: var(--vsc-gray-600);
   margin-bottom: 0;
 }
+/*  (Login/Register)*/
+
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--vsc-gray-50);
+  padding: 2rem 1rem;
+}
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+  background: var(--vsc-white);
+  border: 1px solid var(--vsc-border);
+  border-radius: var(--vsc-radius);
+  box-shadow: var(--vsc-shadow);
+  padding: 2rem;
+}
+
+/*  Alerts (loading/empty/success/warning/error states) */
+
+.alert {
+  border-radius: var(--vsc-radius-sm);
+  border-width: 1px;
+}
+
+/*(Home/About/Services/Branches) */
+.navbar-brand {
+  color: var(--vsc-navy) !important;
+}
+.navbar .nav-link.active {
+  color: var(--vsc-blue) !important;
+  font-weight: 600;
+}
+footer.bg-dark {
+  background-color: var(--vsc-navy) !important;
+}
+
+/*Responsive tweaks*/
+
+@media (max-width: 767.98px) {
+  .stat-card {
+    padding: 1rem;
+  }
+  .auth-card {
+    padding: 1.5rem;
+  }
+  .table td,
+  .table th {
+    padding: 0.6rem 0.75rem;
+  }
+}
