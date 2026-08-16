@@ -20,8 +20,9 @@ function Branches() {
     if (loading) return <LoadingSpinner message="Loading branches..." fullPage />;
 
     return (
-        <div className="container py-5">
-            <div className="text-center mb-4">
+        <div className="container public-section">
+            <div className="text-center mb-5">
+                <p className="section-eyebrow mb-2">Visit us</p>
                 <h1 className="fw-bold">Our Branches</h1>
                 <p className="text-muted">Find a location near you.</p>
             </div>
@@ -40,16 +41,14 @@ function Branches() {
                 <div className="row g-4">
                     {branches.map((b) => (
                         <div className="col-md-6" key={b.branchId}>
-                            <div className="card h-100 p-3">
+                            <div className="card branch-card h-100 p-4">
                                 <div className="d-flex justify-content-between align-items-start">
                                     <h5 className="fw-semibold">{b.branchName}</h5>
                                     <StatusBadge status={b.isActive ? "Active" : "Inactive"} />
                                 </div>
-                                <p className="text-muted small mb-1">{b.address}</p>
-                                <p className="text-muted small mb-1">{b.phoneNumber}</p>
-                                <p className="text-muted small mb-0">
-                                    {b.openingTime} &ndash; {b.closingTime}
-                                </p>
+                                <div className="branch-detail"><i className="bi bi-geo-alt" aria-hidden="true" /><span>{b.address}</span></div>
+                                <div className="branch-detail"><i className="bi bi-telephone" aria-hidden="true" /><span>{b.phoneNumber}</span></div>
+                                <div className="branch-detail mb-0"><i className="bi bi-clock" aria-hidden="true" /><span>{b.openingTime} &ndash; {b.closingTime}</span></div>
                             </div>
                         </div>
                     ))}
