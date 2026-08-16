@@ -6,7 +6,7 @@ function MechanicDashboard() {
 
     return (
         <section>
-            <div className="mb-4">
+            <div className="page-header">
                 <h2 className="mb-1">Mechanic Dashboard</h2>
                 <p className="text-secondary mb-0">
                     Welcome, {user?.userName}. Manage your availability and assigned
@@ -16,8 +16,9 @@ function MechanicDashboard() {
 
             <div className="row g-3">
                 <div className="col-md-6">
-                    <div className="card h-100 shadow-sm">
+                    <div className="card dashboard-card h-100">
                         <div className="card-body">
+                            <div className="feature-icon"><i className="bi bi-toggle-on" aria-hidden="true" /></div>
                             <h3 className="h5">Availability</h3>
                             <p className="text-secondary">
                                 Update your current availability status.
@@ -34,8 +35,9 @@ function MechanicDashboard() {
                 </div>
 
                 <div className="col-md-6">
-                    <div className="card h-100 shadow-sm">
+                    <div className="card dashboard-card h-100">
                         <div className="card-body">
+                            <div className="feature-icon"><i className="bi bi-clipboard-check" aria-hidden="true" /></div>
                             <h3 className="h5">Assigned Service Orders</h3>
                             <p className="text-secondary">
                                 View the service orders assigned to you.
@@ -52,8 +54,9 @@ function MechanicDashboard() {
                 </div>
 
                 <div className="col-md-6">
-                    <div className="card h-100 shadow-sm">
+                    <div className="card dashboard-card h-100">
                         <div className="card-body">
+                            <div className="feature-icon"><i className="bi bi-calendar-check" aria-hidden="true" /></div>
                             <h3 className="h5">Appointment Management</h3>
                             <p className="text-secondary">
                                 View and manage customer appointments.
