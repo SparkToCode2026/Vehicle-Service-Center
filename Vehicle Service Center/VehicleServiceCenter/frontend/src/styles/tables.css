@@ -1,0 +1,9 @@
+.table-responsive { scrollbar-color: #b9c5d4 transparent; }
+.table { --bs-table-bg: transparent; --bs-table-hover-bg: #f5f8fc; margin: 0; }
+.table > :not(caption) > * > * { padding: .9rem 1rem; border-bottom-color: var(--vsc-gray-200); }
+.table thead th { color: #536176; background: #f3f6fa !important; border-bottom-width: 1px; font-size: .72rem; font-weight: 850; letter-spacing: .065em; text-transform: uppercase; white-space: nowrap; }
+.table tbody tr { transition: background-color .16s ease; }
+.table tbody tr:last-child td { border-bottom: 0; }
+.table td { color: #344257; font-size: .91rem; }
+.table .btn { white-space: nowrap; }
+.table-actions { display: flex; flex-wrap: wrap; gap: .45rem; }
