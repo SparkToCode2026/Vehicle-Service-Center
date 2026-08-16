@@ -1,0 +1,42 @@
+@media (max-width: 991.98px) {
+  .app-column { width: 100%; }
+  .app-content { padding: 1.5rem; }
+  .public-navbar .navbar-collapse { margin-top: .8rem; padding: 1rem 0; border-top: 1px solid var(--vsc-gray-200); }
+  .public-navbar .nav-link.active::after { display: none; }
+  .hero-inner { min-height: auto; padding: 5rem 0; }
+  .hero-brand-image { margin-top: 2.5rem; }
+}
+
+@media (max-width: 767.98px) {
+  body { font-size: .95rem; }
+  .app-navbar { min-height: 66px; padding: .65rem 1rem; }
+  .app-content { padding: 1.15rem 1rem 1.5rem; }
+  .app-footer { padding: .9rem 1rem; }
+  .public-section { padding: 3.5rem 0; }
+  .hero-inner { padding: 4rem 0; text-align: center; }
+  .hero-lead { margin-inline: auto; }
+  .hero-actions, .hero-trust { justify-content: center; }
+  .hero-actions .btn { flex: 1 1 160px; }
+  .hero-brand-image { max-height: 210px; }
+  .card-body { padding: 1.05rem; }
+  .table > :not(caption) > * > * { padding: .75rem; }
+  .auth-page { align-items: start; padding-top: 1rem; background: linear-gradient(180deg, var(--vsc-navy-950) 0, #0b2c55 29%, var(--vsc-gray-100) 29%); }
+  .auth-card-body { padding: 1.5rem 1.2rem; }
+  .d-flex.justify-content-between.align-items-center { flex-wrap: wrap; }
+}
+
+@media (max-width: 575.98px) {
+  h1, .h1 { font-size: 1.85rem; }
+  h2, .h2 { font-size: 1.55rem; }
+  .brand-copy { display: none; }
+  .public-navbar { min-height: 68px; }
+  .role-badge { max-width: 88px; overflow: hidden; text-overflow: ellipsis; }
+  .btn { white-space: normal; }
+  .modal-dialog { margin: .75rem; }
+  .app-content > section > .d-flex:first-child .btn { width: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
+}

@@ -1,0 +1,10 @@
+.form-label { margin-bottom: .4rem; color: var(--vsc-gray-900); font-size: .88rem; font-weight: 700; }
+.form-control, .form-select { min-height: 46px; padding: .62rem .78rem; color: var(--vsc-gray-900); background-color: #fff; border-color: #ccd6e2; border-radius: var(--vsc-radius-sm); }
+textarea.form-control { min-height: 112px; resize: vertical; }
+.form-control::placeholder { color: #9aa7b7; }
+.form-control:hover, .form-select:hover { border-color: #a9b8ca; }
+.form-control:focus, .form-select:focus { border-color: var(--vsc-blue-600); box-shadow: 0 0 0 .22rem rgba(8,116,237,.14); }
+.form-check-input:checked { background-color: var(--vsc-blue-600); border-color: var(--vsc-blue-600); }
+.invalid-feedback, .text-danger { font-size: .84rem; font-weight: 600; }
+.card > form.card-body { padding: 1.5rem; }
+.filter-toolbar { padding: 1.15rem; background: #fff; border: 1px solid var(--vsc-gray-200); border-radius: var(--vsc-radius); box-shadow: var(--vsc-shadow-sm); }

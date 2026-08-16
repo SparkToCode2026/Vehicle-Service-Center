@@ -34,7 +34,7 @@ function AccountSettings() {
   }
 
   return <section><div className="mb-4"><h2>Account Settings</h2><p className="text-secondary">Update your account password securely.</p></div>
-    <div className="card shadow-sm" style={{ maxWidth: 720 }}><form className="card-body" onSubmit={handleSubmit}>
+    <div className="card content-card-md"><form className="card-body" onSubmit={handleSubmit}>
       {error && <div className="alert alert-danger">{error}</div>}{message && <div className="alert alert-success">{message}</div>}
       <div className="mb-3"><label className="form-label" htmlFor="current-password">Current password</label><input id="current-password" className="form-control" type="password" autoComplete="current-password" required value={currentPassword} onChange={(event) => setCurrentPassword(event.target.value)} /></div>
       <div className="mb-3"><label className="form-label" htmlFor="new-password">New password</label><input id="new-password" className="form-control" type="password" autoComplete="new-password" required minLength="8" value={newPassword} onChange={(event) => setNewPassword(event.target.value)} /></div>

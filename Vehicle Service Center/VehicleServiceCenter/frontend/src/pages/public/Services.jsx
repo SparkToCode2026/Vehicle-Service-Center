@@ -20,8 +20,9 @@ function Services() {
     if (loading) return <LoadingSpinner message="Loading services..." fullPage />;
 
     return (
-        <div className="container py-5">
-            <div className="text-center mb-4">
+        <div className="container public-section">
+            <div className="text-center mb-5">
+                <p className="section-eyebrow mb-2">Workshop expertise</p>
                 <h1 className="fw-bold">Our Services</h1>
                 <p className="text-muted">Professional vehicle care you can rely on.</p>
             </div>
@@ -39,14 +40,15 @@ function Services() {
             {!error && services.length > 0 && (
                 <div className="row g-4">
                     {services.map((s) => (
-                        <div className="col-md-4" key={s.serviceTypeId}>
-                            <div className="card h-100 p-3">
+                        <div className="col-md-6 col-xl-4" key={s.serviceTypeId}>
+                            <div className="card service-card h-100 p-4">
+                                <div className="feature-icon"><i className="bi bi-tools" aria-hidden="true" /></div>
                                 <div className="d-flex justify-content-between align-items-start">
                                     <h5 className="fw-semibold">{s.name}</h5>
                                     <StatusBadge status={s.isActive ? "Active" : "Inactive"} />
                                 </div>
                                 <p className="text-muted small">{s.description}</p>
-                                <p className="fw-bold text-primary mb-0">${s.basePrice}</p>
+                                <p className="service-price fw-bold mb-0">From ${s.basePrice}</p>
                             </div>
                         </div>
                     ))}

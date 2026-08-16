@@ -3,18 +3,17 @@ import { useAuth } from "../../context/AuthContext";
 import Navbar from "./Navbar";
 import PublicFooter from "./PublicFooter";
 import Sidebar from "./Sidebar";
+import BrandLogo from "./BrandLogo";
 
 function AppLayout() {
   const { user } = useAuth();
 
   if (!user) {
     return (
-        <div className="d-flex flex-column min-vh-100">
-          <nav className="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky-top">
+        <div className="public-shell d-flex flex-column min-vh-100">
+          <nav className="public-navbar navbar navbar-expand-lg sticky-top" aria-label="Public navigation">
             <div className="container">
-              <Link className="navbar-brand fw-bold" to="/">
-                Vehicle Service Center
-              </Link>
+              <BrandLogo />
 
               <button
                   className="navbar-toggler"
@@ -29,7 +28,7 @@ function AppLayout() {
               </button>
 
               <div className="collapse navbar-collapse" id="navMenu">
-                <ul className="navbar-nav ms-auto gap-lg-2">
+                <ul className="navbar-nav ms-auto gap-lg-1 align-items-lg-center">
                   <li className="nav-item">
                     <NavLink className="nav-link" to="/" end>Home</NavLink>
                   </li>
@@ -45,10 +44,10 @@ function AppLayout() {
                 </ul>
 
                 <div className="d-flex flex-column flex-lg-row gap-2 ms-lg-3 mt-3 mt-lg-0">
-                  <Link className="btn btn-outline-primary" to="/login">
+                  <Link className="btn btn-outline-primary btn-sm" to="/login">
                     Sign In
                   </Link>
-                  <Link className="btn btn-primary" to="/register">
+                  <Link className="btn btn-accent btn-sm" to="/register">
                     Create Account
                   </Link>
                 </div>
@@ -66,16 +65,22 @@ function AppLayout() {
   }
 
   return (
-      <div className="container-fluid min-vh-100 bg-light">
-        <div className="row min-vh-100">
+      <div className="app-shell container-fluid min-vh-100 p-0">
+        <div className="d-flex min-vh-100">
           <Sidebar />
 
-          <div className="col p-0 d-flex flex-column">
+          <div className="app-column d-flex flex-column min-vh-100">
             <Navbar />
 
-            <main className="flex-grow-1 p-4">
-              <Outlet />
+            <main className="app-main flex-grow-1">
+              <div className="container-fluid app-content">
+                <Outlet />
+              </div>
             </main>
+            <footer className="app-footer">
+              <span>&copy; {new Date().getFullYear()} Vehicle Service Center</span>
+              <span className="d-none d-sm-inline">Professional automotive care</span>
+            </footer>
           </div>
         </div>
       </div>

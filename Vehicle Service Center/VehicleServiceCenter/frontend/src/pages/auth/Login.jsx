@@ -38,13 +38,14 @@ function Login() {
   }
 
   return (
-    <main className="container min-vh-100 d-flex align-items-center justify-content-center py-5">
-      <div className="row justify-content-center w-100">
-        <div className="col-sm-10 col-md-7 col-lg-5">
-          <div className="card border-0 shadow-sm">
-            <div className="card-body p-4 p-md-5">
-              <div className="text-center mb-4">
-                <h1 className="h3 mb-2">Vehicle Service Center</h1>
+    <main className="auth-page">
+          <div className="auth-card">
+            <div className="auth-card-body">
+              <Link className="auth-brand" to="/" aria-label="Back to home">
+                <img className="auth-brand-image" src="/vehicle-service-center-logo.png" alt="Vehicle Service Center" />
+              </Link>
+              <div className="auth-title">
+                <h1 className="h3 mb-2">Welcome Back</h1>
                 <p className="text-secondary mb-0">
                   Sign in to your account
                 </p>
@@ -95,22 +96,20 @@ function Login() {
                 </div>
 
                 <button
-                  className="btn btn-primary w-100"
+                  className="btn btn-primary w-100 btn-icon-label justify-content-center"
                   type="submit"
                   disabled={loading}
                 >
-                  {loading ? "Signing in..." : "Login"}
+                  {loading ? <><span className="spinner-border spinner-border-sm" aria-hidden="true" /> Signing in...</> : <><i className="bi bi-box-arrow-in-right" aria-hidden="true" /> Sign In</>}
                 </button>
               </form>
 
-              <p className="text-center mt-4 mb-0">
+              <p className="auth-footer-link mt-4 mb-0">
                 Don&apos;t have an account?{" "}
                 <Link to="/register">Register</Link>
               </p>
             </div>
           </div>
-        </div>
-      </div>
     </main>
   );
 }

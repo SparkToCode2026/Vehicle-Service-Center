@@ -1,8 +1,7 @@
 function LoadingSpinner({ message = "Loading...", fullPage = false }) {
     return (
         <div
-            className="d-flex flex-column align-items-center justify-content-center gap-2"
-            style={fullPage ? { minHeight: "60vh" } : { padding: "2rem" }}
+            className={`loading-state d-flex flex-column align-items-center justify-content-center gap-2 ${fullPage ? "loading-state-full" : ""}`}
         >
             <div className="spinner-border text-primary" role="status">
                 <span className="visually-hidden">Loading</span>

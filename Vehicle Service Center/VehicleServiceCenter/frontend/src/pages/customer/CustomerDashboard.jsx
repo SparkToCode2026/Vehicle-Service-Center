@@ -60,7 +60,7 @@ function CustomerDashboard() {
 
   return (
     <section>
-      <div className="mb-4">
+      <div className="page-header">
         <h2 className="mb-1">Customer Dashboard</h2>
         <p className="text-secondary mb-0">
           Welcome, {user?.userName}. Manage your profile, vehicles, and
@@ -88,8 +88,9 @@ function CustomerDashboard() {
 
       <div className="row g-3 mb-4">
         <div className="col-md-6">
-          <div className="card h-100 shadow-sm">
+          <div className="card dashboard-card h-100">
             <div className="card-body">
+              <div className="feature-icon"><i className="bi bi-person-check" aria-hidden="true" /></div>
               <p className="text-secondary mb-2">Profile Status</p>
               <h3 className="h4 mb-3">
                 {profileIsComplete ? "Complete" : "Needs Attention"}
@@ -105,8 +106,9 @@ function CustomerDashboard() {
         </div>
 
         <div className="col-md-6">
-          <div className="card h-100 shadow-sm">
+          <div className="card dashboard-card h-100">
             <div className="card-body">
+              <div className="feature-icon"><i className="bi bi-car-front" aria-hidden="true" /></div>
               <p className="text-secondary mb-2">Registered Vehicles</p>
               <h3 className="h4 mb-3">{vehicleCount}</h3>
               <Link
@@ -120,7 +122,7 @@ function CustomerDashboard() {
         </div>
       </div>
 
-      <div className="card shadow-sm">
+      <div className="card dashboard-card">
         <div className="card-body d-flex justify-content-between align-items-center gap-3">
           <div>
             <h3 className="h5 mb-1">Service Orders</h3>

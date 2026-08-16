@@ -54,7 +54,7 @@ function AdminDashboard() {
 
   return (
     <section>
-      <div className="d-flex justify-content-between align-items-center mb-4">
+      <div className="page-header d-flex justify-content-between align-items-center gap-3">
         <div>
           <h2 className="mb-1">Admin Dashboard</h2>
           <p className="text-secondary mb-0">
@@ -62,7 +62,8 @@ function AdminDashboard() {
           </p>
         </div>
 
-        <Link className="btn btn-primary" to="/service-orders">
+        <Link className="btn btn-primary btn-icon-label" to="/service-orders">
+          <i className="bi bi-clipboard-check" aria-hidden="true" />
           View Service Orders
         </Link>
       </div>
@@ -82,20 +83,16 @@ function AdminDashboard() {
         <>
           <div className="row g-3 mb-4">
             <div className="col-md-6">
-              <div className="card h-100 shadow-sm">
-                <div className="card-body">
-                  <p className="text-secondary mb-2">Total Service Orders</p>
-                  <h3 className="mb-0">{totalOrders}</h3>
-                </div>
+              <div className="stat-card d-flex align-items-center gap-3">
+                <div className="stat-icon"><i className="bi bi-clipboard-data" aria-hidden="true" /></div>
+                <div><p className="stat-label mb-1">Total Service Orders</p><h3 className="stat-value mb-0">{totalOrders}</h3></div>
               </div>
             </div>
 
             <div className="col-md-6">
-              <div className="card h-100 shadow-sm">
-                <div className="card-body">
-                  <p className="text-secondary mb-2">Total Revenue</p>
-                  <h3 className="mb-0">{formatAmount(totalRevenue)}</h3>
-                </div>
+              <div className="stat-card d-flex align-items-center gap-3">
+                <div className="stat-icon stat-icon-accent"><i className="bi bi-cash-stack" aria-hidden="true" /></div>
+                <div><p className="stat-label mb-1">Total Revenue</p><h3 className="stat-value mb-0">{formatAmount(totalRevenue)}</h3></div>
               </div>
             </div>
           </div>
@@ -110,7 +107,7 @@ function AdminDashboard() {
             <div className="row g-3">
               {summary.map((item) => (
                 <div className="col-sm-6 col-xl-4" key={item.status}>
-                  <div className="card h-100 shadow-sm">
+                  <div className="card dashboard-card h-100">
                     <div className="card-body">
                       <span
                         className={`badge text-bg-${getStatusColor(item.status)}`}

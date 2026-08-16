@@ -1,12 +1,13 @@
 import { Link } from "react-router";
+import BrandLogo from "./BrandLogo";
 
 function PublicFooter() {
   return (
-    <footer className="bg-dark text-light mt-auto">
-      <div className="container py-4">
+    <footer className="public-footer text-light mt-auto">
+      <div className="container py-5">
         <div className="row g-4 align-items-start">
           <div className="col-md-6">
-            <h2 className="h5 text-light mb-2">Vehicle Service Center</h2>
+            <BrandLogo light />
             <p className="text-white-50 mb-0">
               Reliable vehicle maintenance and repair services you can trust.
             </p>
@@ -30,8 +31,9 @@ function PublicFooter() {
           </div>
         </div>
 
-        <div className="border-top border-secondary mt-4 pt-3 text-center text-white-50 small">
+        <div className="footer-bottom border-top mt-4 pt-3 d-flex flex-wrap gap-2 justify-content-between text-white-50 small">
           &copy; {new Date().getFullYear()} Vehicle Service Center. All rights reserved.
+          <span>Designed for safer journeys.</span>
         </div>
       </div>
     </footer>

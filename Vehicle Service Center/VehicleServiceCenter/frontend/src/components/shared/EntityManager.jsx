@@ -136,13 +136,14 @@ function EntityManager({
 
   return (
     <section>
-      <div className="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
+      <div className="page-header d-flex flex-wrap justify-content-between align-items-start gap-3">
         <div>
           <h2 className="mb-1">{title}</h2>
           <p className="text-secondary mb-0">{description}</p>
         </div>
         {createItem && (
-          <button className="btn btn-primary" type="button" onClick={openCreateForm}>
+          <button className="btn btn-primary btn-icon-label" type="button" onClick={openCreateForm}>
+            <i className="bi bi-plus-lg" aria-hidden="true" />
             {createLabel}
           </button>
         )}
@@ -229,8 +230,8 @@ function EntityManager({
                 ))}
             </div>
             <div className="d-flex gap-2 mt-4">
-              <button className="btn btn-primary" type="submit" disabled={saving}>
-                {saving ? "Saving..." : "Save"}
+              <button className="btn btn-primary btn-icon-label" type="submit" disabled={saving}>
+                {saving ? <><span className="spinner-border spinner-border-sm" aria-hidden="true" /> Saving...</> : <><i className="bi bi-check-lg" aria-hidden="true" /> Save</>}
               </button>
               <button className="btn btn-outline-secondary" type="button" onClick={closeForm}>
                 Cancel
@@ -271,13 +272,15 @@ function EntityManager({
                       <td>
                         <div className="d-flex flex-wrap gap-2">
                           {updateItem && (
-                            <button className="btn btn-outline-primary btn-sm" type="button" onClick={() => openEditForm(item)}>
+                            <button className="btn btn-outline-primary btn-sm btn-icon-label" type="button" onClick={() => openEditForm(item)}>
+                              <i className="bi bi-pencil" aria-hidden="true" />
                               View / Edit
                             </button>
                           )}
                           {actions?.({ item, reload, setError, setMessage })}
                           {deleteItem && (
-                            <button className="btn btn-outline-danger btn-sm" type="button" onClick={() => setDeletingItem(item)}>
+                            <button className="btn btn-outline-danger btn-sm btn-icon-label" type="button" onClick={() => setDeletingItem(item)}>
+                              <i className="bi bi-trash" aria-hidden="true" />
                               Delete
                             </button>
                           )}
