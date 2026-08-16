@@ -8,7 +8,7 @@ function Unauthorized() {
 
   return (
     <main className="container py-5">
-      <div className="card border-warning shadow-sm mx-auto" style={{ maxWidth: 640 }}>
+      <div className="card border-warning content-card-sm mx-auto">
         <div className="card-body p-5 text-center">
           <span className="badge text-bg-warning mb-3">403 Forbidden</span>
           <h1 className="h3">Access denied</h1>
