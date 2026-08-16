@@ -1,0 +1,29 @@
+.public-navbar {
+  min-height: 78px;
+  background: rgba(255,255,255,.96);
+  border-bottom: 1px solid var(--vsc-gray-200);
+  box-shadow: 0 4px 20px rgba(6,19,38,.05);
+  backdrop-filter: blur(12px);
+}
+
+.public-navbar .nav-link { position: relative; color: var(--vsc-gray-700); padding: .65rem .8rem !important; font-weight: 650; }
+.public-navbar .nav-link:hover, .public-navbar .nav-link.active { color: var(--vsc-blue-700); }
+.public-navbar .nav-link.active::after { content: ""; position: absolute; right: .8rem; bottom: .35rem; left: .8rem; height: 2px; background: var(--vsc-orange-500); border-radius: 2px; }
+.public-navbar .navbar-toggler { border: 0; padding: .45rem; }
+
+.app-navbar {
+  min-height: 76px;
+  padding: .85rem 2rem;
+  background: rgba(255,255,255,.97);
+  border-bottom: 1px solid var(--vsc-gray-200);
+  box-shadow: var(--vsc-shadow-sm);
+  backdrop-filter: blur(12px);
+  z-index: 1010;
+}
+
+.welcome-copy { line-height: 1.2; }
+.welcome-copy span, .welcome-copy strong { display: block; }
+.welcome-label { margin-bottom: .15rem; color: var(--vsc-gray-500); font-size: .75rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.welcome-copy strong { color: var(--vsc-navy-900); }
+.role-badge { color: var(--vsc-blue-700); background: rgba(8,116,237,.09); }
+.mobile-menu-button { display: grid; place-items: center; min-width: 40px; padding: 0; color: var(--vsc-navy-900); background: var(--vsc-gray-100); font-size: 1.35rem; }
