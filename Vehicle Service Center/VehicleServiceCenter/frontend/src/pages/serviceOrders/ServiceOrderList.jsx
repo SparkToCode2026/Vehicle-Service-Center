@@ -212,10 +212,9 @@ function ServiceOrderList() {
           <>
             <input
               className="form-control"
-              style={{ maxWidth: 220 }}
+              aria-label="Mechanic profile ID"
               type="number"
               min="1"
-              aria-label="Mechanic profile ID"
               placeholder="Mechanic profile ID"
               value={mechanicProfileId}
               onChange={(event) => setMechanicProfileId(event.target.value)}
